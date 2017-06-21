@@ -6,14 +6,14 @@ Lazycat use it to play bili and panda with dynamic subtitles danmu(弹幕).
 
 javascript API Sample:
 
-    let video = new MMMediaItem('video', video_url);
+    let video = new DMMediaItem('video', video_url);
     video.url = video_url;
     video.artworkImageURL = data.img;
     video.title = data.MovieName;
     video.description = data.description;
-    let videoList = new MMPlaylist();
+    let videoList = new DMPlaylist();
     videoList.push(video);
-    let myPlayer = new MMPlayer();
+    let myPlayer = new DMPlayer();
     myPlayer.playlist = videoList;
     myPlayer.addEventListener('timeBoundaryDidCross', (listener, extraInfo) => {
         console.log("bound: " + listener.boundary);

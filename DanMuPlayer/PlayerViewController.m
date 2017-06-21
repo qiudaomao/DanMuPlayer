@@ -10,6 +10,7 @@
 #import <SGPlayer/SGPlayer.h>
 #import "StrokeUILabel.h"
 #import "SiriRemoteGestureRecognizer.h"
+#define OFFLINE_TEST true
 
 @implementation MMVideoSegment
 @synthesize url;
@@ -34,8 +35,10 @@
 @implementation MMVideoSources
 @synthesize segments = _segments;
 @synthesize duration = _duration;
+@synthesize current = _current;
 -(id)init {
     self = [super init];
+    _current = 0;
     _segments = [NSMutableArray array];
     return self;
 }
@@ -59,6 +62,25 @@
     }
     _duration = duration;
 }
+-(NSInteger)findIndexByTime:(CGFloat)duration {
+    NSInteger idx=0;
+    CGFloat d = 0.0;
+    for (int i=0; i<[self count]; i++) {
+        d += [_segments objectAtIndex:i].duration;
+        if (d>duration) {
+            idx=i;
+            break;
+        }
+    }
+    return idx;
+}
+-(CGFloat)getOffsetByIdx:(NSInteger)idx {
+    CGFloat d = 0.0;
+    for (int i=0; i<idx; i++) {
+        d+=[_segments objectAtIndex:i].duration;
+    }
+    return d;
+}
 +(MMVideoSources*)sourceFromURL:(NSString*)url {
     MMVideoSources *source = [[MMVideoSources alloc] init];
     if (url.length>=6 && [[url substringWithRange:NSMakeRange(0, 6)] isEqualToString:@"edl://"]) {
@@ -68,6 +90,8 @@
             NSArray<NSString*> *infos = [item componentsSeparatedByString:@"%"];
             if ([infos count]==3) {
                 NSLog(@"duration %@ url %@", [infos objectAtIndex:1], [infos objectAtIndex:2]);
+                [source addSegmentWithURL:[infos objectAtIndex:2]
+                                 duration:[[infos objectAtIndex:1] floatValue]];
             } else {
                 NSLog(@"error parse for %@", item);
             }
@@ -189,9 +213,18 @@
   withResumeTime: (CGFloat)resumeTime {
     NSLog(@"playVideo %@ resumeTime %.2f", url, resumeTime);
     videoSource = [MMVideoSources sourceFromURL:url];
+    videoSource.url = url;
+    videoSource.title = title;
+    videoSource.img = img;
+    videoSource.desc = desc;
+    videoSource.options = [options copy];
     [videoSource dump];
     _title.text = title;
-    if (false) {
+    NSInteger idx = [videoSource findIndexByTime:resumeTime];
+    videoSource.current = idx;
+    NSString *url_ = [videoSource.segments objectAtIndex:idx].url;
+    NSLog(@"playVideo %@ resumeTime %.2f current idx: %ld/%ld full duration %.2f", url_, resumeTime, idx, [videoSource count],videoSource.duration);
+    if (OFFLINE_TEST) {
         static NSURL * normalVideo = nil;
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
@@ -200,7 +233,7 @@
         [self.player replaceVideoWithURL:normalVideo options: options mp4: mp4];
     } else {
         _resumeTime = resumeTime;
-        NSURL *video = [NSURL URLWithString:url];
+        NSURL *video = [NSURL URLWithString:url_];
         if (mp4) {
             [self.player replaceVideoWithURL:video options:options mp4:mp4];
         } else {
@@ -220,37 +253,41 @@
 
 - (void)updatePointTime: (CGFloat)time
 {
+    CGFloat offset = 0;
+    CGFloat duration = self.player.duration;
+    if ([videoSource count]>1) {
+        offset = [videoSource getOffsetByIdx:videoSource.current];
+        duration=videoSource.duration;
+    }
     //NSLog(@"time %f", time);
-    {
-        if (pointImageView && self.player.duration !=0) {
-            CGFloat x = indicatorStartPoint.x + _progress.frame.size.width * (time/self.player.duration);
-            CGRect frame = pointImageView.frame;
-            CGRect pauseframe = pauseImageView.frame;
-            CGRect pauseTimeFrame = pauseTimeLabel.frame;
-            frame.origin.x = x;
-            pauseframe.origin.x = x;
-            pauseTimeFrame.origin.x = x-78;
-            pointImageView.frame = frame;
-            pauseImageView.frame = pauseframe;
-            pauseTimeLabel.frame = pauseTimeFrame;
-            _pointTime.text = [self timeToStr:time];
-            if (x > (80+48) && x < (80+_progress.frame.size.width-50)) {
-                _pointTime.hidden = NO;
-                _currentTime.hidden = YES;
-                CGRect pointTimeFrame = _pointTime.frame;
-                pointTimeFrame.origin.x = x-77;
-                _pointTime.frame = pointTimeFrame;
-                //pointImageView.frame = frame;
-            }
-            if (x < (80+48)) {
-                _currentTime.hidden = NO;
-                _pointTime.hidden = YES;
-            }
-            if (x > _progress.frame.size.width+80-180) {
-                _leftTime.hidden = YES;
-            } else {
-                _leftTime.hidden = NO;
-            }
+    if (pointImageView && self.player.duration !=0) {
+        CGFloat x = indicatorStartPoint.x + _progress.frame.size.width * ((offset+time)/duration);
+        CGRect frame = pointImageView.frame;
+        CGRect pauseframe = pauseImageView.frame;
+        CGRect pauseTimeFrame = pauseTimeLabel.frame;
+        frame.origin.x = x;
+        pauseframe.origin.x = x;
+        pauseTimeFrame.origin.x = x-78;
+        pointImageView.frame = frame;
+        pauseImageView.frame = pauseframe;
+        pauseTimeLabel.frame = pauseTimeFrame;
+        _pointTime.text = [self timeToStr:time];
+        if (x > (80+48) && x < (80+_progress.frame.size.width-50)) {
+            _pointTime.hidden = NO;
+            _currentTime.hidden = YES;
+            CGRect pointTimeFrame = _pointTime.frame;
+            pointTimeFrame.origin.x = x-77;
+            _pointTime.frame = pointTimeFrame;
+            //pointImageView.frame = frame;
+        }
+        if (x < (80+48)) {
+            _currentTime.hidden = NO;
+            _pointTime.hidden = YES;
+        }
+        if (x > _progress.frame.size.width+80-180) {
+            _leftTime.hidden = YES;
+        } else {
+            _leftTime.hidden = NO;
         }
     }
 }
@@ -373,13 +410,13 @@
     menuRecognizer.allowedPressTypes = @[@(UIPressTypeMenu)];
     [self.view addGestureRecognizer:menuRecognizer];
     
-    //leftArrowRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapLeftArrow:)];
-    //leftArrowRecognizer.allowedPressTypes = @[@(UIPressTypeLeftArrow)];
-    //[self.view addGestureRecognizer:leftArrowRecognizer];
+    leftArrowRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapLeftArrow:)];
+    leftArrowRecognizer.allowedPressTypes = @[@(UIPressTypeLeftArrow)];
+    [self.view addGestureRecognizer:leftArrowRecognizer];
     
-    //rightArrowRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapRightArrow:)];
-    //rightArrowRecognizer.allowedPressTypes = @[@(UIPressTypeRightArrow)];
-    //[self.view addGestureRecognizer:rightArrowRecognizer];
+    rightArrowRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapRightArrow:)];
+    rightArrowRecognizer.allowedPressTypes = @[@(UIPressTypeRightArrow)];
+    [self.view addGestureRecognizer:rightArrowRecognizer];
     
     upArrowRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapUpArrow:)];
     upArrowRecognizer.allowedPressTypes = @[@(UIPressTypeUpArrow)];
@@ -669,7 +706,14 @@
 {
     SGProgress * progress = [SGProgress progressFromUserInfo:notification.userInfo];
     //NSLog(@"progress: %f %f %f", progress.current, self.player.playableTime, self.player.playableBufferInterval);
-    if (fabs(self.player.duration)<0.001 && progress.current > 0.001) {
+    CGFloat offset = 0;
+    CGFloat duration = self.player.duration;
+    if ([videoSource count]>1) {
+        offset = [videoSource getOffsetByIdx:videoSource.current];
+        duration=videoSource.duration;
+    }
+    CGFloat current = offset+progress.current;
+    if (fabs(duration)<0.001 && current > 0.001) {
         NSDate *date = [NSDate date];
         NSCalendar *calendar = [NSCalendar currentCalendar];
         NSDateComponents *components = [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
@@ -682,9 +726,9 @@
         _pointTime.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
         _leftTime.text = [NSString stringWithFormat:@"%02ld:%02d", (minute>30)?hour+1:hour, (minute>30)?0:30];
     } else {
-        _currentTime.text = [self timeToStr:progress.current];
-        _pointTime.text = [self timeToStr:progress.current];
-        _leftTime.text = [self timeToStr: (self.player.duration-progress.current)];
+        _currentTime.text = [self timeToStr:current];
+        _pointTime.text = [self timeToStr:current];
+        _leftTime.text = [self timeToStr: (duration-current)];
     }
     [self.delegate timeDidChanged:progress.current];
 }
@@ -742,7 +786,15 @@
 - (void)playableAction:(NSNotification *)notification
 {
     SGPlayable * playable = [SGPlayable playableFromUserInfo:notification.userInfo];
-    [_progress setProgress:playable.percent];
+    CGFloat offset = 0.0f;
+    CGFloat duration = _player.duration;
+    if (videoSource.segments.count>1) {
+        offset = [videoSource getOffsetByIdx:videoSource.current];
+        duration = videoSource.duration;
+    }
+    CGFloat current = offset + playable.current;
+    //[_progress setProgress:playable.percent];
+    [_progress setProgress: current/duration];
     //NSLog(@"playable time : %f", playable.current);
 }
 
@@ -846,9 +898,35 @@
             [self setHidenHud:NO withDelay:YES];
             _isPlaying = NO;
             self.playerState = PS_FINISH;
-            [self notificationState:PS_FINISH];
-            [self stopUpdateProgress];
-            [self stop];
+            if (videoSource.current == [videoSource count]-1) {
+                [self notificationState:PS_FINISH];
+                [self stopUpdateProgress];
+                [self stop];
+            } else {//change to next segment
+                videoSource.current+=1;
+                NSInteger idx = videoSource.current;
+                NSString *url_ = [videoSource.segments objectAtIndex:idx].url;
+                CGFloat resumeTime = 0.0f;
+                NSMutableDictionary *options = videoSource.options;
+                BOOL mp4 = videoSource.mp4;
+                NSLog(@"playVideo %@ resumeTime %.2f current idx: %ld/%ld full duration %.2f", url_, resumeTime, idx, [videoSource count],videoSource.duration);
+                if (OFFLINE_TEST) {
+                    static NSURL * normalVideo = nil;
+                    static dispatch_once_t onceToken;
+                    dispatch_once(&onceToken, ^{
+                        normalVideo = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"i-see-fire" ofType:@"mp4"]];
+                    });
+                    [self.player replaceVideoWithURL:normalVideo options: options mp4: mp4];
+                } else {
+                    _resumeTime = resumeTime;
+                    NSURL *video = [NSURL URLWithString:url_];
+                    if (mp4) {
+                        [self.player replaceVideoWithURL:video options:options mp4:mp4];
+                    } else {
+                        [self.player replaceVideoWithURL:video options: options mp4:mp4];
+                    }
+                }
+            }
             break;
         case SGPlayerStateFailed:
             text = @"Error";

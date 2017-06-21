@@ -51,3 +51,9 @@ Integreting and Build Step:
     }
 
     #then call the player from javascript
+
+Demo:
+
+![a.jpg](https://ooo.0o0.ooo/2017/06/21/594a290031bd9.jpg)
+
+![b.jpg](https://ooo.0o0.ooo/2017/06/21/594a290031127.jpg)

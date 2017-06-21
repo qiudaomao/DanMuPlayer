@@ -148,11 +148,12 @@ withStrokeColor:(UIColor*)bgcolor
         }
         if (!added) {
             //NSLog(@"not able to find a line");
-            [[dandao objectAtIndex:0] addObject:label];
-            frame.origin.y = 0;
+            //[[dandao objectAtIndex:0] addObject:label];
+            //frame.origin.y = 0;
+        } else {
+            label.frame = frame;
+            [self addSubview:label];
         }
-        label.frame = frame;
-        [self addSubview:label];
     }
 }
 

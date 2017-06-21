@@ -34,6 +34,12 @@
 @implementation MMVideoSources
 @synthesize segments = _segments;
 @synthesize duration = _duration;
+-(id)init {
+    self = [super init];
+    _segments = [NSMutableArray array];
+    return self;
+}
+
 -(NSInteger)count {
     return [_segments count];
 }

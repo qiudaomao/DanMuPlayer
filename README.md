@@ -1,4 +1,4 @@
-# A ffmpeg player for tvOS TVML support DanMu based on SGPlayer
+# A ffmpeg based player for tvOS TVML support DanMu
 
 A front-end HUD similiar to built-in Player.
 

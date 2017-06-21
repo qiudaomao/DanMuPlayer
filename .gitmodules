@@ -1,0 +1,3 @@
+[submodule "SGPlayer"]
+	path = SGPlayer
+	url = https://github.com/fuzhuo/SGPlayer.git

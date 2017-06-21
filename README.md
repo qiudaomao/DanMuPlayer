@@ -1,10 +1,12 @@
 # A ffmpeg player for tvOS TVML support DanMu based on SGPlayer
 
-With a Javascript API which is Similar to TVML built-in Player.
+A front-end HUD similiar to built-in Player.
 
-Lazycat use it to play bili and panda with dynamic subtitles danmu(弹幕).
+Javascript API Similar to TVML built-in Player.
 
-javascript API Sample:
+My project Lazycat use DanMuPlayer to play bili and panda video and live stream with dynamic subtitles (danmu弹幕).
+
+JavaScript API Sample:
 
     let video = new DMMediaItem('video', video_url);
     video.url = video_url;
@@ -24,11 +26,13 @@ javascript API Sample:
     myPlayer.addEventListener('stateDidChange', function(listener, extraInfo) {
         console.log("state: " + listener.state);
     },{});
+    myPlayer.addDanMu(msg="This is a test", color=0xFF0000, fontSize=25, style=0);
+    //style 0:normal 1:top 2:bottom
     myPlayer.play()
 
-Still under developping...
+New feature developping and bug fix ongoing...
 
-Build:
+Integreting and Build Step:
 
 + git submodule add https://github.com/fuzhuo/DanMuPlayer.git DanMuPlayer
 
@@ -36,4 +40,14 @@ Build:
 
 + cd SGPlayer && sh compile-build.sh tvOS
 
-+ import DanMuPlayer.xcodeproject to your project
++ drag DanMuPlayer.xcodeproject to your project
+
++ Add below line to tvos swift project to finish basic setup
+
+    #import <DanMuPlayer.h>//add this line to objc-swift bridge file YourProjectName-Bridging-Header.h
+
+    func appController(_ appController: TVApplicationController, evaluateAppJavaScriptIn jsContext: JSContext) {
+        *DMPlayer.setup(jsContext, controller: appController.navigationController)*
+    }
+
+    #then call the player from javascript

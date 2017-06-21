@@ -4,7 +4,9 @@ A front-end HUD similiar to built-in Player.
 
 Javascript API Similar to TVML built-in Player.
 
-My project Lazycat use DanMuPlayer to play bili and panda video and live stream with dynamic subtitles (danmu弹幕).
+Back-end based on a [modified](https://github.com/fuzhuo/SGPlayer) [SGPlayer](https://github.com/libobjc/SGPlayer)
+
+My project [LazyCat](https://github.com/fuzhuo/Lazycat) use DanMuPlayer to play bili and panda video and live stream with dynamic subtitles (danmu弹幕).
 
 JavaScript API Sample:
 
@@ -52,7 +54,7 @@ Integreting and Build Step:
 
     #then call the player from javascript
 
-Demo:
+Demo from [LazyCat](https://github.com/fuzhuo/Lazycat):
 
 ![a.jpg](https://ooo.0o0.ooo/2017/06/21/594a290031bd9.jpg)
 

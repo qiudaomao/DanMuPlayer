@@ -15,4 +15,4 @@ FOUNDATION_EXPORT double DanMuPlayerVersionNumber;
 FOUNDATION_EXPORT const unsigned char DanMuPlayerVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <DanMuPlayer/PublicHeader.h>
-#import "DMPLayer.h"
+#import "DMPlayer.h"

@@ -42,6 +42,9 @@
 @synthesize artworkImageURL;
 @synthesize mp4;
 +(void)setup:(JSContext*)context {
+    context[@"MMMediaItem"] = ^DMMediaItem*{
+        return [[DMMediaItem alloc] init];
+    };
     context[@"DMMediaItem"] = ^DMMediaItem*{
         return [[DMMediaItem alloc] init];
     };
@@ -77,6 +80,9 @@
 }
 
 +(void)setup:(JSContext*)context {
+    context[@"MMPlaylist"] = ^DMPlaylist*{
+        return [[DMPlaylist alloc] init];
+    };
     context[@"DMPlaylist"] = ^DMPlaylist*{
         return [[DMPlaylist alloc] init];
     };

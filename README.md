@@ -32,19 +32,19 @@ JavaScript API Sample:
     //style 0:normal 1:top 2:bottom
     myPlayer.play()
 
-New feature developping and bug fix ongoing...
+New feature and bug fix still ongoing...
 
 Integreting and Build Step:
 
-+ git submodule add https://github.com/fuzhuo/DanMuPlayer.git DanMuPlayer
+    1. git submodule add https://github.com/fuzhuo/DanMuPlayer.git DanMuPlayer
 
-+ cd DanMuPlayer && git submodule update --init --recursive
+    2. cd DanMuPlayer && git submodule update --init --recursive
 
-+ cd SGPlayer && sh compile-build.sh tvOS
+    3. cd SGPlayer && sh compile-build.sh tvOS
 
-+ drag DanMuPlayer.xcodeproject to your project
+    4. drag DanMuPlayer.xcodeproject to your project
 
-+ Add below line to tvos swift project to finish basic setup
+    5. Add below line to tvos swift project to finish basic setup
 
     #import <DanMuPlayer.h>//add this line to objc-swift bridge file YourProjectName-Bridging-Header.h
 
@@ -52,7 +52,7 @@ Integreting and Build Step:
         *DMPlayer.setup(jsContext, controller: appController.navigationController)*
     }
 
-    #then call the player from javascript
+    #finally call the player from javascript
 
 Demo from [LazyCat](https://github.com/fuzhuo/Lazycat):
 

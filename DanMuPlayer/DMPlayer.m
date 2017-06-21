@@ -42,6 +42,11 @@
         player.controller = controller;
         return player;
     };
+    context[@"MMPlayer"] = ^DMPlayer*{
+        DMPlayer *player = [[DMPlayer alloc] init];
+        player.controller = controller;
+        return player;
+    };
     [DMPlaylist setup: context];
     [DMMediaItem setup: context];
 }

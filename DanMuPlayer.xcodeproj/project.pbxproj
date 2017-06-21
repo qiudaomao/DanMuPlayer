@@ -461,6 +461,7 @@
 				E90F0A061EFA3CF800BC3EAD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

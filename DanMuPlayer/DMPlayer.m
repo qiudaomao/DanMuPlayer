@@ -42,6 +42,8 @@
         player.controller = controller;
         return player;
     };
+    [DMPlaylist setup: context];
+    [DMMediaItem setup: context];
 }
 -(id)init
 {

@@ -166,7 +166,8 @@
     }
 }
 
--(void)timeDidChanged:(CGFloat)time {
+-(void)timeDidChanged:(CGFloat)time duration:(CGFloat)duration {
+    //NSLog(@"timeDidChanged %.2f %.2f", time, duration);
     for (DMPlayerEvent *e in self.events) {
         if (e.eventType == EVENT_TYPE_TIME_DID_CHANGE) {
             JSValue *callback = e.callback;
@@ -175,12 +176,12 @@
                 int iVal = 1;
                 if (interval) iVal = [interval intValue];
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-                [dict setValue:[NSNumber numberWithFloat:player.player.duration] forKey:@"duration"];
+                [dict setValue:[NSNumber numberWithFloat:duration] forKey:@"duration"];
                 [dict setValue:[NSNumber numberWithFloat:time] forKey:@"time"];
                 [dict setValue:@"timeDidChange" forKey:@"type"];
                 //[callback callWithArguments:@[dict]];
                 [[callback.context objectForKeyedSubscript:@"setTimeout"] callWithArguments: @[callback, @0, dict]];
-                currentMediaItemDuration = player.player.duration;
+                currentMediaItemDuration = duration;
             } else {
                 NSLog(@"Error callback is null");
             }

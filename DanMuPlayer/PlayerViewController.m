@@ -10,7 +10,8 @@
 #import <SGPlayer/SGPlayer.h>
 #import "StrokeUILabel.h"
 #import "SiriRemoteGestureRecognizer.h"
-#define OFFLINE_TEST true
+//#define OFFLINE_TEST true
+#define OFFLINE_TEST false
 
 @implementation MMVideoSegment
 @synthesize url;
@@ -124,6 +125,7 @@
     StrokeUILabel *_leftTime;
     StrokeUILabel *_statLabel;
     StrokeUILabel *_timeLabel;
+    StrokeUILabel *_presentSizeLabel;
     UITapGestureRecognizer *playPauseRecognizer;
     UITapGestureRecognizer *menuRecognizer;
     UITapGestureRecognizer *leftArrowRecognizer;
@@ -149,9 +151,12 @@
     BOOL _hudInHidenProgress;
     CGFloat _resumeTime;
     NSTimer *_hideDelayTimer;
+    NSTimer *_BufferingWatchDog;
     StrokeUILabel *subTitle;
     MMVideoSources *videoSource;
     DanMuLayer *danmu;
+    BOOL siriRemoteTouched;
+    BOOL needResumeDialog;
 }
 
 @property (nonatomic, readwrite, assign) PlayerState playerState;
@@ -178,7 +183,43 @@
 }
 
 -(void)seekToTime:(CGFloat)time {
-    [_player seekToTime:time];
+    NSInteger targetIdx = [videoSource findIndexByTime:time];
+    CGFloat offset = [videoSource getOffsetByIdx:targetIdx];
+    CGFloat targetTime = time-offset;
+    NSLog(@"seek to time current %ld segmentIdx %ld time %.2f targetTime %.2f",
+          videoSource.current, targetIdx, time, targetTime);
+    if (videoSource.current == targetIdx) {
+        //[_player seekToTime:targetTime];
+        NSLog(@"seek to progress %ld %f", targetIdx, targetTime);
+        [self updatePointTime:targetTime];
+        [self.player seekToTime:targetTime completeHandler:^(BOOL finished) {
+            self.targetProgress = -1;
+            [self.player play];
+        }];
+    } else {
+        needResumeDialog = NO;
+        _resumeTime = targetTime;
+        NSString *url_ = [videoSource.segments objectAtIndex:targetIdx].url;
+        BOOL mp4 = videoSource.mp4;
+        NSMutableDictionary *options = videoSource.options;
+        [self.player pause];
+        videoSource.current = targetIdx;
+        if (OFFLINE_TEST) {
+            static NSURL * normalVideo = nil;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                normalVideo = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"i-see-fire" ofType:@"mp4"]];
+            });
+            [self.player replaceVideoWithURL:normalVideo options: options mp4: mp4];
+        } else {
+            NSURL *video = [NSURL URLWithString:url_];
+            if (mp4) {
+                [self.player replaceVideoWithURL:video options:options mp4:mp4];
+            } else {
+                [self.player replaceVideoWithURL:video options: options mp4:mp4];
+            }
+        }
+    }
 }
 
 - (void)viewDidLoad {
@@ -221,18 +262,24 @@
     [videoSource dump];
     _title.text = title;
     NSInteger idx = [videoSource findIndexByTime:resumeTime];
+    CGFloat offset = [videoSource getOffsetByIdx:idx];
+    CGFloat targetTime = resumeTime-offset;
     videoSource.current = idx;
     NSString *url_ = [videoSource.segments objectAtIndex:idx].url;
     NSLog(@"playVideo %@ resumeTime %.2f current idx: %ld/%ld full duration %.2f", url_, resumeTime, idx, [videoSource count],videoSource.duration);
+    if (resumeTime>0.0f) {
+        needResumeDialog = YES;
+    }
     if (OFFLINE_TEST) {
         static NSURL * normalVideo = nil;
         static dispatch_once_t onceToken;
+        _resumeTime = targetTime;
         dispatch_once(&onceToken, ^{
             normalVideo = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"i-see-fire" ofType:@"mp4"]];
         });
         [self.player replaceVideoWithURL:normalVideo options: options mp4: mp4];
     } else {
-        _resumeTime = resumeTime;
+        _resumeTime = targetTime;
         NSURL *video = [NSURL URLWithString:url_];
         if (mp4) {
             [self.player replaceVideoWithURL:video options:options mp4:mp4];
@@ -240,14 +287,36 @@
             [self.player replaceVideoWithURL:video options: options mp4:mp4];
         }
     }
+    if (videoSource.segments.count > 1) {//seperators
+        for (int i=0; i<videoSource.segments.count-1; i++) {
+            UIImageView *seperatorImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"seperator.png"]];
+            CGFloat offset = [videoSource getOffsetByIdx:i];
+            CGFloat duration = [videoSource.segments objectAtIndex:i].duration;
+            CGFloat x = indicatorStartPoint.x + _progress.frame.size.width * (offset+duration)/videoSource.duration;
+            seperatorImageView.frame = CGRectMake(x, 110, 2, 10);
+            NSLog(@"x=%.2f", x);
+            [hudLayer addSubview:seperatorImageView];
+        }
+    }
+    _BufferingWatchDog = [NSTimer scheduledTimerWithTimeInterval:8.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+        if (self.player.state == SGPlayerStateBuffering) {
+            NSLog(@"Error buffering timeout");
+        } else {
+            NSLog(@"play OK");
+        }
+    }];
 }
 
 - (void)updateProgress
 {
+    CGFloat progress = self.player.progress;
+    if ([videoSource count]>1) {
+        progress += [videoSource getOffsetByIdx:videoSource.current];
+    }
     [self updatePointTime:self.player.progress];
     [danmu updateFrame];
     if (self.delegate) {
-        [self.delegate timeDidChangedHD:self.player.progress];
+        [self.delegate timeDidChangedHD:progress];
     }
 }
 
@@ -259,7 +328,7 @@
         offset = [videoSource getOffsetByIdx:videoSource.current];
         duration=videoSource.duration;
     }
-    //NSLog(@"time %f", time);
+    //NSLog(@"time %.2f %.2f %.2f", offset, time, (offset+time));
     if (pointImageView && self.player.duration !=0) {
         CGFloat x = indicatorStartPoint.x + _progress.frame.size.width * ((offset+time)/duration);
         CGRect frame = pointImageView.frame;
@@ -271,7 +340,7 @@
         pointImageView.frame = frame;
         pauseImageView.frame = pauseframe;
         pauseTimeLabel.frame = pauseTimeFrame;
-        _pointTime.text = [self timeToStr:time];
+        _pointTime.text = [self timeToStr:(offset+time)];
         if (x > (80+48) && x < (80+_progress.frame.size.width-50)) {
             _pointTime.hidden = NO;
             _currentTime.hidden = YES;
@@ -303,6 +372,7 @@
 - (void)initHud
 {
     NSLog(@"initHud");
+    [self setupRecognizers];
     CGSize size = [self.view bounds].size;
     
     danmu = [[DanMuLayer alloc] initWithFrame:self.view.bounds];
@@ -329,14 +399,21 @@
     [loadingIndicator setHidden:NO];
     [loadingIndicator startAnimating];
     
-    _timeLabel = [[StrokeUILabel alloc] initWithFrame:CGRectMake(size.width-300, 80, 200, 40)];
+    _timeLabel = [[StrokeUILabel alloc] initWithFrame:CGRectMake(size.width-280, 60, 200, 60)];
     _timeLabel.text = @"";
+    _timeLabel.textAlignment = NSTextAlignmentRight;
     _timeLabel.font = [UIFont fontWithName:@"Menlo" size:50];
     _timeLabel.textColor = [UIColor whiteColor];
+    
+    _presentSizeLabel = [[StrokeUILabel alloc] initWithFrame:CGRectMake(80, 60, 300, 60)];
+    _presentSizeLabel.text = @"";
+    _presentSizeLabel.font = [UIFont fontWithName:@"Menlo" size:50];
+    _presentSizeLabel.textColor = [UIColor whiteColor];
     
     [self.view addSubview:hudLayer];
     [self.view addSubview:loadingIndicator];
     [self.view addSubview:_timeLabel];
+    [self.view addSubview:_presentSizeLabel];
     
     _progress = [[UIProgressView alloc] init];
     _progress.frame = CGRectMake(80, 110, size.width-160, 10);
@@ -395,8 +472,6 @@
     pauseTimeLabel.textAlignment = NSTextAlignmentCenter;
     [hudLayer addSubview:pauseTimeLabel];
     pauseTimeLabel.hidden = YES;
-    
-    [self setupRecognizers];
     
     _isPlaying = NO;
 }
@@ -458,12 +533,15 @@
         _pointTime.textColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
     } else {
         if (self.targetProgress != -1) {
+            [self seekToTime:self.targetProgress];
+            /*
             NSLog(@"seek to progress %f", self.targetProgress);
             [self updatePointTime:self.targetProgress];
             [self.player seekToTime:self.targetProgress completeHandler:^(BOOL finished) {
                 self.targetProgress = -1;
                 [self.player play];
             }];
+             */
         } else {
             [self.player play];
         }
@@ -476,8 +554,9 @@
 }
 
 - (void)tapMenu:(UITapGestureRecognizer*)sender {
-    if (_hudInHidenProgress) return;
     NSLog(@"taped Menu key");
+    if (_hudInHidenProgress) return;
+    NSLog(@"accept taped Menu key");
     if (self.playerState == PS_PAUSED) {
         _isPlaying=!_isPlaying;
         pauseTimeLabel.hidden = YES;
@@ -492,9 +571,18 @@
 }
 
 - (void)tapLeftArrow:(UITapGestureRecognizer*)sender {
+    if (siriRemoteTouched) return;
+    [self handleLeftArrow];
+}
+
+- (void)handleLeftArrow {
     if (_hudInHidenProgress) return;
     NSLog(@"taped leftArrow");
     if (self.playerState == PS_PLAYING) {
+        CGFloat currentProgress = [videoSource getOffsetByIdx:videoSource.current]+self.player.progress;
+        CGFloat targetProgress_ = (currentProgress-5.0f)>0.0f?(currentProgress-5.0f):0.0f;
+        [self seekToTime:targetProgress_];
+        /*
         CGFloat progress = self.player.progress - 5.0f;
         CGFloat target = progress>=0 ? progress: 0;
         NSLog(@"seek to time %f", progress);
@@ -504,6 +592,7 @@
                 [self.player play];
             }];
         }
+         */
     } else if (self.playerState == PS_PAUSED) {
         oriPauseImageRect = pauseImageView.frame;
         oriPauseTimeRect = pauseTimeLabel.frame;
@@ -515,7 +604,9 @@
         }
         oriPauseTimeRect.origin.x = oriPauseImageRect.origin.x - 78;
         
-        CGFloat targetTime = self.player.duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
+        CGFloat duration = self.player.duration;
+        if (videoSource.count>1) duration = videoSource.duration;
+        CGFloat targetTime = duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
         self.targetProgress = targetTime;
         pauseTimeLabel.text = [self timeToStr:targetTime];
         pauseImageView.frame = oriPauseImageRect;
@@ -524,9 +615,19 @@
 }
 
 - (void)tapRightArrow:(UITapGestureRecognizer*)sender {
+    if (siriRemoteTouched) return;
+    [self handleRightArrow];
+}
+- (void)handleRightArrow {
     if (_hudInHidenProgress) return;
     NSLog(@"taped rightArrow");
     if (self.playerState == PS_PLAYING) {
+        CGFloat currentProgress = [videoSource getOffsetByIdx:videoSource.current]+self.player.progress;
+        CGFloat duration = self.player.duration;
+        if (videoSource.count>1) duration = videoSource.duration;
+        CGFloat targetProgress_ = (currentProgress+5.0f)>duration?duration:(currentProgress+5.0f);
+        [self seekToTime:targetProgress_];
+        /*
         CGFloat progress = self.player.progress + 5.0f;
         CGFloat duration = self.player.duration;
         CGFloat target = progress>duration ? duration: progress;
@@ -537,6 +638,7 @@
                 [self.player play];
             }];
         }
+         */
     } else if (self.playerState == PS_PAUSED) {
         oriPauseImageRect = pauseImageView.frame;
         oriPauseTimeRect = pauseTimeLabel.frame;
@@ -548,7 +650,9 @@
         }
         oriPauseTimeRect.origin.x = oriPauseImageRect.origin.x - 78;
         
-        CGFloat targetTime = self.player.duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
+        CGFloat duration = self.player.duration;
+        if (videoSource.count>1) duration = videoSource.duration;
+        CGFloat targetTime = duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
         self.targetProgress = targetTime;
         pauseTimeLabel.text = [self timeToStr:targetTime];
         pauseImageView.frame = oriPauseImageRect;
@@ -573,17 +677,25 @@
     if (sender.state == UIGestureRecognizerStateEnded && sender.isClick) {
         //NSLog(@"taped siriRemote, location %@", sender.touchLocationName);
         NSLog(@"taped click action");
-        if (sender.touchLocation == MMSiriRemoteTouchLocationCenter) {
+        siriRemoteTouched = NO;
+        if (sender.touchLocation == MMSiriRemoteTouchLocationCenter
+            || sender.touchLocation == MMSiriRemoteTouchLocationUp
+            || sender.touchLocation == MMSiriRemoteTouchLocationDown) {
             [self tapSelect];
         } else if (sender.touchLocation == MMSiriRemoteTouchLocationLeft) {
-            [self tapLeftArrow:nil];
+            [self handleLeftArrow];
         } else if (sender.touchLocation == MMSiriRemoteTouchLocationRight) {
-            [self tapRightArrow:nil];
+            [self handleRightArrow];
         }
     } else if ((sender.state == UIGestureRecognizerStateEnded
                 || sender.state == UIGestureRecognizerStateCancelled)
                && !sender.isClick) {
         NSLog(@"taped not click action");
+        siriRemoteTouched=YES;
+        if (self.playerState == PS_PAUSED) {
+            //here to avoid hide during swipe to adjust seek time
+            return;
+        }
         if (self.isHudHidden) {
             [self setHidenHud:NO withDelay:NO];
             [self setHidenHud:YES withDelay:YES];
@@ -598,11 +710,14 @@
     if (self.playerState == PS_PAUSED) {
         if (self.targetProgress != -1) {
             NSLog(@"seek to progress %f", self.targetProgress);
+            [self seekToTime:self.targetProgress];
+            /*
             [self updatePointTime:self.targetProgress];
             [self.player seekToTime:self.targetProgress completeHandler:^(BOOL finished) {
                 self.targetProgress = -1;
                 [self.player play];
             }];
+             */
         } else {
             [self.player play];
         }
@@ -680,7 +795,9 @@
         }
         oriPauseTimeRect.origin.x = oriPauseImageRect.origin.x - 78;
         
-        CGFloat targetTime = self.player.duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
+        CGFloat duration = self.player.duration;
+        if (videoSource.count>1) duration = videoSource.duration;
+        CGFloat targetTime = duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
         self.targetProgress = targetTime;
         pauseTimeLabel.text = [self timeToStr:targetTime];
         pauseImageView.frame = oriPauseImageRect;
@@ -702,6 +819,16 @@
     }
 }
 
+- (void)updateTimeClock {
+    NSDate *date = [NSDate date];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *components = [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
+    //NSInteger seconds = [components second];
+    NSInteger hour = [components hour];
+    NSInteger minute = [components minute];
+    _timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
+    //NSLog(@"update Time: %@", _timeLabel.text);
+}
 - (void)progressAction:(NSNotification *)notification
 {
     SGProgress * progress = [SGProgress progressFromUserInfo:notification.userInfo];
@@ -713,15 +840,14 @@
         duration=videoSource.duration;
     }
     CGFloat current = offset+progress.current;
+    [self updateTimeClock];
     if (fabs(duration)<0.001 && current > 0.001) {
         NSDate *date = [NSDate date];
         NSCalendar *calendar = [NSCalendar currentCalendar];
         NSDateComponents *components = [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
+        //NSInteger seconds = [components second];
         NSInteger hour = [components hour];
         NSInteger minute = [components minute];
-        //NSInteger seconds = [components second];
-        _timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
-        
         _currentTime.text = [NSString stringWithFormat:@"%02ld:%02d", hour, (minute>30)?30:0];
         _pointTime.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
         _leftTime.text = [NSString stringWithFormat:@"%02ld:%02d", (minute>30)?hour+1:hour, (minute>30)?0:30];
@@ -730,7 +856,7 @@
         _pointTime.text = [self timeToStr:current];
         _leftTime.text = [self timeToStr: (duration-current)];
     }
-    [self.delegate timeDidChanged:progress.current];
+    [self.delegate timeDidChanged:current duration:duration];
 }
 
 - (void) setHidenHud: (BOOL) hide withDelay:(BOOL)delay {
@@ -741,6 +867,7 @@
     if (hide) {
         [hudLayer setAlpha:1.0f];
         [_timeLabel setAlpha:1.0f];
+        [_presentSizeLabel setAlpha:1.0f];
         if (_hideDelayTimer) {
             [_hideDelayTimer invalidate];
             _hideDelayTimer = nil;
@@ -751,9 +878,11 @@
                 [UIView animateWithDuration:1.0f animations:^{
                     [hudLayer setAlpha:0.0f];
                     [_timeLabel setAlpha:0.0f];
+                    [_presentSizeLabel setAlpha:0.0f];
                 } completion:^(BOOL finished) {
                     [hudLayer setHidden:YES];
                     [_timeLabel setHidden:YES];
+                    [_presentSizeLabel setHidden:YES];
                     _hudInHidenProgress = NO;
                     self.isHudHidden = YES;
                 }];
@@ -763,9 +892,11 @@
             [UIView animateWithDuration:1.0f animations:^{
                 [hudLayer setAlpha:0.0f];
                 [_timeLabel setAlpha:0.0f];
+                [_presentSizeLabel setAlpha:0.0f];
             } completion:^(BOOL finished) {
                 [hudLayer setHidden:YES];
                 [_timeLabel setHidden:YES];
+                [_presentSizeLabel setHidden:YES];
                 _hudInHidenProgress = NO;
                 self.isHudHidden = YES;
             }];
@@ -776,9 +907,11 @@
             _hideDelayTimer = nil;
         }
         [_timeLabel setAlpha:1.0f];
+        [_timeLabel setHidden:NO];
         [hudLayer setAlpha:1.0f];
         [hudLayer setHidden:NO];
-        [_timeLabel setHidden:NO];
+        [_presentSizeLabel setAlpha:1.0f];
+        [_presentSizeLabel setHidden:NO];
         self.isHudHidden = NO;
     }
 }
@@ -824,6 +957,10 @@
 {
     SGState * state = [SGState stateFromUserInfo:notification.userInfo];
     NSString * text;
+    if (_BufferingWatchDog && state.current != SGPlayerStateBuffering) {
+        [_BufferingWatchDog invalidate];
+        _BufferingWatchDog = nil;
+    }
     switch (state.current) {
         case SGPlayerStateNone:
             text = @"None";
@@ -840,6 +977,9 @@
             break;
         case SGPlayerStateReadyToPlay:
             text = @"Prepare";
+            CGSize videoSize = self.player.presentationSize;
+            NSLog(@"presentationSize (%.2f, %.2f)", videoSize.width, videoSize.height);
+            _presentSizeLabel.text = [NSString stringWithFormat:@"%dx%d", (int)videoSize.width, (int)videoSize.height];
             //self.totalTimeLabel.text = [self timeStringFromSeconds:self.player.duration];
             _leftTime.text = [self timeToStr:self.player.duration];
             [loadingIndicator setHidden:YES];
@@ -847,6 +987,13 @@
             self.playerState = PS_INIT;
             [self notificationState:PS_INIT];
             if (_resumeTime > 0.0f && self.player.duration > 0.0f) {
+                if (!needResumeDialog) {
+                    [self.player seekToTime:_resumeTime completeHandler:^(BOOL finished) {
+                        [self.player play];
+                    }];
+                    _resumeTime = 0.0f;
+                    return;
+                }
                 NSString *msg = [NSString stringWithFormat:@"上次观看到 %@ 共 %@ 是否继续观看？",
                                  [self timeToStr: _resumeTime],
                                  [self timeToStr: self.player.duration]];
@@ -854,8 +1001,9 @@
                 UIAlertAction *continueWatching = [UIAlertAction actionWithTitle:@"继续观看"
                                                                            style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
                     NSLog(@"continue play from %.2f", _resumeTime);
-                    [self.player seekToTime:_resumeTime];
-                    [self.player play];
+                    [self.player seekToTime:_resumeTime completeHandler:^(BOOL finished) {
+                        [self.player play];
+                    }];
                 }];
                 UIAlertAction *startWatching = [UIAlertAction actionWithTitle:@"重新观看"
                                                                         style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
@@ -899,11 +1047,13 @@
             _isPlaying = NO;
             self.playerState = PS_FINISH;
             if (videoSource.current == [videoSource count]-1) {
+                NSLog(@"real finish");
                 [self notificationState:PS_FINISH];
                 [self stopUpdateProgress];
                 [self stop];
             } else {//change to next segment
                 videoSource.current+=1;
+                NSLog(@"current to next %ld/%ld", videoSource.current, videoSource.count);
                 NSInteger idx = videoSource.current;
                 NSString *url_ = [videoSource.segments objectAtIndex:idx].url;
                 CGFloat resumeTime = 0.0f;

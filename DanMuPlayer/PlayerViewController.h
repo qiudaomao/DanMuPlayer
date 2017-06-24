@@ -47,7 +47,7 @@ typedef enum _PlayerState {
 
 @protocol PlayerStateDelegate <NSObject>
 -(void)playStateDidChanged:(PlayerState)state;
--(void)timeDidChanged:(CGFloat)time;
+-(void)timeDidChanged:(CGFloat)time duration:(CGFloat)duration;
 -(void)timeDidChangedHD:(CGFloat)time;
 @end
 

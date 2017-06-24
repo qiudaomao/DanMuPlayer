@@ -28,6 +28,7 @@
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    _click = NO;
     [self updateTouchLocationWithEvent:event];
     self.state = UIGestureRecognizerStateBegan;
     _stateName = @"Began";

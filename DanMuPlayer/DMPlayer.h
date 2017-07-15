@@ -119,6 +119,7 @@ typedef enum _DMPlayerEventType {
 -(void)next;
 -(void)previous;
 -(void)addDanMu:(NSString*)content :(NSInteger)color :(CGFloat)fontSize :(NSInteger)style;
+-(void)addSubTitle:(NSString*)subTitle;
 @property (nonatomic) DMPlaylist *playlist;
 @property (nonatomic) NSMutableArray<DMPlayerEvent*> *events;
 @property (nonatomic, readonly) NSString *playbackState;

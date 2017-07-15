@@ -237,4 +237,9 @@
             withFontSize:fontSize];
     });
 }
+-(void)addSubTitle:(NSString*)subTitle {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [player setSubTitle:subTitle];
+    });
+}
 @end

@@ -265,6 +265,10 @@
     CGFloat offset = [videoSource getOffsetByIdx:idx];
     CGFloat targetTime = resumeTime-offset;
     videoSource.current = idx;
+    if (videoSource.count < 1) {
+        NSLog(@"ERROR no video segments founded");
+        return;
+    }
     NSString *url_ = [videoSource.segments objectAtIndex:idx].url;
     NSLog(@"playVideo %@ resumeTime %.2f current idx: %ld/%ld full duration %.2f", url_, resumeTime, idx, [videoSource count],videoSource.duration);
     if (resumeTime>0.0f) {

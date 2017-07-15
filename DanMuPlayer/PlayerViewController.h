@@ -72,4 +72,5 @@ withStrokeColor:(UIColor*)bgcolor
 -(void)setSubTitle:(NSString*)subTitle;
 @property (nonatomic, readwrite, weak) id<PlayerStateDelegate> delegate;
 @property (nonatomic, readonly, strong) SGPlayer *player;
+@property (nonatomic, readonly, strong) SGPlayer *player_prefetch;
 @end

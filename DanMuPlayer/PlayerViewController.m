@@ -88,23 +88,20 @@
         NSString *content = [url substringWithRange:NSMakeRange(6, url.length-6)];
         NSArray<NSString*> *items = [content componentsSeparatedByString:@";"];
         for (NSString *item in items) {
-            NSArray<NSString*> *infos = [item componentsSeparatedByString:@"%"];
-            if ([infos count]>=2) {
-                NSLog(@"duration %@ url %@", [infos objectAtIndex:1], [infos objectAtIndex:2]);
-                NSString *u = @"";
-                bool skip = true;
-                for (NSString *split in infos) {
-                    if (skip) {
-                        skip = false;
-                        continue;
-                    }
-                    u=[u stringByAppendingString:@"%"];
-                    u=[u stringByAppendingString:split];
-                }
-                [source addSegmentWithURL:u
-                                 duration:[[infos objectAtIndex:1] floatValue]];
-            } else {
+            NSString *pattern = @"%([0-9.]+)%(.*)$";
+            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options: NSRegularExpressionCaseInsensitive error: nil];
+            NSArray *matches = [regex matchesInString:item options:0 range:NSMakeRange(0, [item length])];
+            if (matches==nil || matches.count != 1) {
                 NSLog(@"error parse for %@", item);
+            } else {
+                NSTextCheckingResult *result = matches[0];
+                if (result.numberOfRanges == 3) {
+                    NSString *duration = [item substringWithRange:[result rangeAtIndex:1]];
+                    NSString *uu = [item substringWithRange:[result rangeAtIndex:2]];
+                    [source addSegmentWithURL:uu duration:[duration floatValue]];
+                } else {
+                    NSLog(@"error parse for %@", item);
+                }
             }
         }
     } else {
@@ -823,6 +820,7 @@
     _timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
     //NSLog(@"update Time: %@", _timeLabel.text);
 }
+
 - (void)progressAction:(NSNotification *)notification
 {
     SGProgress * progress = [SGProgress progressFromUserInfo:notification.userInfo];

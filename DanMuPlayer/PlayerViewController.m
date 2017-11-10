@@ -547,14 +547,6 @@
     } else {
         if (self.targetProgress != -1) {
             [self seekToTime:self.targetProgress];
-            /*
-            NSLog(@"seek to progress %f", self.targetProgress);
-            [self updatePointTime:self.targetProgress];
-            [self.player seekToTime:self.targetProgress completeHandler:^(BOOL finished) {
-                self.targetProgress = -1;
-                [self.player play];
-            }];
-             */
         } else {
             [self.player play];
         }

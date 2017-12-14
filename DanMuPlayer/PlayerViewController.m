@@ -811,9 +811,9 @@
 //        pauseTimeLabel.hidden = NO;
 //        pauseImageView.hidden = NO;
 //
-        NSLog(@"oriPauseImageRect %f , %f ", oriPauseImageRect.origin.x,oriPauseImageRect.origin.y );
-        NSLog(@"oriPauseImageRect size %f , %f ", oriPauseTimeRect.size.width,oriPauseTimeRect.size.height );
-        
+//        NSLog(@"oriPauseImageRect %f , %f ", oriPauseImageRect.origin.x,oriPauseImageRect.origin.y );
+//        NSLog(@"oriPauseImageRect size %f , %f ", oriPauseTimeRect.size.width,oriPauseTimeRect.size.height );
+//
         
         CGFloat duration = self.player.duration;
         if (videoSource.count>1) duration = videoSource.duration;

@@ -468,11 +468,13 @@
     
     pointImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"indicator.png"]];
     pointImageView.frame = CGRectMake(80, 110, 2, 10);
+    pointImageView.backgroundColor = [UIColor whiteColor];
     indicatorStartPoint = pointImageView.frame.origin;
     [hudLayer addSubview:pointImageView];
     
     pauseImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"indicator.png"]];
     pauseImageView.frame = CGRectMake(80, 80, 2, 40);
+    pauseImageView.backgroundColor = [UIColor whiteColor];
     indicatorStartPoint = pauseImageView.frame.origin;
     [hudLayer addSubview:pauseImageView];
     pauseImageView.hidden = YES;

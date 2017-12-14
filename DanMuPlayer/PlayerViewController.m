@@ -468,11 +468,13 @@
     
     pointImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"indicator.png"]];
     pointImageView.frame = CGRectMake(80, 110, 2, 10);
+    pointImageView.backgroundColor = [UIColor whiteColor];
     indicatorStartPoint = pointImageView.frame.origin;
     [hudLayer addSubview:pointImageView];
     
     pauseImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"indicator.png"]];
     pauseImageView.frame = CGRectMake(80, 80, 2, 40);
+    pauseImageView.backgroundColor = [UIColor whiteColor];
     indicatorStartPoint = pauseImageView.frame.origin;
     [hudLayer addSubview:pauseImageView];
     pauseImageView.hidden = YES;
@@ -598,6 +600,9 @@
         }
         oriPauseTimeRect.origin.x = oriPauseImageRect.origin.x - 78;
         
+        oriPauseImageRect.origin.y = 80;
+        oriPauseTimeRect.origin.y = 42;
+        
         CGFloat duration = self.player.duration;
         if (videoSource.count>1) duration = videoSource.duration;
         CGFloat targetTime = duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
@@ -631,6 +636,9 @@
             oriPauseImageRect.origin.x = (_progress.frame.origin.x + _progress.frame.size.width);
         }
         oriPauseTimeRect.origin.x = oriPauseImageRect.origin.x - 78;
+        
+        oriPauseImageRect.origin.y = 80;
+        oriPauseTimeRect.origin.y = 42;
         
         CGFloat duration = self.player.duration;
         if (videoSource.count>1) duration = videoSource.duration;
@@ -777,6 +785,9 @@
             oriPauseImageRect.origin.x = (_progress.frame.origin.x + _progress.frame.size.width);
         }
         oriPauseTimeRect.origin.x = oriPauseImageRect.origin.x - 78;
+        
+        oriPauseImageRect.origin.y = 80;
+        oriPauseTimeRect.origin.y = 42;
         
         CGFloat duration = self.player.duration;
         if (videoSource.count>1) duration = videoSource.duration;

@@ -603,6 +603,12 @@
         oriPauseImageRect.origin.y = 80;
         oriPauseTimeRect.origin.y = 42;
         
+        oriPauseImageRect.size.height = 40;
+        oriPauseImageRect.size.width = 2;
+        
+        oriPauseTimeRect.size.height = 40;
+        oriPauseTimeRect.size.width = 160;
+        
         CGFloat duration = self.player.duration;
         if (videoSource.count>1) duration = videoSource.duration;
         CGFloat targetTime = duration * (oriPauseImageRect.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
@@ -639,6 +645,12 @@
         
         oriPauseImageRect.origin.y = 80;
         oriPauseTimeRect.origin.y = 42;
+        
+        oriPauseImageRect.size.height = 40;
+        oriPauseImageRect.size.width = 2;
+        
+        oriPauseTimeRect.size.height = 40;
+        oriPauseTimeRect.size.width = 160;
         
         CGFloat duration = self.player.duration;
         if (videoSource.count>1) duration = videoSource.duration;
@@ -788,6 +800,20 @@
         
         oriPauseImageRect.origin.y = 80;
         oriPauseTimeRect.origin.y = 42;
+        
+        oriPauseImageRect.size.height = 40;
+        oriPauseImageRect.size.width = 2;
+        
+        oriPauseTimeRect.size.height = 40;
+        oriPauseTimeRect.size.width = 160;
+        
+//
+//        pauseTimeLabel.hidden = NO;
+//        pauseImageView.hidden = NO;
+//
+//        NSLog(@"oriPauseImageRect %f , %f ", oriPauseImageRect.origin.x,oriPauseImageRect.origin.y );
+//        NSLog(@"oriPauseImageRect size %f , %f ", oriPauseTimeRect.size.width,oriPauseTimeRect.size.height );
+//
         
         CGFloat duration = self.player.duration;
         if (videoSource.count>1) duration = videoSource.duration;

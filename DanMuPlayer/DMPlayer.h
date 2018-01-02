@@ -11,7 +11,8 @@
 
 #import <UIKit/UIKit.h>
 #import <TVMLKit/TVMLKit.h>
-#import "PlayerViewController.h"
+#import "SGPlayer/PlayerViewController.h"
+#import "AVPlayer/LazyCatAVPlayerViewController.h"
 @import JavaScriptCore;
 
 /*-----------------------------------------------------------------------------*/
@@ -41,6 +42,10 @@
 @synthesize options;
 @synthesize artworkImageURL;
 @synthesize mp4;
+-(instancetype)init {
+    self = [super init];
+    return self;
+}
 +(void)setup:(JSContext*)context {
     context[@"MMMediaItem"] = ^DMMediaItem*{
         return [[DMMediaItem alloc] init];

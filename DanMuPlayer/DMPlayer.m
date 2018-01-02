@@ -17,9 +17,11 @@
 @end
 
 @interface DMPlayer() {
-    PlayerViewController *player;
+    //PlayerViewController *player;
+    id<AbstractPlayerProtocol> player;
     NSInteger currentIndex;
     CGFloat oldTime;
+    BOOL useAVPlayer;
 }
 @end
 
@@ -53,22 +55,40 @@
 -(id)init
 {
     if (self = [super init]) {
-        player = [[PlayerViewController alloc] init];
         self.events = [[NSMutableArray alloc] init];
-        player.delegate = self;
         currentIndex=-1;
         oldTime = -1.0;
     }
     return self;
 }
+
+-(void)setupPlayer {
+}
+
 -(void)play
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.playlist.count>0) {
-            [self.controller presentViewController:player animated:YES completion:^{
+            DMMediaItem *item = self.playlist.items[0];
+            if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
+                player = [[LazyCatAVPlayerViewController alloc] init];
+                player.delegate = self;
+            } else {
+                player = [[PlayerViewController alloc] init];
+                player.delegate = self;
+            }
+            UIViewController *playerViewController = (UIViewController*)player;
+            [self.controller pushViewController:playerViewController animated:YES];
+            //NSLog(@"show ok");
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self changeToMediaAtIndex:0];
+            });
+            /*
+            [self.controller presentViewController:playerViewController animated:YES completion:^{
                 NSLog(@"show ok");
                 [self changeToMediaAtIndex:0];
             }];
+             */
         }
     });
 }

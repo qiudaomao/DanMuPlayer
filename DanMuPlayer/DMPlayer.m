@@ -32,6 +32,7 @@
 
 @implementation DMPlayer
 @synthesize playlist;
+@synthesize buttonList;
 @synthesize currentMediaItemDuration;
 @synthesize playbackState;
 @synthesize currentMediaItem;

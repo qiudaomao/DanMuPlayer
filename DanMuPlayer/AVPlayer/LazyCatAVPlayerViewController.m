@@ -7,7 +7,8 @@
 //
 
 #import "LazyCatAVPlayerViewController.h"
-#define SUPPORT_PLAYLIST 1
+#import "StrokeUILabel.h"
+#define SUPPORT_PLAYLIST 0
 
 @interface LazyCatAVPlayerViewController() {
     AVAudioSession *_session;
@@ -25,6 +26,7 @@
     BOOL isPlayListShowing;
     CADisplayLink *displayLink;
     NSTimeInterval currentResumeTime;
+    StrokeUILabel *timeLabel;
     id timeObserver;
 }
 @end
@@ -89,8 +91,6 @@
     menuRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapMenu:)];
     menuRecognizer.allowedPressTypes = @[@(UIPressTypeMenu)];
     [self.view addGestureRecognizer:menuRecognizer];
-    
-
 
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateProgress)];
     displayLink.paused = YES;
@@ -129,7 +129,8 @@
 - (void)playerItemDidToPlayToEnd:(NSNotification *)notification
 {
     if (self.delegate) {
-        [self.delegate playStateDidChanged:PS_FINISH];
+        //[self.delegate playStateDidChanged:PS_FINISH];
+        [self stop];
     }
 }
 
@@ -140,8 +141,8 @@
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    AVPlayerItem *playerItem = (AVPlayerItem*)object;
     if ([keyPath isEqualToString:@"status"]) {
+        AVPlayerItem *playerItem = (AVPlayerItem*)object;
         if (playerItem.status == AVPlayerItemStatusReadyToPlay) {
             NSLog(@"Item is ready, and will play");
             //resume
@@ -185,6 +186,10 @@
                 [self.delegate playStateDidChanged:PS_ERROR];
             }
         }
+    } else if ([keyPath isEqualToString:@"rate"]) {
+        NSLog(@"current rate %.2f", player.rate);
+    } else if ([keyPath isEqualToString:@"showsPlaybackControls"]) {
+        NSLog(@"showsPlaybackControls %@", (self.avPlayerViewController.showsPlaybackControls)?@"YES":@"NO");
     }
 }
 
@@ -316,13 +321,21 @@
 }
 -(void)stop {
     //[player pause];
+    [player.currentItem removeObserver:self forKeyPath:@"status" context:nil];
+    [player.currentItem removeObserver:self forKeyPath:@"rate" context:nil];
+    [self.avPlayerViewController removeObserver:self forKeyPath:@"showsPlaybackControls" context:nil];
+    [player.currentItem cancelPendingSeeks];
+    [player.currentItem.asset cancelLoading];
+    [player replaceCurrentItemWithPlayerItem:nil];
     [player removeTimeObserver:timeObserver];
     [self.delegate playStateDidChanged:PS_FINISH];
     [self.navigationController popViewControllerAnimated:YES];
 }
+
 -(void)seekToTime:(CGFloat)time {
     [player seekToTime:CMTimeMake(time, 1)];
 }
+
 -(void)playVideo:(NSString*)url
        withTitle:(NSString*)_title
          withImg:(NSString*)img
@@ -336,6 +349,7 @@
     artworkImage = img;
     NSLog(@"AVPlayer playVideo %@", url);
     self.avPlayerViewController = [[AVPlayerViewController alloc] init];
+    self.avPlayerViewController.delegate = self;
     if ([options.allKeys containsObject:@"headers"]) {
         headers = [options objectForKey:@"headers"];
     }
@@ -348,7 +362,18 @@
     }
     AVPlayerItem *item = [AVPlayerItem playerItemWithAsset: asset];
     item.externalMetadata = [self externalMetaData];
-    [item addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil];
+    [item addObserver:self
+           forKeyPath:@"status"
+              options:NSKeyValueObservingOptionNew
+              context:nil];
+    [player addObserver:self
+             forKeyPath:@"rate"
+                options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld
+                context:nil];
+    [self.avPlayerViewController addObserver:self
+                                  forKeyPath:@"showsPlaybackControls"
+                                     options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld
+                                     context:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(playerItemFailedToPlayToEndTime:)
                                                  name:AVPlayerItemFailedToPlayToEndTimeNotification
@@ -359,11 +384,13 @@
                                                object:item];
     //[player replaceCurrentItemWithPlayerItem:item];
     player = [[AVPlayer alloc] initWithPlayerItem:item];
-    
+
     __weak typeof(self) weakSelf = self;
     timeObserver = [player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        [weakSelf updateTimeClock];
         NSTimeInterval current = CMTimeGetSeconds(time);
         NSTimeInterval duration = CMTimeGetSeconds(weakSelf.avPlayerViewController.player.currentItem.duration);
+        if (current > duration) current=duration;
         NSLog(@"time %.2f/%.2f", current, duration);
         if (weakSelf.delegate) {
             [weakSelf.delegate timeDidChanged:current duration:duration];
@@ -375,9 +402,22 @@
     
     self.avPlayerViewController.videoGravity = AVLayerVideoGravityResizeAspect;
     self.avPlayerViewController.showsPlaybackControls = YES;
-    [self.view insertSubview:self.avPlayerViewController.view belowSubview:bgView];
+    if (bgView) {
+        [self.view insertSubview:self.avPlayerViewController.view belowSubview:bgView];
+    } else {
+        [self.view addSubview:self.avPlayerViewController.view];
+    }
+    timeLabel = [[StrokeUILabel alloc] initWithFrame:CGRectMake(self.view.frame.size.width-280, 60, 200, 60)];
+    timeLabel.text = @"";
+    timeLabel.textAlignment = NSTextAlignmentRight;
+    timeLabel.font = [UIFont fontWithName:@"Menlo" size:50];
+    timeLabel.textColor = [UIColor whiteColor];
+    [self.view addSubview:timeLabel];
     self.avPlayerViewController.view.frame = self.view.frame;
+    
+#if SUPPORT_PLAYLIST
     [self setNeedsFocusUpdate];
+#endif
 }
 
 -(void)addDanMu:(NSString*)content
@@ -394,5 +434,44 @@ withStrokeColor:(UIColor*)bgcolor
     int min = time/60;
     int sec = time-min*60;
     return [NSString stringWithFormat:@"%02d:%02d", min, sec];
+}
+
+- (void)updateTimeClock {
+    NSDate *date = [NSDate date];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *components = [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
+    //NSInteger seconds = [components second];
+    NSInteger hour = [components hour];
+    NSInteger minute = [components minute];
+    timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
+    //NSLog(@"update Time: %@", timeLabel.text);
+}
+
+- (CGRect) videoRect {
+    CGRect theVideoRect = CGRectZero;
+    // Replace this with whatever frame your AVPlayer is playing inside of:
+    CGRect theLayerRect = self.view.frame;
+    AVAssetTrack *track = [player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo][0];
+    CGSize theNaturalSize = [track naturalSize];
+    theNaturalSize = CGSizeApplyAffineTransform(theNaturalSize, track.preferredTransform);
+    theNaturalSize.width = fabs(theNaturalSize.width);
+    theNaturalSize.height = fabs(theNaturalSize.height);
+    
+    CGFloat movieAspectRatio = theNaturalSize.width / theNaturalSize.height;
+    CGFloat viewAspectRatio = theLayerRect.size.width / theLayerRect.size.height;
+    
+    // Note change this *greater than* to a *less than* if your video will play in aspect fit mode (as opposed to aspect fill mode)
+    if (viewAspectRatio > movieAspectRatio) {
+        theVideoRect.size.width = theLayerRect.size.width;
+        theVideoRect.size.height = theLayerRect.size.width / movieAspectRatio;
+        theVideoRect.origin.x = 0;
+        theVideoRect.origin.y = (theLayerRect.size.height - theVideoRect.size.height) / 2;
+    } else if (viewAspectRatio < movieAspectRatio) {
+        theVideoRect.size.width = movieAspectRatio * theLayerRect.size.height;
+        theVideoRect.size.height = theLayerRect.size.height;
+        theVideoRect.origin.x = (theLayerRect.size.width - theVideoRect.size.width) / 2;
+        theVideoRect.origin.y = 0;
+    }
+    return theVideoRect;
 }
 @end

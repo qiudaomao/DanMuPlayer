@@ -33,6 +33,7 @@
 @implementation DMPlayer
 @synthesize playlist;
 @synthesize buttonList;
+@synthesize buttonClickCallback;
 @synthesize currentMediaItemDuration;
 @synthesize playbackState;
 @synthesize currentMediaItem;
@@ -78,6 +79,8 @@
                 player = [[PlayerViewController alloc] init];
                 player.delegate = self;
             }
+            [player setupButtonList:self.buttonList];
+            player.buttonClickCallback = self.buttonClickCallback;
             UIViewController *playerViewController = (UIViewController*)player;
             [self.controller pushViewController:playerViewController animated:YES];
             //NSLog(@"show ok");

@@ -13,86 +13,8 @@
 #import <TVMLKit/TVMLKit.h>
 #import "SGPlayer/PlayerViewController.h"
 #import "AVPlayer/LazyCatAVPlayerViewController.h"
+#import "DMPlaylist.h"
 @import JavaScriptCore;
-
-/*-----------------------------------------------------------------------------*/
-/*
- * DMMeidaItem
- * Each item contains a playable online media
- */
-@protocol DMMediaItemJSB <JSExport>
-@property (nonatomic) NSString *url;
-@property (nonatomic) NSString *title;
-@property (nonatomic) NSString *description;
-@property (nonatomic) CGFloat resumeTime;
-@property (nonatomic) NSString *artworkImageURL;
-@property (nonatomic) NSDictionary *options;
-@property (nonatomic, assign) BOOL mp4;
-@end
-
-@interface DMMediaItem : NSObject<DMMediaItemJSB>
-+(void)setup:(JSContext*)context;
-@end
-
-@implementation DMMediaItem
-@synthesize url;
-@synthesize title;
-@synthesize description;
-@synthesize resumeTime;
-@synthesize options;
-@synthesize artworkImageURL;
-@synthesize mp4;
--(instancetype)init {
-    self = [super init];
-    return self;
-}
-+(void)setup:(JSContext*)context {
-    context[@"MMMediaItem"] = ^DMMediaItem*{
-        return [[DMMediaItem alloc] init];
-    };
-    context[@"DMMediaItem"] = ^DMMediaItem*{
-        return [[DMMediaItem alloc] init];
-    };
-}
-@end
-
-/*-----------------------------------------------------------------------------*/
-/*
- * A DMPlaylist contains many DMMediaItem
- */
-@protocol DMPlaylistJSB <JSExport>
--(void)push:(DMMediaItem*)item;
-@property (nonatomic, assign) NSInteger count;
-@property (nonatomic) NSMutableArray<DMMediaItem*> *items;
-@end
-
-@interface DMPlaylist : NSObject<DMPlaylistJSB>
-+(void)setup:(JSContext*)context;
-@end
-
-@implementation DMPlaylist
-@synthesize count;
-@synthesize items;
--(id)init {
-    self = [super init];
-    self.items = [[NSMutableArray alloc] init];
-    return self;
-}
-
--(void)push:(DMMediaItem*)item {
-    [self.items addObject:item];
-    self.count = [self.items count];
-}
-
-+(void)setup:(JSContext*)context {
-    context[@"MMPlaylist"] = ^DMPlaylist*{
-        return [[DMPlaylist alloc] init];
-    };
-    context[@"DMPlaylist"] = ^DMPlaylist*{
-        return [[DMPlaylist alloc] init];
-    };
-}
-@end
 
 /*-----------------------------------------------------------------------------*/
 /*
@@ -127,6 +49,7 @@ typedef enum _DMPlayerEventType {
 -(void)addSubTitle:(NSString*)subTitle;
 @property (nonatomic) DMPlaylist *playlist;
 @property (nonatomic) DMPlaylist *buttonList;
+@property (nonatomic) JSValue *buttonClickCallback;
 @property (nonatomic) NSMutableArray<DMPlayerEvent*> *events;
 @property (nonatomic, readonly) NSString *playbackState;
 @property (nonatomic, readonly) DMMediaItem *currentMediaItem;

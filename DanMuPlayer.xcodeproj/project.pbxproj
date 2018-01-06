@@ -31,6 +31,8 @@
 		E9B3EBCC1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B3EBC71FD3C0D6006EB41C /* LazyCatAVPlayerViewController.m */; };
 		E9B3EBCE1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBC91FD3C0D6006EB41C /* LazyCatAVPlayerViewController.h */; };
 		E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBD21FD3C281006EB41C /* DanMuPlayer.h */; };
+		E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D195111FFF84F60096FCA4 /* DMPlaylist.h */; };
+		E9D195161FFF85DD0096FCA4 /* DMPlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D195151FFF85DD0096FCA4 /* DMPlaylist.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +93,8 @@
 		E9B3EBC71FD3C0D6006EB41C /* LazyCatAVPlayerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LazyCatAVPlayerViewController.m; sourceTree = "<group>"; };
 		E9B3EBC91FD3C0D6006EB41C /* LazyCatAVPlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LazyCatAVPlayerViewController.h; sourceTree = "<group>"; };
 		E9B3EBD21FD3C281006EB41C /* DanMuPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DanMuPlayer.h; sourceTree = "<group>"; };
+		E9D195111FFF84F60096FCA4 /* DMPlaylist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMPlaylist.h; sourceTree = "<group>"; };
+		E9D195151FFF85DD0096FCA4 /* DMPlaylist.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DMPlaylist.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +152,8 @@
 				E9B3EBBC1FD3A287006EB41C /* AbstractPlayer.h */,
 				E9B3EBC21FD3A722006EB41C /* MMVideoSources.h */,
 				E9B3EBC31FD3A722006EB41C /* MMVideoSources.m */,
+				E9D195111FFF84F60096FCA4 /* DMPlaylist.h */,
+				E9D195151FFF85DD0096FCA4 /* DMPlaylist.m */,
 			);
 			path = DanMuPlayer;
 			sourceTree = "<group>";
@@ -203,6 +209,7 @@
 			files = (
 				E90F0A1E1EFA3F6700BC3EAD /* PlayerViewController.h in Headers */,
 				E90F0A251EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h in Headers */,
+				E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */,
 				E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */,
 				E9B3EBC41FD3A722006EB41C /* MMVideoSources.h in Headers */,
 				E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */,
@@ -315,6 +322,7 @@
 			files = (
 				E90F0A231EFA3F6700BC3EAD /* DMPlayer.m in Sources */,
 				E90F0A211EFA3F6700BC3EAD /* StrokeUILabel.m in Sources */,
+				E9D195161FFF85DD0096FCA4 /* DMPlaylist.m in Sources */,
 				E90F0A241EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.m in Sources */,
 				E90F0A1F1EFA3F6700BC3EAD /* PlayerViewController.m in Sources */,
 				E9B3EBCC1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.m in Sources */,

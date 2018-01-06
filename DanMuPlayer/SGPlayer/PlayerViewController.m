@@ -71,6 +71,7 @@
 @synthesize targetProgress;
 @synthesize isHudHidden;
 @synthesize delegate;
+@synthesize buttonClickCallback;
 
 -(id)init {
     self = [super init];
@@ -1026,5 +1027,8 @@ withStrokeColor:(UIColor*)bgcolor
 }
 -(void)setSubTitle:(NSString*)subTitle_ {
     subTitle.text = subTitle_;
+}
+-(void)setupButtonList:(DMPlaylist*)playlist {
+    
 }
 @end

@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import "DanMuLayer.h"
+#import "DMPlaylist.h"
+@import JavaScriptCore;
 
 typedef enum _PlayerState {
     PS_INIT = 0,
@@ -43,6 +45,8 @@ typedef enum _PlayerState {
 withStrokeColor:(UIColor*)bgcolor
    withFontSize:(CGFloat)fontSize;
 -(void)setSubTitle:(NSString*)subTitle;
+-(void)setupButtonList:(DMPlaylist*)playlist;
 @property (nonatomic, readwrite, weak) id<PlayerStateDelegate> delegate;
+@property (nonatomic, weak, readwrite) JSValue *buttonClickCallback;
 @end
 

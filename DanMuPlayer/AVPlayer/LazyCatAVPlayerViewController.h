@@ -15,5 +15,4 @@
 @interface LazyCatAVPlayerViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, AbstractPlayerProtocol, AVPlayerViewControllerDelegate>
 @property (nonatomic,weak,readwrite) UINavigationController *controller;
 @property (nonatomic,strong,readwrite) AVPlayerViewController *avPlayerViewController;
--(instancetype)initWithItem:(JSValue*)item controller:(UINavigationController*)controller_;
 @end

@@ -12,7 +12,7 @@
 #import "SiriRemoteGestureRecognizer.h"
 //#define OFFLINE_TEST true
 #define OFFLINE_TEST false
-
+#define SUPPORT_PLAYLIST 1
 
 @interface PlayerViewController ()
 {
@@ -57,6 +57,14 @@
     DanMuLayer *danmu;
     BOOL siriRemoteTouched;
     BOOL needResumeDialog;
+    UIView *eventsLayer;
+    
+    //left panel button list
+    UITableView *playlistTableView;
+    UIVisualEffectView *bgView;
+    BOOL isPlayListShowing;
+    DMPlaylist *list;
+    CGFloat currentTime;
 }
 
 @property (nonatomic, readwrite, assign) PlayerState playerState;
@@ -72,6 +80,8 @@
 @synthesize isHudHidden;
 @synthesize delegate;
 @synthesize buttonClickCallback;
+@synthesize buttonFocusIndex;
+@synthesize timeMode;
 
 -(id)init {
     self = [super init];
@@ -138,12 +148,22 @@
         NSLog(@"player display view did click!");
     }];
     [self.view insertSubview:self.player.view atIndex:0];
-    
+
     self.playerState = PS_INIT;
     self.targetProgress = -1;
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateProgress)];
     displayLink.paused = YES;
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+#if SUPPORT_PLAYLIST
+    CGRect rect = CGRectMake(0, 0, 550, UIScreen.mainScreen.bounds.size.height);
+    UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleRegular];
+    bgView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+    bgView.frame = rect;
+    [self.view insertSubview:bgView atIndex:1];
+    isPlayListShowing = NO;
+    [self initButtonListView];
+    [self setNeedsFocusUpdate];
+#endif
 }
 
 -(void)playVideo:(NSString*)url
@@ -278,7 +298,6 @@
 - (void)initHud
 {
     NSLog(@"initHud");
-    [self setupRecognizers];
     CGSize size = [self.view bounds].size;
     
     danmu = [[DanMuLayer alloc] initWithFrame:self.view.bounds];
@@ -294,6 +313,9 @@
     [self.view addSubview:subTitle];
     
     hudLayer = [[UIView alloc] init];
+    eventsLayer = [[UIView alloc] initWithFrame:self.view.frame];
+    [self.view addSubview:eventsLayer];
+    [self setupRecognizers];
     hudLayer.frame = CGRectMake(0, size.height-200, size.width, 200);
     
     loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
@@ -410,11 +432,11 @@
     [self.view addGestureRecognizer:downArrowRecognizer];
     
     panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
-    [self.view addGestureRecognizer:panRecognizer];
+    [eventsLayer addGestureRecognizer:panRecognizer];
     
     siriRemoteRecognizer = [[SiriRemoteGestureRecognizer alloc] initWithTarget:self action:@selector(siriTouch:)];
     siriRemoteRecognizer.delegate = self;
-    [self.view addGestureRecognizer:siriRemoteRecognizer];
+    [eventsLayer addGestureRecognizer:siriRemoteRecognizer];
     
     NSMutableSet<UIGestureRecognizer*> *simultaneousGestureRecognizers = [NSMutableSet set];
     [simultaneousGestureRecognizers addObject:panRecognizer];
@@ -456,6 +478,10 @@
 - (void)tapMenu:(UITapGestureRecognizer*)sender {
     NSLog(@"taped Menu key");
     if (_hudInHidenProgress) return;
+    if (isPlayListShowing) {
+        [self hideButtonList];
+        return;
+    }
     NSLog(@"accept taped Menu key");
     if (self.playerState == PS_PAUSED) {
         _isPlaying=!_isPlaying;
@@ -590,6 +616,7 @@
 
 - (void)tapSelect {
     if (_hudInHidenProgress) return;
+    if (isPlayListShowing) return;
     if (self.playerState == PS_PAUSED) {
         if (self.targetProgress != -1) {
             NSLog(@"seek to progress %f", self.targetProgress);
@@ -626,8 +653,9 @@
 
 - (void)pan:(UIPanGestureRecognizer*)sender {
     if (_hudInHidenProgress) return;
+    if (isPlayListShowing) return;
     //CGPoint location = [sender translationInView:self.view];
-    CGPoint v = [sender velocityInView:self.view];
+    CGPoint v = [sender velocityInView:eventsLayer];
     {//show logs here
         NSString *stateStr = @"";
         if (sender.state == UIGestureRecognizerStateBegan) {
@@ -636,6 +664,9 @@
             stateStr = @"Changed";
         } else if (sender.state == UIGestureRecognizerStateEnded) {
             stateStr = @"Ended";
+            if (self.playerState != PS_PAUSED && fabs(v.y)<2000 && v.x > 1000) {
+                [self showButtonList];
+            }
         } else if (sender.state == UIGestureRecognizerStateCancelled) {
             stateStr = @"Cancelled";
         } else if (sender.state == UIGestureRecognizerStateFailed) {
@@ -744,6 +775,10 @@
         _pointTime.text = [self timeToStr:current];
         _leftTime.text = [self timeToStr: (duration-current)];
     }
+    if (currentTime<duration-10.0 && current>duration-10.0) {
+        [self showButtonList];
+    }
+    currentTime=current;
     [self.delegate timeDidChanged:current duration:duration];
 }
 
@@ -941,9 +976,14 @@
             self.playerState = PS_FINISH;
             if (videoSource.current == [videoSource count]-1) {
                 NSLog(@"real finish");
-                [self notificationState:PS_FINISH];
-                [self stopUpdateProgress];
-                [self stop];
+                if (isPlayListShowing) {
+                    [self notificationState:PS_FINISH];
+                    [self stopUpdateProgress];
+                } else {
+                    [self notificationState:PS_FINISH];
+                    [self stopUpdateProgress];
+                    [self stop];
+                }
             } else {//change to next segment
                 videoSource.current+=1;
                 NSLog(@"current to next %ld/%ld", videoSource.current, videoSource.count);
@@ -1025,10 +1065,102 @@ withStrokeColor:(UIColor*)bgcolor
          withStrokeColor:bgcolor
             withFontSize:fontSize];
 }
+
 -(void)setSubTitle:(NSString*)subTitle_ {
     subTitle.text = subTitle_;
 }
+
 -(void)setupButtonList:(DMPlaylist*)playlist {
-    
+    list = playlist;
+}
+
+- (nullable NSIndexPath *)indexPathForPreferredFocusedViewInTableView:(UITableView *)tableView {
+    NSLog(@"query indexPathForPreferredFocusedViewInTableView %zd", self.buttonFocusIndex);
+    NSIndexPath *path = [NSIndexPath indexPathForRow:self.buttonFocusIndex inSection:0];
+    return path;
+}
+
+- (void)showButtonList {
+    if (list==nil || list.items.count==0) return;
+    NSLog(@"show play list");
+    bgView.hidden = NO;
+    NSLog(@"set hidden no and do animation");
+    [UIView animateWithDuration:0.2 delay:0.3 options:0 animations:^{
+        CGSize size = bgView.frame.size;
+        CGRect frame = CGRectMake(0, 0, size.width, size.height);
+        bgView.frame = frame;
+    } completion:^(BOOL finished) {
+        isPlayListShowing=YES;
+        [self setNeedsFocusUpdate];
+    }];
+}
+
+- (void)initButtonListView {
+    CGRect labelRect = CGRectMake(bgView.frame.origin.x, bgView.frame.origin.y, bgView.frame.size.width, 90);
+    UILabel *label = [[UILabel alloc] initWithFrame:labelRect];
+    [label setTextAlignment:NSTextAlignmentCenter];
+    label.text = @"选单(右滑时显示)";
+    [bgView.contentView addSubview:label];
+    CGRect rect = CGRectMake(bgView.frame.origin.x, bgView.frame.origin.y+90, bgView.frame.size.width-80, bgView.frame.size.height-90);
+    playlistTableView = [[UITableView alloc] initWithFrame:rect style:UITableViewStylePlain];
+    playlistTableView.rowHeight = 70;
+    playlistTableView.delegate = self;
+    playlistTableView.dataSource = self;
+    [bgView.contentView addSubview:playlistTableView];
+    bgView.hidden = YES;
+    CGSize size = bgView.frame.size;
+    CGRect frame = CGRectMake(-size.width, 0, size.width, size.height);
+    bgView.frame = frame;
+}
+
+-(void)hideButtonList {
+    NSLog(@"hide Play List");
+    [UIView animateWithDuration:0.2 delay:0.3 options:0 animations:^{
+        CGSize size = bgView.frame.size;
+        CGRect frame = CGRectMake(-size.width, 0, size.width, size.height);
+        bgView.frame = frame;
+    } completion:^(BOOL finished) {
+        isPlayListShowing=NO;
+        [self setNeedsFocusUpdate];
+    }];
+}
+
+#if SUPPORT_PLAYLIST
+- (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
+    NSLog(@"query preferredFocusEnvironments %@", isPlayListShowing?@"show":@"hide");
+    if (isPlayListShowing) {
+        return @[playlistTableView];
+    } else {
+        if (eventsLayer) {
+            return @[eventsLayer];
+        } else {
+            return nil;
+        }
+    }
+}
+#endif
+
+- (UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"buttonViewCell"];
+    cell.textLabel.textAlignment = NSTextAlignmentCenter;
+    cell.textLabel.text = [list.items objectAtIndex: indexPath.row].title;
+    cell.textLabel.textColor = UIColor.whiteColor;
+    cell.textLabel.highlightedTextColor = UIColor.blackColor;
+    return cell;
+}
+
+- (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (list!=nil && list.items !=nil) {
+        return list.items.count;
+    }
+    return 0;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"didSelectRowAtIndexPath %zd", indexPath.row);
+    self.buttonFocusIndex = indexPath.row;
+    if (self.buttonClickCallback) {
+        [[self.buttonClickCallback.context objectForKeyedSubscript:@"setTimeout"] callWithArguments: @[buttonClickCallback, @0, [NSNumber numberWithInteger:indexPath.row]]];
+    }
 }
 @end

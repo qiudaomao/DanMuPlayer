@@ -20,6 +20,13 @@ typedef enum _PlayerState {
     PS_ERROR
 } PlayerState;
 
+typedef enum _TimeMode {
+    TIMEMODE_ALWAYS,
+    TIMEMODE_QUARTER,
+    TIMEMODE_HALF,
+    TIMEMODE_NONE
+} TimeMode;
+
 @protocol PlayerStateDelegate <NSObject>
 -(void)playStateDidChanged:(PlayerState)state;
 -(void)timeDidChanged:(CGFloat)time duration:(CGFloat)duration;
@@ -47,6 +54,7 @@ withStrokeColor:(UIColor*)bgcolor
 -(void)setSubTitle:(NSString*)subTitle;
 -(void)setupButtonList:(DMPlaylist*)playlist;
 @property (nonatomic, readwrite, weak) id<PlayerStateDelegate> delegate;
-@property (nonatomic, weak, readwrite) JSValue *buttonClickCallback;
+@property (nonatomic, strong, readwrite) JSValue *buttonClickCallback;
+@property (nonatomic, assign, readwrite) NSInteger buttonFocusIndex;
+@property (nonatomic, assign, readwrite) NSInteger timeMode;
 @end
-

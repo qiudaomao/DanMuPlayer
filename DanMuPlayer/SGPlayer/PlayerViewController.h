@@ -12,6 +12,6 @@
 #import "DanMuLayer.h"
 #import "AbstractPlayer.h"
 
-@interface PlayerViewController : UIViewController<UIGestureRecognizerDelegate, AbstractPlayerProtocol>
+@interface PlayerViewController : UIViewController<UIGestureRecognizerDelegate, AbstractPlayerProtocol, UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, readonly, strong) SGPlayer *player;
 @end

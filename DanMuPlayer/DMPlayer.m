@@ -34,12 +34,14 @@
 @synthesize playlist;
 @synthesize buttonList;
 @synthesize buttonClickCallback;
+@synthesize buttonFocusIndex;
 @synthesize currentMediaItemDuration;
 @synthesize playbackState;
 @synthesize currentMediaItem;
 @synthesize previousMediaItem;
 @synthesize nextMediaItem;
 @synthesize events;
+@synthesize timeMode;
 +(void)setup:(JSContext*)context controller:(UINavigationController*)controller {
     context[@"DMPlayer"] = ^DMPlayer*{
         DMPlayer *player = [[DMPlayer alloc] init];
@@ -74,13 +76,14 @@
             DMMediaItem *item = self.playlist.items[0];
             if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
                 player = [[LazyCatAVPlayerViewController alloc] init];
-                player.delegate = self;
             } else {
                 player = [[PlayerViewController alloc] init];
-                player.delegate = self;
             }
+            player.delegate = self;
+            player.timeMode = self.timeMode;
             [player setupButtonList:self.buttonList];
             player.buttonClickCallback = self.buttonClickCallback;
+            player.buttonFocusIndex = self.buttonFocusIndex;
             UIViewController *playerViewController = (UIViewController*)player;
             [self.controller pushViewController:playerViewController animated:YES];
             //NSLog(@"show ok");
@@ -225,6 +228,7 @@
                         //NSLog(@"timeBoundaryDidCross: oldTime %.2f tt %.2f time %.2f", oldTime, tt, time);
                         if (tt<oldTime) continue;
                         if (tt>=oldTime && tt<=time) {
+                            //NSLog(@"pass timeBoundaryDidCross: oldTime %.2f tt %.2f time %.2f", oldTime, tt, time);
                             NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                             [dict setValue:[NSNumber numberWithFloat:time] forKey:@"timeStamp"];
                             [dict setValue:[NSNumber numberWithFloat:tt] forKey:@"boundary"];
@@ -239,6 +243,7 @@
     //});
     oldTime = time;
 }
+
 -(void)addDanMu:(NSString*)content :(NSInteger)color :(CGFloat)fontSize :(NSInteger)style {
     dispatch_async(dispatch_get_main_queue(), ^{
         CGFloat b = (int)(color & 0xFF)/255.0;

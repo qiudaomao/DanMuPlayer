@@ -14,6 +14,15 @@
 @synthesize params;
 @synthesize callback;
 @synthesize eventType;
+- (void)dealloc {
+    NSLog(@"DMPlayerEvent dealloc");
+    if (params) {
+        [self.ctx.virtualMachine removeManagedReference:params withOwner:self];
+    }
+    if (callback) {
+        [self.ctx.virtualMachine removeManagedReference:callback withOwner:self];
+    }
+}
 @end
 
 @interface DMPlayer() {
@@ -27,7 +36,6 @@
 
 @interface DMPlayer() {
 }
-@property (nonatomic, weak) UINavigationController *controller;
 @end
 
 @implementation DMPlayer
@@ -42,6 +50,7 @@
 @synthesize nextMediaItem;
 @synthesize events;
 @synthesize timeMode;
+@synthesize controller;
 +(void)setup:(JSContext*)context controller:(UINavigationController*)controller {
     context[@"DMPlayer"] = ^DMPlayer*{
         DMPlayer *player = [[DMPlayer alloc] init];
@@ -66,38 +75,40 @@
     return self;
 }
 
+-(void)dealloc {
+    NSLog(@"DMPlayer dealloc");
+}
+
 -(void)setupPlayer {
 }
 
 -(void)play
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.playlist.count>0) {
-            DMMediaItem *item = self.playlist.items[0];
-            if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
-                player = [[LazyCatAVPlayerViewController alloc] init];
-            } else {
-                player = [[PlayerViewController alloc] init];
-            }
-            player.delegate = self;
-            player.timeMode = self.timeMode;
-            [player setupButtonList:self.buttonList];
-            player.buttonClickCallback = self.buttonClickCallback;
-            player.buttonFocusIndex = self.buttonFocusIndex;
-            UIViewController *playerViewController = (UIViewController*)player;
+    if (self.playlist.count>0) {
+        DMMediaItem *item = self.playlist.items[0];
+        if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
+            player = [[LazyCatAVPlayerViewController alloc] init];
+        } else {
+            player = [[PlayerViewController alloc] init];
+        }
+        player.delegate = self;
+        player.timeMode = self.timeMode;
+        [player setupButtonList:self.buttonList];
+        player.buttonClickCallback = self.buttonClickCallback;
+        player.buttonFocusIndex = self.buttonFocusIndex;
+        UIViewController *playerViewController = (UIViewController*)player;
+        /*
             [self.controller pushViewController:playerViewController animated:YES];
-            //NSLog(@"show ok");
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self changeToMediaAtIndex:0];
-            });
-            /*
+            [self changeToMediaAtIndex:0];
+        //NSLog(@"show ok");
+         */
+        dispatch_async(dispatch_get_main_queue(), ^{
             [self.controller presentViewController:playerViewController animated:YES completion:^{
                 NSLog(@"show ok");
                 [self changeToMediaAtIndex:0];
             }];
-             */
-        }
-    });
+        });
+    }
 }
 -(void)pause
 {
@@ -105,7 +116,10 @@
 }
 -(void)stop
 {
-    [player stop];
+    NSLog(@"DMPlayer do stop, but not call real stop");
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [player stop];
+    });
 }
 -(void)seekToTime:(JSValue*)time
 {
@@ -147,7 +161,10 @@
     DMPlayerEvent *e = [[DMPlayerEvent alloc] init];
     e.name = event;
     e.callback = callback;
+    e.ctx = [JSContext currentContext];
+    [e.ctx.virtualMachine addManagedReference:e.callback withOwner:e];
     e.params = params;
+    [e.ctx.virtualMachine addManagedReference:e.params withOwner:e];
     if (params.isArray) e.paramsArray = params.toArray;
     else e.paramsArray=nil;
     if ([e.name isEqualToString:@"stateDidChange"]) e.eventType = EVENT_TYPE_STATE_DID_CHANGE;
@@ -161,7 +178,7 @@
 -(void)removeEventListener:(NSString*)event :(JSValue*)callback :(JSValue *)params
 {
     for (DMPlayerEvent *e in self.events) {
-        if ([e.name isEqualToString:event] && e.callback==callback && e.params == params) {
+        if ([e.name isEqualToString:event] && e.callback==callback && e.params==params) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.events removeObject:e];
             });
@@ -173,6 +190,8 @@
 -(void)playStateDidChanged:(PlayerState)state {
     for (DMPlayerEvent *e in self.events) {
         if (e.eventType == EVENT_TYPE_STATE_DID_CHANGE) {
+            NSLog(@"get callback");
+            NSLog(@"finish callback");
             JSValue *callback = e.callback;
             if (callback) {
                 NSArray *PlayerStateString = @[
@@ -185,7 +204,11 @@
                                                ];
                 NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
                 [dict setValue:PlayerStateString[state] forKey:@"state"];
-                [[callback.context objectForKeyedSubscript:@"setTimeout"] callWithArguments: @[callback, @0, dict]];
+                NSLog(@"playStateDidChanged begin %@", PlayerStateString[state]);
+                if ([callback.context objectForKeyedSubscript:@"setTimeout"]!=nil) {
+                    [[callback.context objectForKeyedSubscript:@"setTimeout"] callWithArguments: @[callback, @0, dict]];
+                }
+                NSLog(@"playStateDidChanged finish %@", PlayerStateString[state]);
             } else {
                 NSLog(@"Error callback is null");
             }

@@ -12,7 +12,7 @@
 #import "SiriRemoteGestureRecognizer.h"
 //#define OFFLINE_TEST true
 #define OFFLINE_TEST false
-#define SUPPORT_PLAYLIST 1
+#define SUPPORT_PLAYLIST 0
 
 @interface PlayerViewController ()
 {
@@ -203,14 +203,14 @@
         dispatch_once(&onceToken, ^{
             normalVideo = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"i-see-fire" ofType:@"mp4"]];
         });
-        [self.player replaceVideoWithURL:normalVideo options: options mp4: mp4];
+        [self.player replaceVideoWithURL:normalVideo options:options mp4: mp4];
     } else {
         _resumeTime = targetTime;
         NSURL *video = [NSURL URLWithString:url_];
         if (mp4) {
             [self.player replaceVideoWithURL:video options:options mp4:mp4];
         } else {
-            [self.player replaceVideoWithURL:video options: options mp4:mp4];
+            [self.player replaceVideoWithURL:video options:options mp4:mp4];
         }
     }
     if (videoSource.segments.count > 1) {//seperators
@@ -654,7 +654,7 @@
 - (void)pan:(UIPanGestureRecognizer*)sender {
     if (_hudInHidenProgress) return;
     if (isPlayListShowing) return;
-    //CGPoint location = [sender translationInView:self.view];
+    CGPoint location = [sender translationInView:self.view];
     CGPoint v = [sender velocityInView:eventsLayer];
     {//show logs here
         NSString *stateStr = @"";
@@ -664,8 +664,15 @@
             stateStr = @"Changed";
         } else if (sender.state == UIGestureRecognizerStateEnded) {
             stateStr = @"Ended";
-            if (self.playerState != PS_PAUSED && fabs(v.y)<2000 && v.x > 1000) {
-                [self showButtonList];
+            if (self.playerState != PS_PAUSED) {
+                if (fabs(v.y)<2000 && v.x > 1000) {
+                    NSLog(@"it is ready to show");
+                    [self showButtonList];
+                } else {
+                    NSLog(@"it is not paused, but velocity not good");
+                }
+            } else {
+                NSLog(@"it is paused");
             }
         } else if (sender.state == UIGestureRecognizerStateCancelled) {
             stateStr = @"Cancelled";
@@ -678,7 +685,7 @@
         } else {
             stateStr = @"Unknown";
         }
-        //NSLog(@"taped pan event state %@ point %f %f velocity %f %f", stateStr, location.x, location.y, v.x, v.y);
+        NSLog(@"taped pan event state %@ point %f %f velocity %f %f", stateStr, location.x, location.y, v.x, v.y);
     }
     if (self.playerState != PS_PAUSED) {
         if (self.playerState == PS_PLAYING) {
@@ -910,6 +917,7 @@
             self.playerState = PS_INIT;
             [self notificationState:PS_INIT];
             if ((_resumeTime > 0.0f || _realResumeTime > 0.0f) && self.player.duration > 0.0f) {
+                NSLog(@"do resume time");
                 if (!needResumeDialog) {
                     [self.player seekToTime:_resumeTime completeHandler:^(BOOL finished) {
                         [self.player play];
@@ -947,6 +955,7 @@
                 [continueWatchingAlert addAction:stopWatching];
                 [self presentViewController:continueWatchingAlert animated:YES completion:nil];
             } else {
+                NSLog(@"no need to resume");
                 _resumeTime = 0.0f;
                 [self.player play];
             }
@@ -980,8 +989,6 @@
                     [self notificationState:PS_FINISH];
                     [self stopUpdateProgress];
                 } else {
-                    [self notificationState:PS_FINISH];
-                    [self stopUpdateProgress];
                     [self stop];
                 }
             } else {//change to next segment
@@ -1041,17 +1048,18 @@
         [_player pause];
 }
 -(void)stop {
-    [_player pause];
+    //[_player pause];
+    [self stopUpdateProgress];
     displayLink.paused = YES;
     [self notificationState:PS_FINISH];
     [_player removePlayerNotificationTarget:self];
     [_player replaceEmpty];
-    [self.navigationController popViewControllerAnimated:YES];
-    /*
-    [self dismissViewControllerAnimated:YES completion:^{
-        NSLog(@"dismiss");
-    }];
-     */
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        //[self.navigationController popViewControllerAnimated:YES];
+        [self dismissViewControllerAnimated:NO completion:^{
+            NSLog(@"popViewController finish while stop");
+        }];
+    });
 }
 
 -(void)addDanMu:(NSString*)content
@@ -1127,11 +1135,13 @@ withStrokeColor:(UIColor*)bgcolor
 
 #if SUPPORT_PLAYLIST
 - (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
-    NSLog(@"query preferredFocusEnvironments %@", isPlayListShowing?@"show":@"hide");
+    //NSLog(@"query preferredFocusEnvironments %@", isPlayListShowing?@"show":@"hide");
     if (isPlayListShowing) {
+        NSLog(@"query focus on buttonList");
         return @[playlistTableView];
     } else {
         if (eventsLayer) {
+            NSLog(@"query focus on eventsLayer");
             return @[eventsLayer];
         } else {
             return nil;

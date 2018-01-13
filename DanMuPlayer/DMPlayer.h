@@ -28,11 +28,12 @@ typedef enum _DMPlayerEventType {
     EVENT_TYPE_TIME_BOUNDARY_DID_CROSS
 } DMPlayerEventType;
 @interface DMPlayerEvent : NSObject
-@property (nonatomic) NSString *name;
-@property (nonatomic) JSValue *params;
-@property (nonatomic) NSArray<NSNumber*> *paramsArray;
-@property (nonatomic) JSValue *callback;
-@property (assign) DMPlayerEventType eventType;
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, strong) JSContext *ctx;
+@property (nonatomic, strong) JSValue *params;
+@property (nonatomic, strong) NSArray<NSNumber*> *paramsArray;
+@property (nonatomic, strong) JSValue *callback;
+@property (nonatomic, assign) DMPlayerEventType eventType;
 @end
 
 @protocol DMPlayerJSB <JSExport>
@@ -62,6 +63,7 @@ typedef enum _DMPlayerEventType {
 
 @interface DMPlayer : NSObject<DMPlayerJSB, PlayerStateDelegate>
 +(void)setup:(JSContext*)context controller:(UINavigationController*)controller;
+@property (nonatomic, weak) UINavigationController *controller;
 @end
 
 #endif /* DMPlayer_h */

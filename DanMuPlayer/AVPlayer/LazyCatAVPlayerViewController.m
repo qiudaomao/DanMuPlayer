@@ -21,10 +21,12 @@
     NSString *artworkImage;
     UITapGestureRecognizer *menuRecognizer;
     UIPanGestureRecognizer *panRecognizer;
+    UIPanGestureRecognizer *panButtonListRecognizer;
     UITableView *playlistTableView;
     UIVisualEffectView *bgView;
     AVPlayer *player;
     BOOL isPlayListShowing;
+    BOOL isControllerVisible;
     CADisplayLink *displayLink;
     NSTimeInterval currentResumeTime;
     StrokeUILabel *timeLabel;
@@ -35,6 +37,7 @@
     BOOL firstTime;
     PlayerState currentState;
     NSTimeInterval currentTime;
+    BOOL playerInited;
 }
 @end
 
@@ -43,6 +46,14 @@
 @synthesize buttonClickCallback;
 @synthesize buttonFocusIndex;
 @synthesize timeMode;
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        playerInited=NO;
+    }
+    return self;
+}
 
 - (void)updateProgress {
     [danmu updateFrame];
@@ -56,7 +67,7 @@
     CGRect labelRect = CGRectMake(bgView.frame.origin.x, bgView.frame.origin.y, bgView.frame.size.width, 90);
     UILabel *label = [[UILabel alloc] initWithFrame:labelRect];
     [label setTextAlignment:NSTextAlignmentCenter];
-    label.text = @"选单(右滑时显示)";
+    label.text = @"选单(左右滑动显隐)";
     [bgView.contentView addSubview:label];
     CGRect rect = CGRectMake(bgView.frame.origin.x, bgView.frame.origin.y+90, bgView.frame.size.width-80, bgView.frame.size.height-90);
     playlistTableView = [[UITableView alloc] initWithFrame:rect style:UITableViewStylePlain];
@@ -131,11 +142,17 @@
     isPlayListShowing = NO;
     [self setNeedsFocusUpdate];
     
-    panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
-    [self.view addGestureRecognizer:panRecognizer];
     [self.view addSubview:bgView];
     [self initButtonListView];
+    
+    panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
+    [self.view addGestureRecognizer:panRecognizer];
+    
+    panButtonListRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panButtonList:)];
+    [playlistTableView addGestureRecognizer:panButtonListRecognizer];
 #endif
+
+    playerInited=YES;
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -262,6 +279,37 @@
     return item;
 }
 
+- (void)panButtonList:(UIPanGestureRecognizer*)sender {
+#if SUPPORT_PLAYLIST
+    //CGPoint location = [sender translationInView:self.view];
+    CGPoint v = [sender velocityInView:self.view];
+    {//show logs here
+        NSString *stateStr = @"";
+        if (sender.state == UIGestureRecognizerStateBegan) {
+            stateStr = @"Began";
+        } else if (sender.state == UIGestureRecognizerStateChanged) {
+            stateStr = @"Changed";
+        } else if (sender.state == UIGestureRecognizerStateEnded) {
+            stateStr = @"Ended";
+            if (isPlayListShowing && currentState != PS_PAUSED && fabs(v.y)<2000 && v.x < -600) {
+                [self hideButtonList];
+            }
+        } else if (sender.state == UIGestureRecognizerStateCancelled) {
+            stateStr = @"Cancelled";
+        } else if (sender.state == UIGestureRecognizerStateFailed) {
+            stateStr = @"Failed";
+        } else if (sender.state == UIGestureRecognizerStatePossible) {
+            stateStr = @"Possible";
+        } else if (sender.state == UIGestureRecognizerStateRecognized) {
+            stateStr = @"Recognized";
+        } else {
+            stateStr = @"Unknown";
+        }
+        //NSLog(@"taped pan event state %@ point %f %f velocity %f %f", stateStr, location.x, location.y, v.x, v.y);
+    }
+#endif
+}
+
 - (void)pan:(UIPanGestureRecognizer*)sender {
 #if SUPPORT_PLAYLIST
     //CGPoint location = [sender translationInView:self.view];
@@ -274,7 +322,7 @@
             stateStr = @"Changed";
         } else if (sender.state == UIGestureRecognizerStateEnded) {
             stateStr = @"Ended";
-            if (currentState != PS_PAUSED && fabs(v.y)<2000 && v.x > 1000) {
+            if (currentState != PS_PAUSED && fabs(v.y)<2000 && v.x > 600) {
                 [self showButtonList];
             }
         } else if (sender.state == UIGestureRecognizerStateCancelled) {
@@ -323,13 +371,17 @@
 - (void)tapMenu:(UITapGestureRecognizer*)sender {
     NSLog(@"taped Menu Key");
     if (isPlayListShowing) {
+        NSLog(@"hide Button List");
         [self hideButtonList];
     } else {
         if (currentState != PS_PAUSED) {
             NSLog(@"try exit");
+            [self stop];
+            /*
             [player pause];
             [self.delegate playStateDidChanged:PS_FINISH];
             [self.navigationController popViewControllerAnimated:YES];
+             */
         } else {
             [player play];
         }
@@ -345,6 +397,11 @@
 }
 -(void)stop {
     //[player pause];
+    if (self.avPlayerViewController==nil) return;
+    if (!playerInited) {
+        NSLog(@"player not inited, no need do stop");
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         if (danmu) {
             [danmu removeFromSuperview];
@@ -367,9 +424,12 @@
             [self.delegate playStateDidChanged:PS_FINISH];
             self.delegate=nil;
         }
-        if (self.navigationController.topViewController == self) {
-            [self.navigationController popViewControllerAnimated:YES];
-        }
+        [self dismissViewControllerAnimated:NO completion:^{
+            NSLog(@"stop dissmiss viewcontroller");
+        }];
+//        if (self.navigationController.topViewController == self) {
+//            [self.navigationController popViewControllerAnimated:YES];
+//        }
         /*
         if (displayLink) {
             @try {
@@ -377,6 +437,7 @@
             } @catch(id anException){}
         }
          */
+        playerInited=NO;
     });
 }
 
@@ -486,8 +547,9 @@
     timeLabel.textAlignment = NSTextAlignmentRight;
     timeLabel.font = [UIFont fontWithName:@"Menlo" size:50];
     timeLabel.textColor = [UIColor whiteColor];
-    [self.view addSubview:timeLabel];
+    //[self.view addSubview:timeLabel];
     self.avPlayerViewController.view.frame = self.view.frame;
+    [self.avPlayerViewController.contentOverlayView addSubview:timeLabel];
 
 #if SUPPORT_PLAYLIST
     [self setNeedsFocusUpdate];
@@ -534,8 +596,8 @@ withStrokeColor:(UIColor*)bgcolor
     //NSInteger seconds = [components second];
     NSInteger hour = [components hour];
     NSInteger minute = [components minute];
-    NSLog(@"timeMode %zd", self.timeMode);
-    if (self.timeMode==TIMEMODE_NONE) {
+    //NSLog(@"timeMode %zd", self.timeMode);
+    if (self.timeMode==TIMEMODE_NONE && !isControllerVisible) {
         timeLabel.text = @"";
     } else if (self.timeMode==TIMEMODE_QUARTER) {
         if (minute%15==0) {
@@ -589,5 +651,24 @@ withStrokeColor:(UIColor*)bgcolor
     NSLog(@"query indexPathForPreferredFocusedViewInTableView %zd", self.buttonFocusIndex);
     NSIndexPath *path = [NSIndexPath indexPathForRow:self.buttonFocusIndex inSection:0];
     return path;
+}
+- (void)playerViewController:(AVPlayerViewController *)playerViewController willTransitionToVisibilityOfTransportBar:(BOOL)visible withAnimationCoordinator:(id<AVPlayerViewControllerAnimationCoordinator>)coordinator {
+    NSLog(@"willTransitionToVisibilityOfTransportBar %@", visible?@"true":@"false");
+    isControllerVisible = visible;
+    NSDate *date = [NSDate date];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *components = [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
+    //NSInteger seconds = [components second];
+    NSInteger hour = [components hour];
+    NSInteger minute = [components minute];
+    NSLog(@"timeMode %zd", self.timeMode);
+    //NSLog(@"update Time: %@", timeLabel.text);
+    NSLog(@"do willTransitionToVisibilityOfTransportBar %@", visible?@"true":@"false");
+    if (visible) {
+        timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
+    }
+    if (timeMode!=TIMEMODE_ALWAYS && !visible) {
+        timeLabel.text = @"";
+    }
 }
 @end

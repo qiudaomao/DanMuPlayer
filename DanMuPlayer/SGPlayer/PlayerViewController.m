@@ -436,7 +436,7 @@
     
     siriRemoteRecognizer = [[SiriRemoteGestureRecognizer alloc] initWithTarget:self action:@selector(siriTouch:)];
     siriRemoteRecognizer.delegate = self;
-    [eventsLayer addGestureRecognizer:siriRemoteRecognizer];
+    [self.view addGestureRecognizer:siriRemoteRecognizer];
     
     NSMutableSet<UIGestureRecognizer*> *simultaneousGestureRecognizers = [NSMutableSet set];
     [simultaneousGestureRecognizers addObject:panRecognizer];

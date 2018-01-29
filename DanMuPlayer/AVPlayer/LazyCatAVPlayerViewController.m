@@ -9,6 +9,7 @@
 #import "LazyCatAVPlayerViewController.h"
 #import "StrokeUILabel.h"
 #import "MMVideoSources.h"
+#import "CustomResourceLoader.h"
 #define SUPPORT_PLAYLIST 1
 
 @interface LazyCatAVPlayerViewController() {
@@ -38,6 +39,7 @@
     PlayerState currentState;
     NSTimeInterval currentTime;
     BOOL playerInited;
+    CustomResourceLoader *resourceLoader;
 }
 @end
 
@@ -291,7 +293,7 @@
             stateStr = @"Changed";
         } else if (sender.state == UIGestureRecognizerStateEnded) {
             stateStr = @"Ended";
-            if (isPlayListShowing && currentState != PS_PAUSED && fabs(v.y)<2000 && v.x < -600) {
+            if (isPlayListShowing && currentState != PS_PAUSED && fabs(v.y)<2000 && v.x < -300) {
                 [self hideButtonList];
             }
         } else if (sender.state == UIGestureRecognizerStateCancelled) {
@@ -322,7 +324,7 @@
             stateStr = @"Changed";
         } else if (sender.state == UIGestureRecognizerStateEnded) {
             stateStr = @"Ended";
-            if (currentState != PS_PAUSED && fabs(v.y)<2000 && v.x > 600) {
+            if (currentState != PS_PAUSED && fabs(v.y)<2000 && v.x > 300) {
                 [self showButtonList];
             }
         } else if (sender.state == UIGestureRecognizerStateCancelled) {
@@ -471,6 +473,15 @@
                                         options:@{@"AVURLAssetHTTPHeaderFieldsKey": headers}];
         } else {
             asset = [AVURLAsset assetWithURL:[NSURL URLWithString:url]];
+        }
+        //Not http and not https
+        NSURL *u = [NSURL URLWithString:url];
+        NSString *scheme = [u scheme];
+        if (![scheme isEqualToString:@"http"] && ![scheme isEqualToString:@"https"]) {
+            NSString *path = [NSString stringWithFormat:@"%@:%@", @"http", u.resourceSpecifier];
+            NSLog(@"path %@", path);
+            resourceLoader = [[CustomResourceLoader alloc] initWithHeaders:headers];
+            [asset.resourceLoader setDelegate:resourceLoader queue:dispatch_get_main_queue()];
         }
         AVPlayerItem *item = [AVPlayerItem playerItemWithAsset: asset];
         item.externalMetadata = [self externalMetaData];

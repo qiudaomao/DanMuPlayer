@@ -25,6 +25,8 @@
 		E90F0A351EFA413500BC3EAD /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E90F0A341EFA413500BC3EAD /* libiconv.tbd */; };
 		E90F0A371EFA413B00BC3EAD /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E90F0A361EFA413B00BC3EAD /* libbz2.tbd */; };
 		E90F0A391EFA413F00BC3EAD /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E90F0A381EFA413F00BC3EAD /* libz.tbd */; };
+		E91C2117200F035100B2A2FB /* CustomResourceLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = E91C2115200F035100B2A2FB /* CustomResourceLoader.h */; };
+		E91C2118200F035100B2A2FB /* CustomResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = E91C2116200F035100B2A2FB /* CustomResourceLoader.m */; };
 		E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBBC1FD3A287006EB41C /* AbstractPlayer.h */; };
 		E9B3EBC41FD3A722006EB41C /* MMVideoSources.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBC21FD3A722006EB41C /* MMVideoSources.h */; };
 		E9B3EBC51FD3A722006EB41C /* MMVideoSources.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B3EBC31FD3A722006EB41C /* MMVideoSources.m */; };
@@ -87,6 +89,8 @@
 		E90F0A341EFA413500BC3EAD /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		E90F0A361EFA413B00BC3EAD /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		E90F0A381EFA413F00BC3EAD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		E91C2115200F035100B2A2FB /* CustomResourceLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CustomResourceLoader.h; sourceTree = "<group>"; };
+		E91C2116200F035100B2A2FB /* CustomResourceLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomResourceLoader.m; sourceTree = "<group>"; };
 		E9B3EBBC1FD3A287006EB41C /* AbstractPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractPlayer.h; sourceTree = "<group>"; };
 		E9B3EBC21FD3A722006EB41C /* MMVideoSources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MMVideoSources.h; sourceTree = "<group>"; };
 		E9B3EBC31FD3A722006EB41C /* MMVideoSources.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MMVideoSources.m; sourceTree = "<group>"; };
@@ -187,6 +191,8 @@
 			children = (
 				E9B3EBC91FD3C0D6006EB41C /* LazyCatAVPlayerViewController.h */,
 				E9B3EBC71FD3C0D6006EB41C /* LazyCatAVPlayerViewController.m */,
+				E91C2115200F035100B2A2FB /* CustomResourceLoader.h */,
+				E91C2116200F035100B2A2FB /* CustomResourceLoader.m */,
 			);
 			path = AVPlayer;
 			sourceTree = "<group>";
@@ -212,6 +218,7 @@
 				E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */,
 				E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */,
 				E9B3EBC41FD3A722006EB41C /* MMVideoSources.h in Headers */,
+				E91C2117200F035100B2A2FB /* CustomResourceLoader.h in Headers */,
 				E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */,
 				E90F0A261EFA3F6700BC3EAD /* DanMuLayer.h in Headers */,
 				E9B3EBCE1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.h in Headers */,
@@ -320,6 +327,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E91C2118200F035100B2A2FB /* CustomResourceLoader.m in Sources */,
 				E90F0A231EFA3F6700BC3EAD /* DMPlayer.m in Sources */,
 				E90F0A211EFA3F6700BC3EAD /* StrokeUILabel.m in Sources */,
 				E9D195161FFF85DD0096FCA4 /* DMPlaylist.m in Sources */,

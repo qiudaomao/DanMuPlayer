@@ -9,6 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <AVKit/AVKit.h>
 
-@interface CustomResourceLoader : NSObject <AVAssetResourceLoaderDelegate, NSURLSessionDataDelegate>
+@interface CustomResourceLoader : NSObject <AVAssetResourceLoaderDelegate>
 -(instancetype)initWithHeaders:(NSDictionary*)headers;
 @end

@@ -10,6 +10,7 @@
 #import "StrokeUILabel.h"
 #import "MMVideoSources.h"
 #import "CustomResourceLoader.h"
+#import "OTPlayerCache/OTPlayerCache.h"
 #define SUPPORT_PLAYLIST 1
 
 @interface LazyCatAVPlayerViewController() {
@@ -40,6 +41,8 @@
     NSTimeInterval currentTime;
     BOOL playerInited;
     CustomResourceLoader *resourceLoader;
+    //OTAssetLoaderDelegate *resourceLoader;
+    dispatch_queue_t resourceLoaderQueue;
 }
 @end
 
@@ -220,7 +223,7 @@
             if (self.delegate) {
                 [self.delegate playStateDidChanged:PS_ERROR];
             }
-            NSLog(@"Item is failed to play");
+            NSLog(@"Item is failed to play error %@ %@ suggestion %@", playerItem.error.localizedDescription, playerItem.error.localizedFailureReason, playerItem.error.localizedRecoverySuggestion);
         } else if (playerItem.status == AVPlayerItemStatusUnknown) {
             NSLog(@"Item is unknown");
             if (self.delegate) {
@@ -478,9 +481,13 @@
         NSURL *u = [NSURL URLWithString:url];
         NSString *scheme = [u scheme];
         if (![scheme isEqualToString:@"http"] && ![scheme isEqualToString:@"https"]) {
+            NSURL *playUrl = [OTVideoDownloadModel getSchemeVideoURL:[NSURL URLWithString:url]];
+            asset = [AVURLAsset URLAssetWithURL:playUrl options:nil];
             NSString *path = [NSString stringWithFormat:@"%@:%@", @"http", u.resourceSpecifier];
             NSLog(@"path %@", path);
+            NSLog(@"play path %@", playUrl.absoluteString);
             resourceLoader = [[CustomResourceLoader alloc] initWithHeaders:headers];
+            //resourceLoader = [OTAssetLoaderDelegate new];
             [asset.resourceLoader setDelegate:resourceLoader queue:dispatch_get_main_queue()];
         }
         AVPlayerItem *item = [AVPlayerItem playerItemWithAsset: asset];
@@ -530,9 +537,11 @@
         NSTimeInterval current = CMTimeGetSeconds(time);
         NSTimeInterval duration = CMTimeGetSeconds(weakSelf.avPlayerViewController.player.currentItem.duration);
         if (current > duration) current=duration;
+        /*
         if (currentTime<duration-10.0 && current>= duration-10.0 && !isPlayListShowing) {
             [weakSelf showButtonList];
         }
+         */
         currentTime = current;
         //NSLog(@"time %.2f/%.2f", current, duration);
         if (weakSelf.delegate) {
@@ -541,8 +550,7 @@
     }];
 
     [player setActionAtItemEnd:AVPlayerActionAtItemEndNone];
-    self.avPlayerViewController.player = player;
-    
+
     self.avPlayerViewController.videoGravity = AVLayerVideoGravityResizeAspect;
     self.avPlayerViewController.showsPlaybackControls = YES;
     if (bgView) {
@@ -565,6 +573,7 @@
 #if SUPPORT_PLAYLIST
     [self setNeedsFocusUpdate];
 #endif
+    self.avPlayerViewController.player = player;
 }
 
 -(void)addDanMu:(NSString*)content

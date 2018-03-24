@@ -10,7 +10,6 @@
 #import "StrokeUILabel.h"
 #import "MMVideoSources.h"
 #import "CustomResourceLoader.h"
-#import "OTPlayerCache/OTPlayerCache.h"
 #define SUPPORT_PLAYLIST 1
 
 @interface LazyCatAVPlayerViewController() {
@@ -481,7 +480,8 @@
         NSURL *u = [NSURL URLWithString:url];
         NSString *scheme = [u scheme];
         if (![scheme isEqualToString:@"http"] && ![scheme isEqualToString:@"https"]) {
-            NSURL *playUrl = [OTVideoDownloadModel getSchemeVideoURL:[NSURL URLWithString:url]];
+            //NSURL *playUrl = [OTVideoDownloadModel getSchemeVideoURL:[NSURL URLWithString:url]];
+            NSURL *playUrl = [NSURL URLWithString:url];
             asset = [AVURLAsset URLAssetWithURL:playUrl options:nil];
             NSString *path = [NSString stringWithFormat:@"%@:%@", @"http", u.resourceSpecifier];
             NSLog(@"path %@", path);

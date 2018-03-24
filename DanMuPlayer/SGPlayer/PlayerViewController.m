@@ -985,12 +985,17 @@
             self.playerState = PS_FINISH;
             if (videoSource.current == [videoSource count]-1) {
                 NSLog(@"real finish");
+#if SUPPORT_PLAYLIST
                 if (isPlayListShowing) {
                     [self notificationState:PS_FINISH];
                     [self stopUpdateProgress];
                 } else {
+#endif
+                    [self notificationState:PS_FINISH];
                     [self stop];
+#if SUPPORT_PLAYLIST
                 }
+#endif
             } else {//change to next segment
                 videoSource.current+=1;
                 NSLog(@"current to next %ld/%ld", videoSource.current, videoSource.count);

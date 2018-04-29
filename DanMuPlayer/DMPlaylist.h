@@ -19,7 +19,7 @@
 @protocol DMMediaItemJSB <JSExport>
 @property (nonatomic) NSString *url;
 @property (nonatomic) NSString *title;
-@property (nonatomic) NSString *description;
+@property (nonatomic, copy) NSString *description;
 @property (nonatomic) CGFloat resumeTime;
 @property (nonatomic) NSString *artworkImageURL;
 @property (nonatomic) NSDictionary *options;

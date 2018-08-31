@@ -12,6 +12,8 @@
 #import "CustomResourceLoader.h"
 #define SUPPORT_PLAYLIST 1
 
+@import CoreMedia;
+
 @interface LazyCatAVPlayerViewController() {
     AVAudioSession *_session;
     NSString *url;

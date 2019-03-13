@@ -1,3 +1,4 @@
 [submodule "ijkplayer"]
 	path = ijkplayer
-	url = https://github.com/qiudaomao/ijkplayer.git
+	url = git@github.com:qiudaomao/ijkplayer.git
+	branch = tvos

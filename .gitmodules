@@ -1,0 +1,3 @@
+[submodule "ijkplayer"]
+	path = ijkplayer
+	url = https://github.com/qiudaomao/ijkplayer.git

@@ -4,9 +4,9 @@ A front-end HUD similiar to built-in Player.
 
 Javascript API Similar to TVML built-in Player.
 
-Back-end based on a [modified](https://github.com/fuzhuo/SGPlayer) [SGPlayer](https://github.com/libobjc/SGPlayer)
+Back-end based on a modified for tvOS [ijkplayer](https://github.com/qiudaomao/ijkplayer)
 
-My project [LazyCat](https://github.com/fuzhuo/Lazycat) use DanMuPlayer to play bili and panda video and live stream with dynamic subtitles (danmu弹幕).
+My project [LazyCat](https://github.com/qiudaomao/Lazycat) use DanMuPlayer to play bili and panda video and live stream with dynamic subtitles (danmu弹幕).
 
 JavaScript API Sample:
 
@@ -36,13 +36,13 @@ New feature and bug fix still ongoing...
 
 Integreting and Build Step:
 
-    1. git submodule add https://github.com/fuzhuo/DanMuPlayer.git DanMuPlayer
+    1. git submodule add https://github.com/qiudaomao/DanMuPlayer.git DanMuPlayer
 
     2. cd DanMuPlayer && git submodule update --init --recursive
 
-    3. cd SGPlayer && sh compile-build.sh tvOS
+    3. cd ijplayer ./ios-init.sh, cd ./ios, ./build-openssl.sh && ./build-ffmpeg.sh
 
-    4. drag DanMuPlayer.xcodeproject to your project
+    4. drag DanMuPlayer.xcodeproject and IJKMediaFramework.xcodeproj to your project
 
     5. Add below line to tvos swift project to finish basic setup
 

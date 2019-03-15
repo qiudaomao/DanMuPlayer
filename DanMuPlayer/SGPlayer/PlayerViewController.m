@@ -1140,7 +1140,7 @@
 }
 
 -(void)pause {
-        [_player pause];
+    [_player pause];
 }
 -(void)stop {
     //[_player pause];

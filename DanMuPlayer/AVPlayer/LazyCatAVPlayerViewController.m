@@ -52,6 +52,7 @@
 @synthesize buttonFocusIndex;
 @synthesize timeMode;
 @synthesize danmuView;
+@synthesize playerType;
 
 - (id)init {
     self = [super init];

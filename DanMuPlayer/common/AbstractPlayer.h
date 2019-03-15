@@ -59,4 +59,5 @@ withStrokeColor:(UIColor*)bgcolor
 @property (nonatomic, strong, readwrite) JSValue *buttonClickCallback;
 @property (nonatomic, assign, readwrite) NSInteger buttonFocusIndex;
 @property (nonatomic, assign, readwrite) NSInteger timeMode;
+@property (nonatomic, readwrite, copy) NSString *playerType;
 @end

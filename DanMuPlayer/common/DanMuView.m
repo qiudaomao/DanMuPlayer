@@ -210,7 +210,7 @@ withStrokeColor:(UIColor*)bgcolor
             for (DanMu *danmu in danmus) {
                 if (danmu.style == DM_STYLE_NORMAL) {
                     CGRect frame = danmu.frame;
-                    frame.origin.x += danmu.speed/30.0f;
+                    frame.origin.x += danmu.speed/60.0f;
                     danmu.frame = frame;
                     if (frame.origin.x + frame.size.width <= 0) {//out of screen
                         [needsRemove addObject:danmu];
@@ -264,6 +264,7 @@ withStrokeColor:(UIColor*)bgcolor
                                                           NSForegroundColorAttributeName: color,
                                                           NSStrokeWidthAttributeName: @(1.0),
                                                           NSStrokeColorAttributeName: strokeColor,
+                                                          NSStrokeWidthAttributeName: @(0.2),
                                                           };
     NSMutableAttributedString *bg_as = [[NSMutableAttributedString alloc] initWithString:content attributes:bg_attrs];
     [bg_as addAttribute:NSFontAttributeName value:font_ range:range];

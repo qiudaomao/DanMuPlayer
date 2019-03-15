@@ -13,8 +13,18 @@
 - (CGPoint)location;
 @end
 
+@interface SiriRemoteGestureRecognizer() {
+    CGPoint _location;
+    CGPoint _oldLocation;
+    CGPoint _velocity;
+    NSTimeInterval _oldTime;
+}
+@end
+
 @implementation SiriRemoteGestureRecognizer
 @dynamic delegate;
+@dynamic location;
+@dynamic velocity;
 
 - (instancetype)initWithTarget:(id)target action:(SEL)action {
     self = [super initWithTarget:target action:action];
@@ -60,6 +70,14 @@
     }
 }
 
+- (CGPoint)location {
+    return _location;
+}
+
+- (CGPoint)velocity {
+    return _velocity;
+}
+
 - (void)pressesChanged:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
     self.state = UIGestureRecognizerStateChanged;
     _stateName = @"Changed";
@@ -83,6 +101,13 @@
 
 - (void)updateTouchLocationWithEvent: (UIEvent*)event {
     CGPoint location = [event location];
+    _location = location;
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    //calculate velocity
+    _velocity = CGPointMake((location.x-_oldLocation.x)/(now-_oldTime),
+                                (location.y-_oldLocation.y)/(now-_oldTime));
+    _oldTime = now;
+    _oldLocation = location;
     SiriRemoteTouchLocation l = MMSiriRemoteTouchLocationUnknown;
     //NSLog(@"updateTouchLocation (%.2f, %.2f)", location.x, location.y);
     if (location.x <= 1/4.0 && location.y >= 1/4.0 && location.y <= 3/4.0) {

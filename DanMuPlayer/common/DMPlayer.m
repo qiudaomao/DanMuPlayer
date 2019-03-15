@@ -9,9 +9,10 @@
 #import <Foundation/Foundation.h>
 #import "DMPlayer.h"
 //#import "MPVPlayerViewController.h"
-#import "IJKPlayerViewController.h"
+//#import "IJKPlayerViewController.h"
 //#import "../SGPlayer/PlayerViewController.h"
 #import "../AVPlayer/LazyCatAVPlayerViewController.h"
+#import "../MergedPlayer/VideoPlayerViewController.h"
 
 @implementation DMPlayerEvent
 @synthesize name;
@@ -93,25 +94,26 @@
         if ([item.player isEqualToString:@"DMPlayer"]) {
 //            player = [[PlayerViewController alloc] init];
 //            player = [[MPVPlayerViewController alloc] init];
-            player = [[IJKPlayerViewController alloc] init];
+            player = [[VideoPlayerViewController alloc] init];
         } else if ([item.player isEqualToString:@"MPVPlayer"]) {
 //            player = [[MPVPlayerViewController alloc] init];
-            player = [[IJKPlayerViewController alloc] init];
+            player = [[VideoPlayerViewController alloc] init];
         } else if ([item.player isEqualToString:@"AVPlayer"]) {
             player = [[LazyCatAVPlayerViewController alloc] init];
         } else if ([item.player isEqualToString:@"IJKPlayer"]) {
-            player = [[IJKPlayerViewController alloc] init];
+            player = [[VideoPlayerViewController alloc] init];
         } else {
             if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
                 player = [[LazyCatAVPlayerViewController alloc] init];
             } else {
 //                player = [[PlayerViewController alloc] init];
 //                player = [[MPVPlayerViewController alloc] init];
-                player = [[IJKPlayerViewController alloc] init];
+                player = [[VideoPlayerViewController alloc] init];
             }
         }
         player.delegate = self;
         player.timeMode = self.timeMode;
+        player.playerType = item.player;
         [player setupButtonList:self.buttonList];
         player.buttonClickCallback = self.buttonClickCallback;
         player.buttonFocusIndex = self.buttonFocusIndex;

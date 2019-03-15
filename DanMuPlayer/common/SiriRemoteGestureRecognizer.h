@@ -21,9 +21,11 @@ typedef NS_ENUM(NSInteger, SiriRemoteTouchLocation) {
 };
 
 @interface SiriRemoteGestureRecognizer : UIGestureRecognizer
-@property (nonatomic, readonly) SiriRemoteTouchLocation touchLocation;
-@property (nonatomic, readonly) NSString *touchLocationName;
-@property (nonatomic, readonly) NSString *stateName;
+@property (nonatomic, readonly, assign) SiriRemoteTouchLocation touchLocation;
+@property (nonatomic, readonly, assign) CGPoint location;
+@property (nonatomic, readonly, assign) CGPoint velocity;
+@property (nonatomic, readonly, copy) NSString *touchLocationName;
+@property (nonatomic, readonly, copy) NSString *stateName;
 @property (nonatomic, readonly, getter=isClick) BOOL click;
 @end
 #endif /* SiriRemoteGestureRecognizer_h */

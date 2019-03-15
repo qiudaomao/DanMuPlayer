@@ -54,24 +54,24 @@ static void glupdate(void *ctx);
     self = [super initWithFrame:frame];
     _uninitLock = [[NSLock alloc] init];
     _isUninit = NO;
-    
+
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
         NSLog(@"Failed to initialize OpenGLES 2.0 context");
         exit(1);
     }
     [EAGLContext setCurrentContext:self.context];
-    
+
     // Configure renderbuffers created by the view
     self.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
     self.drawableDepthFormat = GLKViewDrawableDepthFormatNone;
     self.drawableStencilFormat = GLKViewDrawableStencilFormatNone;
-    
+
     defaultFBO = -1;
     self.opaque = true;
-    
+
     [self fillBlack];
-    
+
     return self;
 }
 
@@ -91,7 +91,7 @@ static void glupdate(void *ctx);
     if (defaultFBO == -1) {
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFBO);
     }
-    
+
     if (self.mpvGL)
     {
         mpv_opengl_cb_draw(self.mpvGL,
@@ -154,7 +154,7 @@ static void wakeup(void *context)
 
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     isViewLayouted = NO;
-    
+
     // set up the mpv player view
     _glView = [[MpvClientOGLView alloc] initWithFrame:screenBounds];
     mpv = mpv_create();
@@ -169,7 +169,7 @@ static void wakeup(void *context)
     NSString *fileName =[NSString stringWithFormat:@"mpv-%@.log",[NSDate date]];
     NSString *logFile = [documentsDirectory stringByAppendingPathComponent:fileName];
     NSLog(@"%@", logFile);
-    
+
     check_error(mpv_set_option_string(mpv, "log-file", logFile.UTF8String));
     check_error(mpv_request_log_messages(mpv, "status"));
     check_error(mpv_initialize(mpv));
@@ -177,15 +177,15 @@ static void wakeup(void *context)
     check_error(mpv_set_option_string(mpv, "hwdec", "yes"));
     check_error(mpv_set_option_string(mpv, "hwdec-codecs", "all"));
     check_error(mpv_request_log_messages(mpv, "info"));
-    
+
     mpv_opengl_cb_context *mpvGL = mpv_get_sub_api(mpv, MPV_SUB_API_OPENGL_CB);
     if (!mpvGL) {
         puts("libmpv does not have the opengl-cb sub-API.");
         return;
     }
-    
+
     [self.glView display];
-    
+
     // pass the mpvGL context to our view
     self.glView.mpvGL = mpvGL;
     int r = mpv_opengl_cb_init_gl(mpvGL, NULL, get_proc_address, NULL);
@@ -194,15 +194,14 @@ static void wakeup(void *context)
         return;
     }
     mpv_opengl_cb_set_update_callback(mpvGL, glupdate, (__bridge void *)self.glView);
-    
-    
+
     // Deal with MPV in the background.
     queue = dispatch_queue_create("mpv", DISPATCH_QUEUE_SERIAL);
     dispatch_async(queue, ^{
         // Register to be woken up whenever mpv generates new events.
         mpv_set_wakeup_callback(self->mpv, wakeup, (__bridge void *)self);
         // Load the indicated file
-        
+
         //const char *cmd[] = {"loadfile", "http://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_640x360.m4v", NULL};
 //        const char *cmd[] = {"loadfile", "edl://http://localhost/media/BigBuckBunny_640x360.m4v,length=596;http://localhost/media/BigBuckBunny_640x360.m4v,length=596;", NULL};
         //        NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"hevc-test-soccer" withExtension:@"mts"];
@@ -212,14 +211,14 @@ static void wakeup(void *context)
     });
 
     [self.view addSubview:_glView];
-    
+
     menuRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapMenu:)];
     menuRecognizer.allowedPressTypes = @[@(UIPressTypeMenu)];
     [self.view addGestureRecognizer:menuRecognizer];
     hudView = [[HUDView alloc] initWithFrame:self.view.bounds];
     hudView.delegate = self;
     [self.view addSubview:hudView];
-    
+
     playTimeTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
                                                      target:self
                                                    selector:@selector(updatePlayTime)
@@ -304,7 +303,7 @@ static void wakeup(void *context)
             NSLog(@"event: shutdown start finish");
             [self.glView.uninitLock unlock];
             break;
-        }   
+        }
         case MPV_EVENT_LOG_MESSAGE: {
             struct mpv_event_log_message *msg = (struct mpv_event_log_message *)event->data;
             NSLog(@"mpv: [%s] %s: %s", msg->prefix, msg->level, msg->text);
@@ -463,9 +462,7 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 -(void)setSubTitle:(NSString*)subTitle {
-    
 }
 -(void)setupButtonList:(DMPlaylist*)playlist {
-    
 }
 @end

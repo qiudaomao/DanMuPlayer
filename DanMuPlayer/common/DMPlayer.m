@@ -117,6 +117,7 @@
         [player setupButtonList:self.buttonList];
         player.buttonClickCallback = self.buttonClickCallback;
         player.buttonFocusIndex = self.buttonFocusIndex;
+        player.navController = self.controller;
         UIViewController *playerViewController = (UIViewController*)player;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.controller presentViewController:playerViewController animated:YES completion:^{

@@ -174,8 +174,14 @@
     IJKMPMovieLoadState loadState = player.loadState;
     if ((loadState & IJKMPMovieLoadStatePlaythroughOK) != 0) {
         NSLog(@"loadStateDidChange: IJKMPMovieLoadStatePlaythroughOK: %d\n", (int)loadState);
+        if ([self.delegate respondsToSelector:@selector(stopBufferring)]) {
+            [self.delegate stopBufferring];
+        }
     } else if ((loadState & IJKMPMovieLoadStateStalled) != 0) {
         NSLog(@"loadStateDidChange: IJKMPMovieLoadStateStalled: %d\n", (int)loadState);
+        if ([self.delegate respondsToSelector:@selector(bufferring)]) {
+            [self.delegate bufferring];
+        }
     } else {
         NSLog(@"loadStateDidChange: ???: %d\n", (int)loadState);
     }

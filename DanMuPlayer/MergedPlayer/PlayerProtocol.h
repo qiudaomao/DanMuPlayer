@@ -11,7 +11,6 @@
 #import <UIKit/UIKit.h>
 
 @protocol PlayerImplementProtocol <NSObject>
-- (void)videSizeChanged:(CGSize)size;
 - (void)onPause;
 - (void)onPlay;
 - (void)onEnd;
@@ -20,6 +19,8 @@
 @optional
 - (void)bufferring;
 - (void)stopBufferring;
+- (void)onVideoSizeChanged:(CGSize)size;
+- (void)onVideoFPSChanged:(CGFloat)fps;
 @end
 
 @protocol PlayerProtocol <NSObject>

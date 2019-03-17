@@ -9,7 +9,13 @@
 #import "VideoPlayerViewController.h"
 #import "IJKPlayerImplement.h"
 #import "SiriRemoteGestureRecognizer.h"
-#import "HUDTabBarControllerViewController.h"
+//#import <objc/runtime.h>
+//#import <objc/message.h>
+//#import "InfoPanelViewController.h"
+#import <AVFoundation/AVFoundation.h>
+#import "AudioInfoViewController.h"
+#import "TopPanelViewController.h"
+#import "CurrentMediaInfo.h"
 
 typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     HUDKeyEventMenu,
@@ -49,14 +55,16 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     SiriRemoteGestureRecognizer *siriRemoteRecognizer;
     NSMutableArray<UITapGestureRecognizer*> *recognizers;
     CGPoint prevPanLocation;
+    CGPoint beganPanLocation;
     CADisplayLink *displayLink;
     
-    HUDTabBarControllerViewController *tabBarController;
     NSTimer *hudHideTimer;
     UIView *hudView;
     BOOL inHiddenChangeProgress;
     CGRect seekImageFrame;
     NSTimeInterval seekTargetTime;
+    CurrentMediaInfo *currentMediaInfo;
+    BOOL topPanelPresented;
 }
 @end
 
@@ -67,6 +75,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 @synthesize buttonFocusIndex;
 @synthesize timeMode;
 @synthesize playerType;
+@synthesize navController;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -79,6 +88,12 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     [self initHud];
     inHiddenChangeProgress = NO;
     seekTargetTime = -1;
+    topPanelPresented = NO;
+    currentMediaInfo = CurrentMediaInfo.new;
+//    AVAudioSessionRouteDescription *currentRoute = [[AVAudioSession sharedInstance] currentRoute];
+//    for (AVAudioSessionPortDescription *output in currentRoute.outputs) {
+//        NSLog(@"audio %@", output.portName);
+//    }
 }
 
 - (void)updateProgress
@@ -203,6 +218,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 }
 
 - (void)updateProgress:(NSTimeInterval)current playableTime:(NSTimeInterval)playableTime buffering:(BOOL)buffering total:(NSTimeInterval)total {
+    currentMediaInfo.duration = total;
     if (buffering) {
         loadingIndicator.hidden = NO;
         [loadingIndicator startAnimating];
@@ -335,6 +351,9 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
                 [player_ seekToTime:0];
             }
             break;
+        case HUDKeyEventDown:
+            [self presentInfoPanel];
+            break;
         case HUDKeyEventRight:
             if (player_.currentTime < player_.duration - 10) {
                 [player_ seekToTime:player_.currentTime+10.0];
@@ -355,6 +374,25 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
         default:
             break;
     }
+}
+
+-(UIViewController *) topMostController {
+    UIViewController *topController = UIApplication.sharedApplication.keyWindow.rootViewController;
+    while(topController.presentedViewController){
+        topController=topController.presentedViewController;
+    }
+    return topController;
+}
+
+-(void)presentInfoPanel {
+    NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
+    TopPanelViewController *topPanelVC = [[TopPanelViewController alloc] initWithNibName:@"TopPanelViewController" bundle:bundle];
+    topPanelVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    topPanelVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    [topPanelVC setCurrentMediaInfo:currentMediaInfo];
+    UIViewController *top = [self topMostController];
+    [top presentViewController:topPanelVC animated:YES completion:^{
+    }];
 }
 
 -(void)pause {
@@ -397,6 +435,12 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
              mp4:(BOOL)mp4
   withResumeTime:(CGFloat)resumeTime {
     //get videoView here
+    currentMediaInfo.title = title;
+    currentMediaInfo.imgURL = img;
+    currentMediaInfo.description = desc;
+    currentMediaInfo.resolution = @" ";
+    currentMediaInfo.fps = -1;
+    currentMediaInfo.duration = -1;
     if ([playerType isEqualToString:@"IJKPlayer"]
         || [playerType isEqualToString:@""]
         || [playerType isEqualToString:@"MPVPlayer"]) {
@@ -510,7 +554,7 @@ withStrokeColor:(UIColor*)bgcolor
     NSArray<NSNumber*> *types = @[@(UIPressTypeMenu),
 //                                  @(UIPressTypeSelect),
 //                                  @(UIPressTypeUpArrow),
-//                                  @(UIPressTypeDownArrow),
+                                  @(UIPressTypeDownArrow),
 //                                  @(UIPressTypeLeftArrow),
 //                                  @(UIPressTypeRightArrow),
                                   @(UIPressTypePlayPause)];
@@ -530,6 +574,7 @@ withStrokeColor:(UIColor*)bgcolor
 - (void)siriTouch:(SiriRemoteGestureRecognizer*)sender {
     //    NSLog(@"taped siriRemote state: %ld %@ location %ld %@",
     //          (long)sender.state, sender.stateName, (long)sender.touchLocation, sender.touchLocationName);
+    if (topPanelPresented) return;
     NSLog(@"taped siriRemote state: %@ click %d", sender.stateName, sender.isClick);
     if (sender.state == UIGestureRecognizerStateEnded && sender.isClick) {
         //NSLog(@"taped siriRemote, location %@", sender.touchLocationName);
@@ -548,6 +593,7 @@ withStrokeColor:(UIColor*)bgcolor
     } else if (sender.state == UIGestureRecognizerStateBegan) {
 //        [self stopAndShowTimer];
         prevPanLocation = sender.location;
+        beganPanLocation = sender.location;
     } else if (sender.state == UIGestureRecognizerStateChanged) {
         if (!isPlaying) {
             CGPoint distence = CGPointMake(sender.location.x - prevPanLocation.x,
@@ -578,6 +624,14 @@ withStrokeColor:(UIColor*)bgcolor
                 || sender.state == UIGestureRecognizerStateCancelled)
                && !sender.isClick) {
         NSLog(@"taped not click action");
+        //check velocity
+        CGPoint endLocation = sender.location;
+        CGPoint endVelocity = sender.velocity;
+        NSLog(@"end %.2f %.2f %.2f y gap %.2f", endLocation.x, endLocation.y, endVelocity.y, (endLocation.y - beganPanLocation.y));
+        if (endLocation.y > beganPanLocation.y + 0.2 && endVelocity.y > 0) {
+            NSLog(@"gesture scroll down");
+            [self onKeyPressed:HUDKeyEventDown];
+        }
         if (!isPlaying) {
             //here to avoid hide during swipe to adjust seek time
             return;
@@ -645,6 +699,9 @@ withStrokeColor:(UIColor*)bgcolor
         default:
             break;
     }
+    if (topPanelPresented && eventType != HUDKeyEventMenu) {
+        return;
+    }
     if (eventType != HUDKeyEventUnknown) {
         [self onKeyPressed:eventType];
     }
@@ -659,5 +716,21 @@ withStrokeColor:(UIColor*)bgcolor
     NSInteger minute = [components minute];
     _timeLabel.text = [NSString stringWithFormat:@"%02ld:%02ld", hour, minute];
     //NSLog(@"update Time: %@", _timeLabel.text);
+}
+
+- (void)onVideoSizeChanged:(CGSize)size {
+    currentMediaInfo.resolution = [NSString stringWithFormat:@"%dx%d", (int)size.width, (int)size.height];
+}
+- (void)onVideoFPSChanged:(CGFloat)fps {
+    currentMediaInfo.fps = fps;
+}
+
+- (void)bufferring {
+    loadingIndicator.hidden = NO;
+    [loadingIndicator startAnimating];
+}
+- (void)stopBufferring {
+    loadingIndicator.hidden = YES;
+    [loadingIndicator stopAnimating];
 }
 @end

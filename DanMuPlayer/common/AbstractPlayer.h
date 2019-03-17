@@ -55,6 +55,7 @@ withStrokeColor:(UIColor*)bgcolor
 -(void)setSubTitle:(NSString*)subTitle;
 -(void)setupButtonList:(DMPlaylist*)playlist;
 @property (nonatomic, readwrite, weak) id<PlayerStateDelegate> delegate;
+@property (nonatomic, readwrite, weak) UINavigationController *navController;
 @property (nonatomic, readwrite, strong) DanMuView *danmuView;
 @property (nonatomic, strong, readwrite) JSValue *buttonClickCallback;
 @property (nonatomic, assign, readwrite) NSInteger buttonFocusIndex;

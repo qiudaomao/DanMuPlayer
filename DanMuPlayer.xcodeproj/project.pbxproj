@@ -36,16 +36,22 @@
 		E96995FC2236C955000BB13C /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E96995FB2236C955000BB13C /* libc++.tbd */; };
 		E96996632237A341000BB13C /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E969961B22378454000BB13C /* libiconv.tbd */; };
 		E996F93A2238DF2100AC233B /* IJKMediaFrameworkWithSSL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E996F91A2238D16000AC233B /* IJKMediaFrameworkWithSSL.framework */; };
-		E996F959223A9A5900AC233B /* InfoTabViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E996F956223A9A5900AC233B /* InfoTabViewController.h */; };
-		E996F95A223A9A5900AC233B /* InfoTabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E996F957223A9A5900AC233B /* InfoTabViewController.m */; };
-		E996F95B223A9A5900AC233B /* InfoTabViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E996F958223A9A5900AC233B /* InfoTabViewController.xib */; };
-		E996F95E223A9C5F00AC233B /* HUDTabBarControllerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E996F95C223A9C5F00AC233B /* HUDTabBarControllerViewController.h */; };
-		E996F95F223A9C5F00AC233B /* HUDTabBarControllerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E996F95D223A9C5F00AC233B /* HUDTabBarControllerViewController.m */; };
 		E996F963223B4AE500AC233B /* PlayerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E996F962223B4AE400AC233B /* PlayerProtocol.h */; };
 		E996F967223B4B8300AC233B /* VideoPlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E996F965223B4B8300AC233B /* VideoPlayerViewController.h */; };
 		E996F968223B4B8300AC233B /* VideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E996F966223B4B8300AC233B /* VideoPlayerViewController.m */; };
 		E996F96B223B4D1E00AC233B /* IJKPlayerImplement.h in Headers */ = {isa = PBXBuildFile; fileRef = E996F969223B4D1E00AC233B /* IJKPlayerImplement.h */; };
 		E996F96C223B4D1E00AC233B /* IJKPlayerImplement.m in Sources */ = {isa = PBXBuildFile; fileRef = E996F96A223B4D1E00AC233B /* IJKPlayerImplement.m */; };
+		E9A70017223CDFEA0067ECB7 /* InfoPanelViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A70014223CDFEA0067ECB7 /* InfoPanelViewController.h */; };
+		E9A70018223CDFEA0067ECB7 /* InfoPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A70015223CDFEA0067ECB7 /* InfoPanelViewController.m */; };
+		E9A70019223CDFEA0067ECB7 /* InfoPanelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9A70016223CDFEA0067ECB7 /* InfoPanelViewController.xib */; };
+		E9A7001D223D2A760067ECB7 /* AudioInfoViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A7001A223D2A760067ECB7 /* AudioInfoViewController.h */; };
+		E9A7001E223D2A760067ECB7 /* AudioInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A7001B223D2A760067ECB7 /* AudioInfoViewController.m */; };
+		E9A7001F223D2A760067ECB7 /* AudioInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9A7001C223D2A760067ECB7 /* AudioInfoViewController.xib */; };
+		E9A70023223D39E30067ECB7 /* TopPanelViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A70020223D39E30067ECB7 /* TopPanelViewController.h */; };
+		E9A70024223D39E30067ECB7 /* TopPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A70021223D39E30067ECB7 /* TopPanelViewController.m */; };
+		E9A70025223D39E30067ECB7 /* TopPanelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */; };
+		E9A70028223DEB930067ECB7 /* CurrentMediaInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */; };
+		E9A70029223DEB930067ECB7 /* CurrentMediaInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */; };
 		E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBBC1FD3A287006EB41C /* AbstractPlayer.h */; };
 		E9B3EBC41FD3A722006EB41C /* MMVideoSources.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBC21FD3A722006EB41C /* MMVideoSources.h */; };
 		E9B3EBC51FD3A722006EB41C /* MMVideoSources.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B3EBC31FD3A722006EB41C /* MMVideoSources.m */; };
@@ -90,16 +96,22 @@
 		E96995FB2236C955000BB13C /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		E969961B22378454000BB13C /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		E996F91A2238D16000AC233B /* IJKMediaFrameworkWithSSL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFrameworkWithSSL.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/LazyCat-gnyinqjrlbbcdudzybiphletcqde/Build/Products/Debug-appletvos/IJKMediaFrameworkWithSSL.framework"; sourceTree = "<group>"; };
-		E996F956223A9A5900AC233B /* InfoTabViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoTabViewController.h; sourceTree = "<group>"; };
-		E996F957223A9A5900AC233B /* InfoTabViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoTabViewController.m; sourceTree = "<group>"; };
-		E996F958223A9A5900AC233B /* InfoTabViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = InfoTabViewController.xib; sourceTree = "<group>"; };
-		E996F95C223A9C5F00AC233B /* HUDTabBarControllerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HUDTabBarControllerViewController.h; sourceTree = "<group>"; };
-		E996F95D223A9C5F00AC233B /* HUDTabBarControllerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HUDTabBarControllerViewController.m; sourceTree = "<group>"; };
 		E996F962223B4AE400AC233B /* PlayerProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerProtocol.h; sourceTree = "<group>"; };
 		E996F965223B4B8300AC233B /* VideoPlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoPlayerViewController.h; sourceTree = "<group>"; };
 		E996F966223B4B8300AC233B /* VideoPlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerViewController.m; sourceTree = "<group>"; };
 		E996F969223B4D1E00AC233B /* IJKPlayerImplement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IJKPlayerImplement.h; sourceTree = "<group>"; };
 		E996F96A223B4D1E00AC233B /* IJKPlayerImplement.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IJKPlayerImplement.m; sourceTree = "<group>"; };
+		E9A70014223CDFEA0067ECB7 /* InfoPanelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoPanelViewController.h; sourceTree = "<group>"; };
+		E9A70015223CDFEA0067ECB7 /* InfoPanelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoPanelViewController.m; sourceTree = "<group>"; };
+		E9A70016223CDFEA0067ECB7 /* InfoPanelViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = InfoPanelViewController.xib; sourceTree = "<group>"; };
+		E9A7001A223D2A760067ECB7 /* AudioInfoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioInfoViewController.h; sourceTree = "<group>"; };
+		E9A7001B223D2A760067ECB7 /* AudioInfoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioInfoViewController.m; sourceTree = "<group>"; };
+		E9A7001C223D2A760067ECB7 /* AudioInfoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioInfoViewController.xib; sourceTree = "<group>"; };
+		E9A70020223D39E30067ECB7 /* TopPanelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TopPanelViewController.h; sourceTree = "<group>"; };
+		E9A70021223D39E30067ECB7 /* TopPanelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TopPanelViewController.m; sourceTree = "<group>"; };
+		E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TopPanelViewController.xib; sourceTree = "<group>"; };
+		E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CurrentMediaInfo.h; sourceTree = "<group>"; };
+		E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CurrentMediaInfo.m; sourceTree = "<group>"; };
 		E9B3EBBC1FD3A287006EB41C /* AbstractPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractPlayer.h; sourceTree = "<group>"; };
 		E9B3EBC21FD3A722006EB41C /* MMVideoSources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MMVideoSources.h; sourceTree = "<group>"; };
 		E9B3EBC31FD3A722006EB41C /* MMVideoSources.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MMVideoSources.m; sourceTree = "<group>"; };
@@ -224,15 +236,21 @@
 			isa = PBXGroup;
 			children = (
 				E996F962223B4AE400AC233B /* PlayerProtocol.h */,
-				E996F956223A9A5900AC233B /* InfoTabViewController.h */,
-				E996F957223A9A5900AC233B /* InfoTabViewController.m */,
-				E996F958223A9A5900AC233B /* InfoTabViewController.xib */,
-				E996F95C223A9C5F00AC233B /* HUDTabBarControllerViewController.h */,
-				E996F95D223A9C5F00AC233B /* HUDTabBarControllerViewController.m */,
 				E996F965223B4B8300AC233B /* VideoPlayerViewController.h */,
 				E996F966223B4B8300AC233B /* VideoPlayerViewController.m */,
 				E996F969223B4D1E00AC233B /* IJKPlayerImplement.h */,
 				E996F96A223B4D1E00AC233B /* IJKPlayerImplement.m */,
+				E9A70014223CDFEA0067ECB7 /* InfoPanelViewController.h */,
+				E9A70015223CDFEA0067ECB7 /* InfoPanelViewController.m */,
+				E9A70016223CDFEA0067ECB7 /* InfoPanelViewController.xib */,
+				E9A7001A223D2A760067ECB7 /* AudioInfoViewController.h */,
+				E9A7001B223D2A760067ECB7 /* AudioInfoViewController.m */,
+				E9A7001C223D2A760067ECB7 /* AudioInfoViewController.xib */,
+				E9A70020223D39E30067ECB7 /* TopPanelViewController.h */,
+				E9A70021223D39E30067ECB7 /* TopPanelViewController.m */,
+				E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */,
+				E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */,
+				E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */,
 			);
 			path = MergedPlayer;
 			sourceTree = "<group>";
@@ -266,6 +284,7 @@
 			files = (
 				E90F0A1E1EFA3F6700BC3EAD /* PlayerViewController.h in Headers */,
 				E90F0A251EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h in Headers */,
+				E9A7001D223D2A760067ECB7 /* AudioInfoViewController.h in Headers */,
 				E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */,
 				E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */,
 				E996F96B223B4D1E00AC233B /* IJKPlayerImplement.h in Headers */,
@@ -273,15 +292,16 @@
 				E953FFF5222BB3DE00137F79 /* DanMuView.h in Headers */,
 				E9530131223274B000137F79 /* CustomResourceLoader.h in Headers */,
 				E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */,
-				E996F95E223A9C5F00AC233B /* HUDTabBarControllerViewController.h in Headers */,
 				E90F0A261EFA3F6700BC3EAD /* DanMuLayer.h in Headers */,
+				E9A70017223CDFEA0067ECB7 /* InfoPanelViewController.h in Headers */,
+				E9A70023223D39E30067ECB7 /* TopPanelViewController.h in Headers */,
 				E996F963223B4AE500AC233B /* PlayerProtocol.h in Headers */,
 				E996F967223B4B8300AC233B /* VideoPlayerViewController.h in Headers */,
 				E9B3EBCE1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.h in Headers */,
 				E90F0A201EFA3F6700BC3EAD /* StrokeUILabel.h in Headers */,
 				E959D3B020A3041F0079E653 /* MPVPlayerViewController.h in Headers */,
 				E90F0A221EFA3F6700BC3EAD /* DMPlayer.h in Headers */,
-				E996F959223A9A5900AC233B /* InfoTabViewController.h in Headers */,
+				E9A70028223DEB930067ECB7 /* CurrentMediaInfo.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,7 +364,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E996F95B223A9A5900AC233B /* InfoTabViewController.xib in Resources */,
+				E9A70019223CDFEA0067ECB7 /* InfoPanelViewController.xib in Resources */,
+				E9A7001F223D2A760067ECB7 /* AudioInfoViewController.xib in Resources */,
+				E9A70025223D39E30067ECB7 /* TopPanelViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,19 +377,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E996F95A223A9A5900AC233B /* InfoTabViewController.m in Sources */,
 				E953FFF4222BB3DE00137F79 /* DanMuView.m in Sources */,
+				E9A70018223CDFEA0067ECB7 /* InfoPanelViewController.m in Sources */,
 				E90F0A231EFA3F6700BC3EAD /* DMPlayer.m in Sources */,
 				E90F0A211EFA3F6700BC3EAD /* StrokeUILabel.m in Sources */,
+				E9A7001E223D2A760067ECB7 /* AudioInfoViewController.m in Sources */,
 				E996F96C223B4D1E00AC233B /* IJKPlayerImplement.m in Sources */,
 				E9D195161FFF85DD0096FCA4 /* DMPlaylist.m in Sources */,
+				E9A70024223D39E30067ECB7 /* TopPanelViewController.m in Sources */,
 				E9530130223274B000137F79 /* CustomResourceLoader.m in Sources */,
 				E996F968223B4B8300AC233B /* VideoPlayerViewController.m in Sources */,
-				E996F95F223A9C5F00AC233B /* HUDTabBarControllerViewController.m in Sources */,
 				E90F0A241EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.m in Sources */,
 				E9B3EBCC1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.m in Sources */,
 				E90F0A271EFA3F6700BC3EAD /* DanMuLayer.m in Sources */,
 				E9B3EBC51FD3A722006EB41C /* MMVideoSources.m in Sources */,
+				E9A70029223DEB930067ECB7 /* CurrentMediaInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -53,6 +53,7 @@
 @synthesize timeMode;
 @synthesize danmuView;
 @synthesize playerType;
+@synthesize navController;
 
 - (id)init {
     self = [super init];

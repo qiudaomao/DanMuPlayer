@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.AppleTV.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="appleTV" orientation="landscape">
+        <adaptation id="light"/>
+    </device>
+    <dependencies>
+        <deployment identifier="tvOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="header" id="7wu-8X-Iab" customClass="headerCollectionReusableView">
+            <rect key="frame" x="0.0" y="0.0" width="1920" height="50"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I9a-lb-RkZ">
+                    <rect key="frame" x="50" y="0.0" width="1870" height="50"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="29"/>
+                    <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="I9a-lb-RkZ" secondAttribute="trailing" id="cKa-im-UIk"/>
+                <constraint firstItem="I9a-lb-RkZ" firstAttribute="leading" secondItem="7wu-8X-Iab" secondAttribute="leading" constant="50" id="cTs-2i-xlT"/>
+                <constraint firstAttribute="bottom" secondItem="I9a-lb-RkZ" secondAttribute="bottom" id="xmX-d0-Wvw"/>
+                <constraint firstItem="I9a-lb-RkZ" firstAttribute="top" secondItem="7wu-8X-Iab" secondAttribute="top" id="yZ2-pO-KHP"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="GdM-NZ-SVM"/>
+            <connections>
+                <outlet property="titleLabel" destination="I9a-lb-RkZ" id="Mq4-S0-vQX"/>
+            </connections>
+        </collectionReusableView>
+    </objects>
+</document>

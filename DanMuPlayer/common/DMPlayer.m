@@ -103,13 +103,13 @@
         } else if ([item.player isEqualToString:@"IJKPlayer"]) {
             player = [[VideoPlayerViewController alloc] init];
         } else {
-            if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
-                player = [[LazyCatAVPlayerViewController alloc] init];
-            } else {
+//            if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
+//                player = [[LazyCatAVPlayerViewController alloc] init];
+//            } else {
 //                player = [[PlayerViewController alloc] init];
 //                player = [[MPVPlayerViewController alloc] init];
                 player = [[VideoPlayerViewController alloc] init];
-            }
+//            }
         }
         player.delegate = self;
         player.timeMode = self.timeMode;

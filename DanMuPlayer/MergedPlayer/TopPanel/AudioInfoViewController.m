@@ -20,7 +20,7 @@
     // Do any additional setup after loading the view.
     CGRect frame = self.bgVisualEffectView.frame;
     AVRoutePickerView *view = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(frame.size.width/2-30, frame.size.height/2-30, 60, 60)];
-    view.activeTintColor = UIColor.redColor;
+    view.activeTintColor = UIColor.blueColor;
     view.delegate = self;
     [self.bgVisualEffectView.contentView addSubview:view];
     view.userInteractionEnabled = YES;

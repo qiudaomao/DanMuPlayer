@@ -177,11 +177,18 @@
         if ([self.delegate respondsToSelector:@selector(stopBufferring)]) {
             [self.delegate stopBufferring];
         }
+        if ([self.delegate respondsToSelector:@selector(onVideoSizeChanged:)]) {
+            [self.delegate onVideoSizeChanged:player.naturalSize];
+        }
+        if ([self.delegate respondsToSelector:@selector(onVideoFPSChanged:)]) {
+            [self.delegate onVideoFPSChanged:player.fpsInMeta];
+        }
     } else if ((loadState & IJKMPMovieLoadStateStalled) != 0) {
         NSLog(@"loadStateDidChange: IJKMPMovieLoadStateStalled: %d\n", (int)loadState);
         if ([self.delegate respondsToSelector:@selector(bufferring)]) {
             [self.delegate bufferring];
         }
+    } else if ((loadState & IJKMPMovieLoadStatePlayable) != 0) {
     } else {
         NSLog(@"loadStateDidChange: ???: %d\n", (int)loadState);
     }

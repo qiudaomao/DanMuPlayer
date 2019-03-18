@@ -52,6 +52,9 @@
 		E9A70025223D39E30067ECB7 /* TopPanelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */; };
 		E9A70028223DEB930067ECB7 /* CurrentMediaInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */; };
 		E9A70029223DEB930067ECB7 /* CurrentMediaInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */; };
+		E9A70034223E1F690067ECB7 /* PlayerControlViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A70031223E1F690067ECB7 /* PlayerControlViewController.h */; };
+		E9A70035223E1F690067ECB7 /* PlayerControlViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A70032223E1F690067ECB7 /* PlayerControlViewController.m */; };
+		E9A70036223E1F690067ECB7 /* PlayerControlViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9A70033223E1F690067ECB7 /* PlayerControlViewController.xib */; };
 		E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBBC1FD3A287006EB41C /* AbstractPlayer.h */; };
 		E9B3EBC41FD3A722006EB41C /* MMVideoSources.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBC21FD3A722006EB41C /* MMVideoSources.h */; };
 		E9B3EBC51FD3A722006EB41C /* MMVideoSources.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B3EBC31FD3A722006EB41C /* MMVideoSources.m */; };
@@ -60,6 +63,19 @@
 		E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBD21FD3C281006EB41C /* DanMuPlayer.h */; };
 		E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D195111FFF84F60096FCA4 /* DMPlaylist.h */; };
 		E9D195161FFF85DD0096FCA4 /* DMPlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D195151FFF85DD0096FCA4 /* DMPlaylist.m */; };
+		E9E8F961223E2A2500B48D89 /* SelectionCollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E8F95E223E2A2500B48D89 /* SelectionCollectionViewCell.h */; };
+		E9E8F962223E2A2500B48D89 /* SelectionCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8F95F223E2A2500B48D89 /* SelectionCollectionViewCell.m */; };
+		E9E8F963223E2A2500B48D89 /* SelectionCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F960223E2A2500B48D89 /* SelectionCollectionViewCell.xib */; };
+		E9E8F96C223E2FFB00B48D89 /* headerCollectionReusableView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E8F969223E2FFB00B48D89 /* headerCollectionReusableView.h */; };
+		E9E8F96D223E2FFB00B48D89 /* headerCollectionReusableView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8F96A223E2FFB00B48D89 /* headerCollectionReusableView.m */; };
+		E9E8F96E223E2FFB00B48D89 /* headerCollectionReusableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F96B223E2FFB00B48D89 /* headerCollectionReusableView.xib */; };
+		E9E8F972223E44F300B48D89 /* EpisodeViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E8F96F223E44F300B48D89 /* EpisodeViewController.h */; };
+		E9E8F973223E44F300B48D89 /* EpisodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8F970223E44F300B48D89 /* EpisodeViewController.m */; };
+		E9E8F974223E44F300B48D89 /* EpisodeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F971223E44F300B48D89 /* EpisodeViewController.xib */; };
+		E9E8F978223E4AE800B48D89 /* LockupCollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E8F975223E4AE800B48D89 /* LockupCollectionViewCell.h */; };
+		E9E8F979223E4AE800B48D89 /* LockupCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8F976223E4AE800B48D89 /* LockupCollectionViewCell.m */; };
+		E9E8F97A223E4AE800B48D89 /* LockupCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F977223E4AE800B48D89 /* LockupCollectionViewCell.xib */; };
+		E9E8F97C223E4EB900B48D89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F97B223E4EB900B48D89 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,6 +128,9 @@
 		E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TopPanelViewController.xib; sourceTree = "<group>"; };
 		E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CurrentMediaInfo.h; sourceTree = "<group>"; };
 		E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CurrentMediaInfo.m; sourceTree = "<group>"; };
+		E9A70031223E1F690067ECB7 /* PlayerControlViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayerControlViewController.h; sourceTree = "<group>"; };
+		E9A70032223E1F690067ECB7 /* PlayerControlViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlayerControlViewController.m; sourceTree = "<group>"; };
+		E9A70033223E1F690067ECB7 /* PlayerControlViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PlayerControlViewController.xib; sourceTree = "<group>"; };
 		E9B3EBBC1FD3A287006EB41C /* AbstractPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractPlayer.h; sourceTree = "<group>"; };
 		E9B3EBC21FD3A722006EB41C /* MMVideoSources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MMVideoSources.h; sourceTree = "<group>"; };
 		E9B3EBC31FD3A722006EB41C /* MMVideoSources.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MMVideoSources.m; sourceTree = "<group>"; };
@@ -120,6 +139,19 @@
 		E9B3EBD21FD3C281006EB41C /* DanMuPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DanMuPlayer.h; sourceTree = "<group>"; };
 		E9D195111FFF84F60096FCA4 /* DMPlaylist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMPlaylist.h; sourceTree = "<group>"; };
 		E9D195151FFF85DD0096FCA4 /* DMPlaylist.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DMPlaylist.m; sourceTree = "<group>"; };
+		E9E8F95E223E2A2500B48D89 /* SelectionCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelectionCollectionViewCell.h; sourceTree = "<group>"; };
+		E9E8F95F223E2A2500B48D89 /* SelectionCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SelectionCollectionViewCell.m; sourceTree = "<group>"; };
+		E9E8F960223E2A2500B48D89 /* SelectionCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SelectionCollectionViewCell.xib; sourceTree = "<group>"; };
+		E9E8F969223E2FFB00B48D89 /* headerCollectionReusableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = headerCollectionReusableView.h; sourceTree = "<group>"; };
+		E9E8F96A223E2FFB00B48D89 /* headerCollectionReusableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = headerCollectionReusableView.m; sourceTree = "<group>"; };
+		E9E8F96B223E2FFB00B48D89 /* headerCollectionReusableView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = headerCollectionReusableView.xib; sourceTree = "<group>"; };
+		E9E8F96F223E44F300B48D89 /* EpisodeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EpisodeViewController.h; sourceTree = "<group>"; };
+		E9E8F970223E44F300B48D89 /* EpisodeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EpisodeViewController.m; sourceTree = "<group>"; };
+		E9E8F971223E44F300B48D89 /* EpisodeViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EpisodeViewController.xib; sourceTree = "<group>"; };
+		E9E8F975223E4AE800B48D89 /* LockupCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LockupCollectionViewCell.h; sourceTree = "<group>"; };
+		E9E8F976223E4AE800B48D89 /* LockupCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LockupCollectionViewCell.m; sourceTree = "<group>"; };
+		E9E8F977223E4AE800B48D89 /* LockupCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LockupCollectionViewCell.xib; sourceTree = "<group>"; };
+		E9E8F97B223E4EB900B48D89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +207,7 @@
 				E9B3EBD11FD3C182006EB41C /* SGPlayer */,
 				E9B3EBC61FD3C0A8006EB41C /* AVPlayer */,
 				E90F0A001EFA3CF800BC3EAD /* Info.plist */,
+				E9E8F97B223E4EB900B48D89 /* Assets.xcassets */,
 			);
 			path = DanMuPlayer;
 			sourceTree = "<group>";
@@ -240,19 +273,42 @@
 				E996F966223B4B8300AC233B /* VideoPlayerViewController.m */,
 				E996F969223B4D1E00AC233B /* IJKPlayerImplement.h */,
 				E996F96A223B4D1E00AC233B /* IJKPlayerImplement.m */,
+				E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */,
+				E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */,
+				E9A7002A223E15E00067ECB7 /* TopPanel */,
+			);
+			path = MergedPlayer;
+			sourceTree = "<group>";
+		};
+		E9A7002A223E15E00067ECB7 /* TopPanel */ = {
+			isa = PBXGroup;
+			children = (
+				E9A70020223D39E30067ECB7 /* TopPanelViewController.h */,
+				E9A70021223D39E30067ECB7 /* TopPanelViewController.m */,
+				E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */,
 				E9A70014223CDFEA0067ECB7 /* InfoPanelViewController.h */,
 				E9A70015223CDFEA0067ECB7 /* InfoPanelViewController.m */,
 				E9A70016223CDFEA0067ECB7 /* InfoPanelViewController.xib */,
 				E9A7001A223D2A760067ECB7 /* AudioInfoViewController.h */,
 				E9A7001B223D2A760067ECB7 /* AudioInfoViewController.m */,
 				E9A7001C223D2A760067ECB7 /* AudioInfoViewController.xib */,
-				E9A70020223D39E30067ECB7 /* TopPanelViewController.h */,
-				E9A70021223D39E30067ECB7 /* TopPanelViewController.m */,
-				E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */,
-				E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */,
-				E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */,
+				E9A70031223E1F690067ECB7 /* PlayerControlViewController.h */,
+				E9A70032223E1F690067ECB7 /* PlayerControlViewController.m */,
+				E9A70033223E1F690067ECB7 /* PlayerControlViewController.xib */,
+				E9E8F95E223E2A2500B48D89 /* SelectionCollectionViewCell.h */,
+				E9E8F95F223E2A2500B48D89 /* SelectionCollectionViewCell.m */,
+				E9E8F960223E2A2500B48D89 /* SelectionCollectionViewCell.xib */,
+				E9E8F969223E2FFB00B48D89 /* headerCollectionReusableView.h */,
+				E9E8F96A223E2FFB00B48D89 /* headerCollectionReusableView.m */,
+				E9E8F96B223E2FFB00B48D89 /* headerCollectionReusableView.xib */,
+				E9E8F96F223E44F300B48D89 /* EpisodeViewController.h */,
+				E9E8F970223E44F300B48D89 /* EpisodeViewController.m */,
+				E9E8F971223E44F300B48D89 /* EpisodeViewController.xib */,
+				E9E8F975223E4AE800B48D89 /* LockupCollectionViewCell.h */,
+				E9E8F976223E4AE800B48D89 /* LockupCollectionViewCell.m */,
+				E9E8F977223E4AE800B48D89 /* LockupCollectionViewCell.xib */,
 			);
-			path = MergedPlayer;
+			path = TopPanel;
 			sourceTree = "<group>";
 		};
 		E9B3EBC61FD3C0A8006EB41C /* AVPlayer */ = {
@@ -287,15 +343,20 @@
 				E9A7001D223D2A760067ECB7 /* AudioInfoViewController.h in Headers */,
 				E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */,
 				E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */,
+				E9E8F972223E44F300B48D89 /* EpisodeViewController.h in Headers */,
 				E996F96B223B4D1E00AC233B /* IJKPlayerImplement.h in Headers */,
 				E9B3EBC41FD3A722006EB41C /* MMVideoSources.h in Headers */,
+				E9E8F978223E4AE800B48D89 /* LockupCollectionViewCell.h in Headers */,
 				E953FFF5222BB3DE00137F79 /* DanMuView.h in Headers */,
+				E9E8F96C223E2FFB00B48D89 /* headerCollectionReusableView.h in Headers */,
 				E9530131223274B000137F79 /* CustomResourceLoader.h in Headers */,
 				E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */,
 				E90F0A261EFA3F6700BC3EAD /* DanMuLayer.h in Headers */,
 				E9A70017223CDFEA0067ECB7 /* InfoPanelViewController.h in Headers */,
 				E9A70023223D39E30067ECB7 /* TopPanelViewController.h in Headers */,
 				E996F963223B4AE500AC233B /* PlayerProtocol.h in Headers */,
+				E9A70034223E1F690067ECB7 /* PlayerControlViewController.h in Headers */,
+				E9E8F961223E2A2500B48D89 /* SelectionCollectionViewCell.h in Headers */,
 				E996F967223B4B8300AC233B /* VideoPlayerViewController.h in Headers */,
 				E9B3EBCE1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.h in Headers */,
 				E90F0A201EFA3F6700BC3EAD /* StrokeUILabel.h in Headers */,
@@ -364,9 +425,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9E8F963223E2A2500B48D89 /* SelectionCollectionViewCell.xib in Resources */,
 				E9A70019223CDFEA0067ECB7 /* InfoPanelViewController.xib in Resources */,
+				E9E8F97A223E4AE800B48D89 /* LockupCollectionViewCell.xib in Resources */,
+				E9E8F96E223E2FFB00B48D89 /* headerCollectionReusableView.xib in Resources */,
 				E9A7001F223D2A760067ECB7 /* AudioInfoViewController.xib in Resources */,
+				E9E8F974223E44F300B48D89 /* EpisodeViewController.xib in Resources */,
 				E9A70025223D39E30067ECB7 /* TopPanelViewController.xib in Resources */,
+				E9E8F97C223E4EB900B48D89 /* Assets.xcassets in Resources */,
+				E9A70036223E1F690067ECB7 /* PlayerControlViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,18 +446,23 @@
 			files = (
 				E953FFF4222BB3DE00137F79 /* DanMuView.m in Sources */,
 				E9A70018223CDFEA0067ECB7 /* InfoPanelViewController.m in Sources */,
+				E9A70035223E1F690067ECB7 /* PlayerControlViewController.m in Sources */,
 				E90F0A231EFA3F6700BC3EAD /* DMPlayer.m in Sources */,
 				E90F0A211EFA3F6700BC3EAD /* StrokeUILabel.m in Sources */,
 				E9A7001E223D2A760067ECB7 /* AudioInfoViewController.m in Sources */,
 				E996F96C223B4D1E00AC233B /* IJKPlayerImplement.m in Sources */,
 				E9D195161FFF85DD0096FCA4 /* DMPlaylist.m in Sources */,
+				E9E8F96D223E2FFB00B48D89 /* headerCollectionReusableView.m in Sources */,
 				E9A70024223D39E30067ECB7 /* TopPanelViewController.m in Sources */,
 				E9530130223274B000137F79 /* CustomResourceLoader.m in Sources */,
 				E996F968223B4B8300AC233B /* VideoPlayerViewController.m in Sources */,
 				E90F0A241EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.m in Sources */,
 				E9B3EBCC1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.m in Sources */,
 				E90F0A271EFA3F6700BC3EAD /* DanMuLayer.m in Sources */,
+				E9E8F973223E44F300B48D89 /* EpisodeViewController.m in Sources */,
 				E9B3EBC51FD3A722006EB41C /* MMVideoSources.m in Sources */,
+				E9E8F962223E2A2500B48D89 /* SelectionCollectionViewCell.m in Sources */,
+				E9E8F979223E4AE800B48D89 /* LockupCollectionViewCell.m in Sources */,
 				E9A70029223DEB930067ECB7 /* CurrentMediaInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

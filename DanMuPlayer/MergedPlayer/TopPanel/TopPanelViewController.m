@@ -9,6 +9,8 @@
 #import "TopPanelViewController.h"
 #import "InfoPanelViewController.h"
 #import "AudioInfoViewController.h"
+#import "PlayerControlViewController.h"
+#import "EpisodeViewController.h"
 
 @interface TopPanelViewController () {
     InfoPanelViewController *infovc;
@@ -33,7 +35,13 @@
     audioVC.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"音频" image:nil tag:0];
     audioVC.view.frame = CGRectMake(0, 0, self.view.frame.size.width, 600);
     
-    tabBarController.viewControllers = @[infovc, audioVC];
+    PlayerControlViewController *controlVC = [[PlayerControlViewController alloc] initWithNibName:@"PlayerControlViewController"
+                                                                                         bundle:bundle];
+    controlVC.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"控制" image:nil tag:0];
+    
+    EpisodeViewController *episodeVC = [[EpisodeViewController alloc] initWithNibName:@"EpisodeViewController" bundle:bundle];
+    episodeVC.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"选集" image:nil tag:0];
+    tabBarController.viewControllers = @[infovc, controlVC, episodeVC, audioVC];
     [self addChildViewController:tabBarController];
     [tabBarController didMoveToParentViewController:self];
     [self.view addSubview:tabBarController.view];

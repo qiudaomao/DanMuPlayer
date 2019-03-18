@@ -16,6 +16,7 @@
 #import "AudioInfoViewController.h"
 #import "TopPanelViewController.h"
 #import "CurrentMediaInfo.h"
+#import <MediaPlayer/MediaPlayer.h>
 
 typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     HUDKeyEventMenu,
@@ -65,6 +66,8 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     NSTimeInterval seekTargetTime;
     CurrentMediaInfo *currentMediaInfo;
     BOOL topPanelPresented;
+    
+    UISwipeGestureRecognizer *swipeGestureRecognizer;
 }
 @end
 
@@ -90,10 +93,17 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     seekTargetTime = -1;
     topPanelPresented = NO;
     currentMediaInfo = CurrentMediaInfo.new;
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
 //    AVAudioSessionRouteDescription *currentRoute = [[AVAudioSession sharedInstance] currentRoute];
 //    for (AVAudioSessionPortDescription *output in currentRoute.outputs) {
 //        NSLog(@"audio %@", output.portName);
 //    }
+}
+
+- (void)applicationWillResignActive:(NSNotification*)note {
+    if (isPlaying) {
+        [player_ pause];
+    }
 }
 
 - (void)updateProgress
@@ -218,7 +228,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 }
 
 - (void)updateProgress:(NSTimeInterval)current playableTime:(NSTimeInterval)playableTime buffering:(BOOL)buffering total:(NSTimeInterval)total {
-    currentMediaInfo.duration = total;
+    currentMediaInfo.duration = (total<0.1)? -1:total;
     if (buffering) {
         loadingIndicator.hidden = NO;
         [loadingIndicator startAnimating];
@@ -229,9 +239,11 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     if (total > 0.001) {
         _currentTime.text = [self timeToStr:current];
         _leftTime.text = [self timeToStr:(total-current)];
+        _progress.hidden = NO;
     } else {
         _currentTime.text = @"";
         _leftTime.text = @"";
+        _progress.hidden = YES;
     }
     if (total > 0.0f) _progress.progress = playableTime / total;
     else _progress.progress = 0.0f;
@@ -240,6 +252,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
         [self.delegate timeDidChanged:current duration:total];
         NSLog(@"timeDidChanged %.2f %.2f", current, total);
     }
+    [self updateNowPlaying:current duration:total];
     [self updateTimeClock];
 }
 
@@ -342,7 +355,11 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 - (void)onKeyPressed:(HUDKeyEvent)event {
     switch (event) {
         case HUDKeyEventMenu:
-            [self stop];
+            if (!isPlaying && !isError) {
+                [player_ play];
+            } else {
+                [self stop];
+            }
             break;
         case HUDKeyEventLeft:
             if (player_.currentTime > 10) {
@@ -427,6 +444,35 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     }
 }
 
+-(void)downloadArtWork {
+    if ([currentMediaInfo.imgURL hasPrefix:@"http"]) {
+        NSURL *url = [NSURL URLWithString:currentMediaInfo.imgURL];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+        [request setValue:@"" forHTTPHeaderField:@"User-Agent"];
+        NSURLSession *session = NSURLSession.sharedSession;
+        NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            UIImage *image = [UIImage imageNamed:@"lazycat"];
+            if (!error && data) {
+                image = [UIImage imageWithData:data];
+            } else {
+                NSLog(@"Error download artwork from URL %@", self->currentMediaInfo.imgURL);
+            }
+            self->currentMediaInfo.artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:CGSizeMake(200, 120) requestHandler:^UIImage * _Nonnull(CGSize size) {
+                UIGraphicsBeginImageContextWithOptions(CGSizeMake(200, 120), NO, 0.0);
+                [image drawInRect:CGRectMake(0, 0, 200, 120)];
+                UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                self->currentMediaInfo.image = newImage;
+                NSLog(@"donwload artwork successfully from %@", self->currentMediaInfo.imgURL);
+                return newImage;
+            }];
+        }];
+        [task resume];
+    } else {
+        NSLog(@"Error download artwork from URL %@", currentMediaInfo.imgURL);
+    }
+}
+
 -(void)playVideo:(NSString*)url
        withTitle:(NSString*)title
          withImg:(NSString*)img
@@ -437,10 +483,12 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     //get videoView here
     currentMediaInfo.title = title;
     currentMediaInfo.imgURL = img;
+    //download image
     currentMediaInfo.description = desc;
     currentMediaInfo.resolution = @" ";
     currentMediaInfo.fps = -1;
     currentMediaInfo.duration = -1;
+    [self downloadArtWork];
     if ([playerType isEqualToString:@"IJKPlayer"]
         || [playerType isEqualToString:@""]
         || [playerType isEqualToString:@"MPVPlayer"]) {
@@ -468,7 +516,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
                                                                        }];
             UIAlertAction *startWatching = [UIAlertAction actionWithTitle:@"重新观看"
                                                                     style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-                                                                        [self->player_ play];
+//                                                                        [self->player_ play];
                                                                     }];
             UIAlertAction *stopWatching = [UIAlertAction actionWithTitle:@"放弃观看"
                                                                    style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
@@ -483,6 +531,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
             [player_ play];
         }
     }
+    [self setupRemoteCommand];
 }
 
 -(void)addDanMu:(NSString*)content
@@ -511,6 +560,7 @@ withStrokeColor:(UIColor*)bgcolor
         [self.delegate playStateDidChanged:PS_FINISH];
         self.delegate=nil;
     }
+    [self clearRemoteCommand];
     [self dismissViewControllerAnimated:NO completion:^{
         NSLog(@"stop dissmiss IJKPlayerViewController");
     }];
@@ -565,10 +615,18 @@ withStrokeColor:(UIColor*)bgcolor
         [recognizers addObject:recognizer];
     }
     
+    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(siriSwipe:)];
+    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+    [self.view addGestureRecognizer:swipeGestureRecognizer];
+    
     siriRemoteRecognizer = [[SiriRemoteGestureRecognizer alloc] initWithTarget:self
                                                                         action:@selector(siriTouch:)];
     siriRemoteRecognizer.delegate = self;
     [self.view addGestureRecognizer:siriRemoteRecognizer];
+}
+
+- (void)siriSwipe:(UISwipeGestureRecognizer*)sender {
+    NSLog(@"siri swipe down");
 }
 
 - (void)siriTouch:(SiriRemoteGestureRecognizer*)sender {
@@ -627,8 +685,9 @@ withStrokeColor:(UIColor*)bgcolor
         //check velocity
         CGPoint endLocation = sender.location;
         CGPoint endVelocity = sender.velocity;
-        NSLog(@"end %.2f %.2f %.2f y gap %.2f", endLocation.x, endLocation.y, endVelocity.y, (endLocation.y - beganPanLocation.y));
-        if (endLocation.y > beganPanLocation.y + 0.2 && endVelocity.y > 0) {
+        CGFloat gap = endLocation.y - beganPanLocation.y;
+        NSLog(@"end %.2f %.2f velocity.y %.2f gap %.2f", endLocation.x, endLocation.y, endVelocity.y, gap);
+        if (gap > 0.3 && endVelocity.y > 0) {
             NSLog(@"gesture scroll down");
             [self onKeyPressed:HUDKeyEventDown];
         }
@@ -719,7 +778,7 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)onVideoSizeChanged:(CGSize)size {
-    currentMediaInfo.resolution = [NSString stringWithFormat:@"%dx%d", (int)size.width, (int)size.height];
+    currentMediaInfo.resolution = [NSString stringWithFormat:@"%d×%d", (int)size.width, (int)size.height];
 }
 - (void)onVideoFPSChanged:(CGFloat)fps {
     currentMediaInfo.fps = fps;
@@ -733,4 +792,89 @@ withStrokeColor:(UIColor*)bgcolor
     loadingIndicator.hidden = YES;
     [loadingIndicator stopAnimating];
 }
+
+- (void)clearRemoteCommand {
+    MPRemoteCommandCenter *center = MPRemoteCommandCenter.sharedCommandCenter;
+    [center.pauseCommand removeTarget:self];
+    [center.playCommand removeTarget:self];
+    [center.changePlaybackPositionCommand removeTarget:self];
+    [center.skipForwardCommand removeTarget:self];
+    [center.skipBackwardCommand removeTarget:self];
+    MPNowPlayingInfoCenter *center_ = MPNowPlayingInfoCenter.defaultCenter;
+    [center_ setNowPlayingInfo:nil];
+}
+
+- (void)setupRemoteCommand {
+    MPRemoteCommandCenter *center = MPRemoteCommandCenter.sharedCommandCenter;
+    [center.pauseCommand addTarget:self action:@selector(remotePause)];
+    center.pauseCommand.enabled = YES;
+    [center.playCommand addTarget:self action:@selector(remotePlay)];
+    center.playCommand.enabled = YES;
+    [center.changePlaybackPositionCommand addTarget:self action:@selector(remoteChangePlaybackPosition:)];
+    [center.skipForwardCommand addTarget:self action:@selector(remoteSkipForward)];
+    [center.skipBackwardCommand addTarget:self action:@selector(remoteSkipBackward)];
+    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+}
+
+- (MPRemoteCommandHandlerStatus)remoteChangePlaybackPosition:(MPChangePlaybackPositionCommandEvent*)event {
+    NSTimeInterval target = event.positionTime;
+    [self seekToTime:target];
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+
+- (MPRemoteCommandHandlerStatus)remotePause {
+    [self pause];
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+
+- (MPRemoteCommandHandlerStatus)remotePlay {
+    [self play];
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+
+- (MPRemoteCommandHandlerStatus)remoteSkipForward {
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+
+- (MPRemoteCommandHandlerStatus)remoteSkipBackward {
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+
+- (void)updateNowPlaying:(NSTimeInterval)current duration:(NSTimeInterval)duration {
+//    NSLog(@"updateNowPlaying %.2f %.2f", current, duration);
+    MPNowPlayingInfoCenter *center = MPNowPlayingInfoCenter.defaultCenter;
+    if (duration > 0) {
+        if (currentMediaInfo.artwork) {
+            center.nowPlayingInfo = @{
+                                      MPMediaItemPropertyTitle: currentMediaInfo.title,
+                                      MPMediaItemPropertyArtist: @"",
+                                      MPMediaItemPropertyAlbumTitle: @"",
+                                      MPMediaItemPropertyMediaType: @(MPNowPlayingInfoMediaTypeVideo),
+                                      MPNowPlayingInfoPropertyElapsedPlaybackTime: @(current),
+                                      MPMediaItemPropertyPlaybackDuration: @(duration),
+                                      MPMediaItemPropertyArtwork: currentMediaInfo.artwork
+                                      };
+        } else {
+            center.nowPlayingInfo = @{
+                                      MPMediaItemPropertyTitle: currentMediaInfo.title,
+                                      MPMediaItemPropertyArtist: @"",
+                                      MPMediaItemPropertyAlbumTitle: @"",
+                                      MPMediaItemPropertyMediaType: @(MPNowPlayingInfoMediaTypeVideo),
+                                      MPNowPlayingInfoPropertyElapsedPlaybackTime: @(current),
+                                      MPMediaItemPropertyPlaybackDuration: @(duration),
+                                      };
+        }
+    } else {
+        center.nowPlayingInfo = @{
+                                  MPMediaItemPropertyTitle: _title.text,
+                                  MPMediaItemPropertyArtist: @"",
+                                  MPMediaItemPropertyAlbumTitle: @"",
+                                  MPMediaItemPropertyMediaType: @(MPNowPlayingInfoMediaTypeVideo),
+                                  MPMediaItemPropertyArtwork: currentMediaInfo.artwork,
+                                  MPNowPlayingInfoPropertyIsLiveStream: @(YES),
+                                  };
+    }
+//    NSLog(@"finish updateNowPlaying %.2f %.2f", current, duration);
+}
+
 @end

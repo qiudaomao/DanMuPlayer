@@ -15,6 +15,9 @@
 @synthesize imgURL;
 @synthesize duration;
 @synthesize fps;
+@synthesize artwork;
+@synthesize image;
+
 - (instancetype)initWithMediaInfo:(CurrentMediaInfo*)info {
     self = [super init];
     self.title = info.title;
@@ -23,7 +26,10 @@
     self.imgURL = info.imgURL;
     self.duration = info.duration;
     self.fps = info.fps;
+    self.artwork = info.artwork;
+    self.image = info.image;
     return self;
 }
+
 @end
 

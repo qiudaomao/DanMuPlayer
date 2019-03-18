@@ -20,13 +20,15 @@
     [super viewDidLoad];
     
     self.titleLabel.text = @" ";
-    self.descLabel.text = @" ";
+    self.descLabel.text = @"无";
     self.fpsLabel.text = @" ";
     self.resolutionLabel.text = @" ";
     
     if (_currentMediaInfo) {
         self.titleLabel.text = _currentMediaInfo.title;
-        self.descLabel.text = _currentMediaInfo.description;
+        if (_currentMediaInfo.description.length > 0) {
+            self.descLabel.text = _currentMediaInfo.description;
+        }
         if (_currentMediaInfo.fps <= 0.01) {
             self.fpsLabel.text = @" ";
         } else {
@@ -34,6 +36,9 @@
         }
         self.resolutionLabel.text = _currentMediaInfo.resolution;
         self.durationLabel.text = [self timeToStr:_currentMediaInfo.duration];
+    }
+    if (_currentMediaInfo.image) {
+        self.artworkImageView.image = _currentMediaInfo.image;
     }
 }
 
@@ -50,7 +55,9 @@
 }
 
 - (NSString*)timeToStr:(NSInteger)time {
-    if (time <= 0) {
+    if (time < 0) {
+        return @"直播流";
+    } else if (time < 0.1) {
         return @" ";
     }
     NSInteger hour = time/3600;
@@ -64,15 +71,5 @@
         return [NSString stringWithFormat:@"%ld秒", sec];
     }
 }
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

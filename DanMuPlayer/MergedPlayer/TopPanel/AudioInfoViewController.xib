@@ -13,6 +13,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AudioInfoViewController">
             <connections>
                 <outlet property="bgVisualEffectView" destination="Hag-NB-hYG" id="Dtn-zp-aoJ"/>
+                <outlet property="heightConstraint" destination="Q80-OX-mRs" id="DDM-px-Gr6"/>
                 <outlet property="view" destination="iN0-l3-epB" id="Eym-vH-oyN"/>
             </connections>
         </placeholder>

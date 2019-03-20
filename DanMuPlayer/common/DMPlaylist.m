@@ -11,14 +11,23 @@
 @synthesize url;
 @synthesize title;
 @synthesize description;
+@synthesize duration;
 @synthesize resumeTime;
 @synthesize options;
 @synthesize artworkImageURL;
 @synthesize mp4;
 @synthesize player;
+@synthesize size;
+@synthesize image;
+@synthesize downloadImageFailed;
+
 -(instancetype)init {
     self = [super init];
     self.player = @"";
+    self.resumeTime = 0;
+    self.duration = 0;
+    self.image = nil;
+    self.downloadImageFailed = NO;
     return self;
 }
 +(void)setup:(JSContext*)context {

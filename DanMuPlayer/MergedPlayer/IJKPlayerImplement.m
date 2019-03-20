@@ -78,7 +78,7 @@
     // [IJKFFMoviePlayerController checkIfPlayerVersionMatch:YES major:1 minor:0 micro:0];
     
     IJKFFOptions *ffoptions = [IJKFFOptions optionsByDefault];
-    [ffoptions setFormatOptionValue:@"file,concat,http,tcp,https,tls,rtmp,rtsp,ijkio,ffio,cache,async,rtp,udp,ijklongurl" forKey:@"protocol_whitelist"];
+    [ffoptions setFormatOptionValue:@"file,concat,http,tcp,https,tls,rtmp,rtsp,ijkio,ffio,cache,async,rtp,udp,ijklongurl,crypto" forKey:@"protocol_whitelist"];
 //    [ffoptions setPlayerOptionIntValue:1 forKey:@"enable-accurate-seek"];
     //    [ffoptions setPlayerOptionIntValue:1 forKey:@"videotoolbox"];
     if ([options.allKeys containsObject:@"headers"]) {
@@ -215,6 +215,9 @@
             
         case IJKMPMovieFinishReasonPlaybackError:
             NSLog(@"playbackStateDidChange: IJKMPMovieFinishReasonPlaybackError: %d\n", reason);
+            if (self.delegate) {
+                [self.delegate onError:@""];
+            }
             break;
             
         default:
@@ -334,5 +337,50 @@
         return player.playableDuration;
     }
     return -1;
+}
+- (void)changeSpeedMode:(PlaySpeedMode)speedMode {
+    NSLog(@"onPanelChangeSpeedMode %lu", speedMode);
+    switch (speedMode) {
+        case PlaySpeedModeQuarter:
+            player.playbackRate = 0.25;
+            break;
+        case PlaySpeedModeHalf:
+            player.playbackRate = 0.5;
+            break;
+        case PlaySpeedModeNormal:
+            player.playbackRate = 1;
+            break;
+        case PlaySpeedModeDouble:
+            player.playbackRate = 2.0;
+            break;
+        case PlaySpeedModeTriple:
+            player.playbackRate = 3.0;
+            break;
+        case PlaySpeedModeQuad:
+            player.playbackRate = 4.0;
+            break;
+            
+        default:
+            player.playbackRate = 1;
+            NSLog(@"Error change speed Mode %lu", speedMode);
+            break;
+    }
+}
+- (void)changeScaleMode:(PlayScaleMode)scaleMode {
+    NSLog(@"onPanelChangeScaleMode %lu", scaleMode);
+    switch (scaleMode) {
+        case PlayScaleModeRatio:
+            player.scalingMode = IJKMPMovieScalingModeAspectFit;
+            break;
+        case PlayScaleModeClip:
+            player.scalingMode = IJKMPMovieScalingModeAspectFill;
+            break;
+        case PlayScaleModeStretch:
+            player.scalingMode = IJKMPMovieScalingModeFill;
+            break;
+
+        default:
+            break;
+    }
 }
 @end

@@ -14,6 +14,8 @@
 @end
 
 @implementation AudioInfoViewController
+@synthesize visiableView;
+@synthesize contentHeightConstraint;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -24,6 +26,8 @@
     view.delegate = self;
     [self.bgVisualEffectView.contentView addSubview:view];
     view.userInteractionEnabled = YES;
+    visiableView = _bgVisualEffectView;
+    contentHeightConstraint = _heightConstraint;
 }
 
 - (BOOL)_tvTabBarShouldOverlap {

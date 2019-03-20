@@ -15,6 +15,8 @@
 @end
 
 @implementation InfoPanelViewController
+@synthesize visiableView;
+@synthesize contentHeightConstraint;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -40,6 +42,8 @@
     if (_currentMediaInfo.image) {
         self.artworkImageView.image = _currentMediaInfo.image;
     }
+    contentHeightConstraint = _heightConstraint;
+    visiableView = _bgVisualEffectView;
 }
 
 - (BOOL)_tvTabBarShouldOverlap {

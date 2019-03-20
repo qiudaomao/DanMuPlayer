@@ -12,7 +12,9 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="EpisodeViewController">
             <connections>
+                <outlet property="bgVisualEffectView" destination="x6y-D6-Q2w" id="EiO-LN-i8j"/>
                 <outlet property="collectionView" destination="5h7-Qh-Eav" id="jDK-bW-jxn"/>
+                <outlet property="heightConstraint" destination="YDY-D3-nvS" id="fjX-N5-wJG"/>
                 <outlet property="view" destination="iN0-l3-epB" id="Eym-vH-oyN"/>
             </connections>
         </placeholder>

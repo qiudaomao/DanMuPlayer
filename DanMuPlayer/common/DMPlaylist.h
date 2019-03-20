@@ -8,6 +8,7 @@
 
 #ifndef DMPlaylist_h
 #define DMPlaylist_h
+#import <UIKit/UIKit.h>
 
 @import JavaScriptCore;
 
@@ -22,9 +23,13 @@
 @property (nonatomic, copy) NSString *description;
 @property (nonatomic, copy) NSString *player;
 @property (nonatomic) CGFloat resumeTime;
+@property (nonatomic) CGFloat duration;
 @property (nonatomic) NSString *artworkImageURL;
 @property (nonatomic) NSDictionary *options;
 @property (nonatomic, assign) BOOL mp4;
+@property (nonatomic, assign) CGSize size;
+@property (nonatomic) UIImage *image;
+@property (nonatomic, assign) BOOL downloadImageFailed;
 @end
 
 @interface DMMediaItem : NSObject<DMMediaItemJSB>

@@ -9,6 +9,7 @@
 #ifndef PlayerProtocol_h
 #define PlayerProtocol_h
 #import <UIKit/UIKit.h>
+#import "./TopPanel/PanelControlProtocol.h"
 
 @protocol PlayerImplementProtocol <NSObject>
 - (void)onPause;
@@ -42,6 +43,10 @@
 @property (nonatomic, readwrite, strong) UIView *videoView;
 @property (nonatomic, readwrite, assign) CGSize videoSize;
 @property (nonatomic, readwrite, weak) id<PlayerImplementProtocol> delegate;
+@optional
+- (void)changeSpeedMode:(PlaySpeedMode)speedMode;
+- (void)changeScaleMode:(PlayScaleMode)scaleMode;
+- (void)changeDanmuMode:(PlayDanMuMode)danmuMode;
 @end
 
 #endif /* PlayerProtocol_h */

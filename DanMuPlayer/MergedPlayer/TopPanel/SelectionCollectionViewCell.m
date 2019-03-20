@@ -11,12 +11,23 @@
 @implementation SelectionCollectionViewCell
 - (void)didUpdateFocusInContext:(UIFocusUpdateContext *)context
        withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
-    if (self.focused) {
-        self.imageView.tintColor = UIColor.whiteColor;
-        self.titleLabel.textColor = UIColor.whiteColor;
+    UIUserInterfaceStyle style =  UIScreen.mainScreen.traitCollection.userInterfaceStyle;
+    if (style == UIUserInterfaceStyleLight) {
+        if (self.focused) {
+            self.imageView.tintColor = UIColor.whiteColor;
+            self.titleLabel.textColor = UIColor.whiteColor;
+        } else {
+            self.imageView.tintColor = UIColor.blackColor;
+            self.titleLabel.textColor = UIColor.blackColor;
+        }
     } else {
-        self.imageView.tintColor = UIColor.blackColor;
-        self.titleLabel.textColor = UIColor.blackColor;
+        if (self.focused) {
+            self.imageView.tintColor = UIColor.whiteColor;
+            self.titleLabel.textColor = UIColor.whiteColor;
+        } else {
+            self.titleLabel.textColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.6];
+            self.imageView.tintColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.6];
+        }
     }
 }
 @end

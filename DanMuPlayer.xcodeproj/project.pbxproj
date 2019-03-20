@@ -16,6 +16,7 @@
 		E90F0A251EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = E90F0A1B1EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h */; };
 		E90F0A261EFA3F6700BC3EAD /* DanMuLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E90F0A1C1EFA3F6700BC3EAD /* DanMuLayer.h */; };
 		E90F0A271EFA3F6700BC3EAD /* DanMuLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = E90F0A1D1EFA3F6700BC3EAD /* DanMuLayer.m */; };
+		E9201AEC224288B0007FA8BA /* IJKMediaFrameworkWithSSL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E996F91A2238D16000AC233B /* IJKMediaFrameworkWithSSL.framework */; };
 		E9530130223274B000137F79 /* CustomResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = E953012D223274AF00137F79 /* CustomResourceLoader.m */; };
 		E9530131223274B000137F79 /* CustomResourceLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = E953012E223274B000137F79 /* CustomResourceLoader.h */; };
 		E953FFF4222BB3DE00137F79 /* DanMuView.m in Sources */ = {isa = PBXBuildFile; fileRef = E953FFF0222BB3DC00137F79 /* DanMuView.m */; };
@@ -35,7 +36,6 @@
 		E96995FA2236C94E000BB13C /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E96995F92236C94E000BB13C /* VideoToolbox.framework */; };
 		E96995FC2236C955000BB13C /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E96995FB2236C955000BB13C /* libc++.tbd */; };
 		E96996632237A341000BB13C /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E969961B22378454000BB13C /* libiconv.tbd */; };
-		E996F93A2238DF2100AC233B /* IJKMediaFrameworkWithSSL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E996F91A2238D16000AC233B /* IJKMediaFrameworkWithSSL.framework */; };
 		E996F963223B4AE500AC233B /* PlayerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = E996F962223B4AE400AC233B /* PlayerProtocol.h */; };
 		E996F967223B4B8300AC233B /* VideoPlayerViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E996F965223B4B8300AC233B /* VideoPlayerViewController.h */; };
 		E996F968223B4B8300AC233B /* VideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E996F966223B4B8300AC233B /* VideoPlayerViewController.m */; };
@@ -76,6 +76,10 @@
 		E9E8F979223E4AE800B48D89 /* LockupCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8F976223E4AE800B48D89 /* LockupCollectionViewCell.m */; };
 		E9E8F97A223E4AE800B48D89 /* LockupCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F977223E4AE800B48D89 /* LockupCollectionViewCell.xib */; };
 		E9E8F97C223E4EB900B48D89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F97B223E4EB900B48D89 /* Assets.xcassets */; };
+		E9E8F98F223FAEDF00B48D89 /* PanelControlData.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E8F98D223FAEDE00B48D89 /* PanelControlData.h */; };
+		E9E8F990223FAEDF00B48D89 /* PanelControlData.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8F98E223FAEDE00B48D89 /* PanelControlData.m */; };
+		E9E8FAAF224154F000B48D89 /* TabBarTransitionAnimator.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E8FAAD224154F000B48D89 /* TabBarTransitionAnimator.h */; };
+		E9E8FAB0224154F000B48D89 /* TabBarTransitionAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8FAAE224154F000B48D89 /* TabBarTransitionAnimator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -152,6 +156,12 @@
 		E9E8F976223E4AE800B48D89 /* LockupCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LockupCollectionViewCell.m; sourceTree = "<group>"; };
 		E9E8F977223E4AE800B48D89 /* LockupCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LockupCollectionViewCell.xib; sourceTree = "<group>"; };
 		E9E8F97B223E4EB900B48D89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E9E8F98C223FA4F400B48D89 /* PanelControlProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PanelControlProtocol.h; sourceTree = "<group>"; };
+		E9E8F98D223FAEDE00B48D89 /* PanelControlData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PanelControlData.h; sourceTree = "<group>"; };
+		E9E8F98E223FAEDE00B48D89 /* PanelControlData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PanelControlData.m; sourceTree = "<group>"; };
+		E9E8FAAD224154F000B48D89 /* TabBarTransitionAnimator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TabBarTransitionAnimator.h; sourceTree = "<group>"; };
+		E9E8FAAE224154F000B48D89 /* TabBarTransitionAnimator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TabBarTransitionAnimator.m; sourceTree = "<group>"; };
+		E9E8FAB322415C3F00B48D89 /* TabAnimationVCProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TabAnimationVCProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,7 +169,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E996F93A2238DF2100AC233B /* IJKMediaFrameworkWithSSL.framework in Frameworks */,
+				E9201AEC224288B0007FA8BA /* IJKMediaFrameworkWithSSL.framework in Frameworks */,
 				E96996632237A341000BB13C /* libiconv.tbd in Frameworks */,
 				E96995FC2236C955000BB13C /* libc++.tbd in Frameworks */,
 				E96995FA2236C94E000BB13C /* VideoToolbox.framework in Frameworks */,
@@ -283,6 +293,12 @@
 		E9A7002A223E15E00067ECB7 /* TopPanel */ = {
 			isa = PBXGroup;
 			children = (
+				E9E8F98C223FA4F400B48D89 /* PanelControlProtocol.h */,
+				E9E8FAB322415C3F00B48D89 /* TabAnimationVCProtocol.h */,
+				E9E8FAAD224154F000B48D89 /* TabBarTransitionAnimator.h */,
+				E9E8FAAE224154F000B48D89 /* TabBarTransitionAnimator.m */,
+				E9E8F98D223FAEDE00B48D89 /* PanelControlData.h */,
+				E9E8F98E223FAEDE00B48D89 /* PanelControlData.m */,
 				E9A70020223D39E30067ECB7 /* TopPanelViewController.h */,
 				E9A70021223D39E30067ECB7 /* TopPanelViewController.m */,
 				E9A70022223D39E30067ECB7 /* TopPanelViewController.xib */,
@@ -341,6 +357,7 @@
 				E90F0A1E1EFA3F6700BC3EAD /* PlayerViewController.h in Headers */,
 				E90F0A251EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h in Headers */,
 				E9A7001D223D2A760067ECB7 /* AudioInfoViewController.h in Headers */,
+				E9E8F98F223FAEDF00B48D89 /* PanelControlData.h in Headers */,
 				E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */,
 				E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */,
 				E9E8F972223E44F300B48D89 /* EpisodeViewController.h in Headers */,
@@ -354,6 +371,7 @@
 				E90F0A261EFA3F6700BC3EAD /* DanMuLayer.h in Headers */,
 				E9A70017223CDFEA0067ECB7 /* InfoPanelViewController.h in Headers */,
 				E9A70023223D39E30067ECB7 /* TopPanelViewController.h in Headers */,
+				E9E8FAAF224154F000B48D89 /* TabBarTransitionAnimator.h in Headers */,
 				E996F963223B4AE500AC233B /* PlayerProtocol.h in Headers */,
 				E9A70034223E1F690067ECB7 /* PlayerControlViewController.h in Headers */,
 				E9E8F961223E2A2500B48D89 /* SelectionCollectionViewCell.h in Headers */,
@@ -455,11 +473,13 @@
 				E9E8F96D223E2FFB00B48D89 /* headerCollectionReusableView.m in Sources */,
 				E9A70024223D39E30067ECB7 /* TopPanelViewController.m in Sources */,
 				E9530130223274B000137F79 /* CustomResourceLoader.m in Sources */,
+				E9E8F990223FAEDF00B48D89 /* PanelControlData.m in Sources */,
 				E996F968223B4B8300AC233B /* VideoPlayerViewController.m in Sources */,
 				E90F0A241EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.m in Sources */,
 				E9B3EBCC1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.m in Sources */,
 				E90F0A271EFA3F6700BC3EAD /* DanMuLayer.m in Sources */,
 				E9E8F973223E44F300B48D89 /* EpisodeViewController.m in Sources */,
+				E9E8FAB0224154F000B48D89 /* TabBarTransitionAnimator.m in Sources */,
 				E9B3EBC51FD3A722006EB41C /* MMVideoSources.m in Sources */,
 				E9E8F962223E2A2500B48D89 /* SelectionCollectionViewCell.m in Sources */,
 				E9E8F979223E4AE800B48D89 /* LockupCollectionViewCell.m in Sources */,

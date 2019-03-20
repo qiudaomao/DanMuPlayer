@@ -17,6 +17,7 @@
 #import "TopPanelViewController.h"
 #import "CurrentMediaInfo.h"
 #import <MediaPlayer/MediaPlayer.h>
+#import "./TopPanel/PanelControlData.h"
 
 typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     HUDKeyEventMenu,
@@ -41,11 +42,13 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     StrokeUILabel *_presentSizeLabel;
     StrokeUILabel *timeLabel;
     UIActivityIndicatorView *loadingIndicator;
+    UIVisualEffectView *loadingIndicatorBG;
     UIImageView *pointImageView;
     UIImageView *pauseImageView;
     StrokeUILabel *pauseTimeLabel;
     StrokeUILabel *_pointTime;
     StrokeUILabel *subTitle;
+    StrokeUILabel *errorTitle;
     CGPoint indicatorStartPoint;
     
     UIView *hudLayer;
@@ -65,9 +68,11 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     CGRect seekImageFrame;
     NSTimeInterval seekTargetTime;
     CurrentMediaInfo *currentMediaInfo;
-    BOOL topPanelPresented;
-    
+
     UISwipeGestureRecognizer *swipeGestureRecognizer;
+    PanelControlData *controlData;
+    BOOL playReady;
+    DMPlaylist *playlist;
 }
 @end
 
@@ -91,13 +96,17 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     [self initHud];
     inHiddenChangeProgress = NO;
     seekTargetTime = -1;
-    topPanelPresented = NO;
     currentMediaInfo = CurrentMediaInfo.new;
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(applicationWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
 //    AVAudioSessionRouteDescription *currentRoute = [[AVAudioSession sharedInstance] currentRoute];
 //    for (AVAudioSessionPortDescription *output in currentRoute.outputs) {
 //        NSLog(@"audio %@", output.portName);
 //    }
+    controlData = PanelControlData.new;
+    controlData.speedMode = PlaySpeedModeNormal;
+    controlData.scaleMode = PlayScaleModeRatio;
+    controlData.danmuMode = PlayDanMuOn;
+    playReady = NO;
 }
 
 - (void)applicationWillResignActive:(NSNotification*)note {
@@ -130,23 +139,38 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     subTitle = [[StrokeUILabel alloc] init];
     subTitle.textColor = [UIColor whiteColor];
     subTitle.strokeColor = [UIColor blackColor];
-    subTitle.frame = CGRectMake(0, size.height-130, size.width, 80);
-    subTitle.font = [UIFont fontWithName:@"Menlo" size:65];
+    subTitle.frame = CGRectMake(0, size.height-180, size.width, 80);
+    subTitle.font = [UIFont systemFontOfSize:60];
     subTitle.textAlignment = NSTextAlignmentCenter;
     subTitle.text = @"";
-    [hudView addSubview:subTitle];
     
+    errorTitle = [[StrokeUILabel alloc] init];
+    errorTitle.textColor = [UIColor redColor];
+    errorTitle.strokeColor = [UIColor orangeColor];
+    errorTitle.frame = CGRectMake(0, size.height/2-40, size.width, 80);
+    errorTitle.font = [UIFont systemFontOfSize:60];
+    errorTitle.textAlignment = NSTextAlignmentCenter;
+    errorTitle.text = @"";
+
     hudLayer = [[UIView alloc] init];
     hudLayer.frame = CGRectMake(0, size.height-200, size.width, 200);
     
+    UIVisualEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    loadingIndicatorBG = [[UIVisualEffectView alloc] initWithEffect:effect];
+    loadingIndicatorBG.frame = CGRectMake(size.width/2 - 100/2, size.height/2 - 100/2, 100, 100);
+    loadingIndicatorBG.layer.cornerRadius = 20.0f;
+    loadingIndicatorBG.clipsToBounds = YES;
+    
     loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    CGSize bgSize = loadingIndicatorBG.frame.size;
     CGSize indicatorSize = loadingIndicator.frame.size;
-    loadingIndicator.frame = CGRectMake(size.width/2-indicatorSize.width/2,
-                                        size.height/2-indicatorSize.height/2,
+    loadingIndicator.frame = CGRectMake(bgSize.width/2-indicatorSize.width/2,
+                                        bgSize.height/2-indicatorSize.height/2,
                                         indicatorSize.width,
                                         indicatorSize.height);
     [loadingIndicator setHidden:NO];
     [loadingIndicator startAnimating];
+    [loadingIndicatorBG.contentView addSubview:loadingIndicator];
     
     _timeLabel = [[StrokeUILabel alloc] initWithFrame:CGRectMake(size.width-280, 60, 200, 60)];
     _timeLabel.text = @"";
@@ -160,7 +184,6 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     _presentSizeLabel.textColor = [UIColor whiteColor];
     
     [hudView addSubview:hudLayer];
-    [hudView addSubview:loadingIndicator];
     [hudView addSubview:_timeLabel];
     [hudView addSubview:_presentSizeLabel];
     
@@ -225,17 +248,14 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     pauseTimeLabel.hidden = YES;
     isPlaying = NO;
     isError = NO;
+    
+    [self.view insertSubview:loadingIndicatorBG aboveSubview:hudView];
+    [self.view insertSubview:subTitle aboveSubview:hudView];
+    [self.view insertSubview:errorTitle aboveSubview:subTitle];
 }
 
 - (void)updateProgress:(NSTimeInterval)current playableTime:(NSTimeInterval)playableTime buffering:(BOOL)buffering total:(NSTimeInterval)total {
     currentMediaInfo.duration = (total<0.1)? -1:total;
-    if (buffering) {
-        loadingIndicator.hidden = NO;
-        [loadingIndicator startAnimating];
-    } else if (loadingIndicator.hidden==NO){
-        loadingIndicator.hidden = YES;
-        [loadingIndicator stopAnimating];
-    }
     if (total > 0.001) {
         _currentTime.text = [self timeToStr:current];
         _leftTime.text = [self timeToStr:(total-current)];
@@ -355,7 +375,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 - (void)onKeyPressed:(HUDKeyEvent)event {
     switch (event) {
         case HUDKeyEventMenu:
-            if (!isPlaying && !isError) {
+            if (!isPlaying && !isError && playReady) {
                 [player_ play];
             } else {
                 [self stop];
@@ -407,6 +427,11 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     topPanelVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
     topPanelVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
     [topPanelVC setCurrentMediaInfo:currentMediaInfo];
+    topPanelVC.delegate = self;
+    topPanelVC.controlData = controlData;
+    if (playlist) {
+        [topPanelVC setupButtonList:playlist clickCallBack:buttonClickCallback focusIndex:buttonFocusIndex];
+    }
     UIViewController *top = [self topMostController];
     [top presentViewController:topPanelVC animated:YES completion:^{
     }];
@@ -546,10 +571,13 @@ withStrokeColor:(UIColor*)bgcolor
             withFontSize:fontSize];
 }
 
--(void)setSubTitle:(NSString*)subTitle {
+-(void)setSubTitle:(NSString*)subTitle_ {
+    subTitle.text = subTitle_;
 }
 
--(void)setupButtonList:(DMPlaylist*)playlist {
+-(void)setupButtonList:(DMPlaylist*)playlist_ {
+    //setup here for display
+    playlist = playlist_;
 }
 
 - (void)onEnd {
@@ -564,6 +592,8 @@ withStrokeColor:(UIColor*)bgcolor
     [self dismissViewControllerAnimated:NO completion:^{
         NSLog(@"stop dissmiss IJKPlayerViewController");
     }];
+    MPNowPlayingInfoCenter *center = MPNowPlayingInfoCenter.defaultCenter;
+    center.nowPlayingInfo = nil;
 }
 
 - (void)onError:(NSString *)msg {
@@ -574,9 +604,9 @@ withStrokeColor:(UIColor*)bgcolor
         [self.delegate playStateDidChanged:PS_ERROR];
         self.delegate=nil;
     }
-    [self dismissViewControllerAnimated:NO completion:^{
-        NSLog(@"stop dissmiss IJKPlayerViewController");
-    }];
+    loadingIndicatorBG.hidden = YES;
+    [loadingIndicator stopAnimating];
+    errorTitle.text = @"啊呀，播放出错了...";
 }
 
 - (void)onPause {
@@ -589,6 +619,7 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)onPlay {
+    playReady = YES;
     isPlaying = YES;
     displayLink.paused = NO;
     [self resetHideTimer];
@@ -609,7 +640,8 @@ withStrokeColor:(UIColor*)bgcolor
 //                                  @(UIPressTypeRightArrow),
                                   @(UIPressTypePlayPause)];
     for (NSNumber *type in types) {
-        UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapKey:)];
+        UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                     action:@selector(tapKey:)];
         recognizer.allowedPressTypes = @[type];
         [self.view addGestureRecognizer:recognizer];
         [recognizers addObject:recognizer];
@@ -632,7 +664,6 @@ withStrokeColor:(UIColor*)bgcolor
 - (void)siriTouch:(SiriRemoteGestureRecognizer*)sender {
     //    NSLog(@"taped siriRemote state: %ld %@ location %ld %@",
     //          (long)sender.state, sender.stateName, (long)sender.touchLocation, sender.touchLocationName);
-    if (topPanelPresented) return;
     NSLog(@"taped siriRemote state: %@ click %d", sender.stateName, sender.isClick);
     if (sender.state == UIGestureRecognizerStateEnded && sender.isClick) {
         //NSLog(@"taped siriRemote, location %@", sender.touchLocationName);
@@ -686,8 +717,9 @@ withStrokeColor:(UIColor*)bgcolor
         CGPoint endLocation = sender.location;
         CGPoint endVelocity = sender.velocity;
         CGFloat gap = endLocation.y - beganPanLocation.y;
-        NSLog(@"end %.2f %.2f velocity.y %.2f gap %.2f", endLocation.x, endLocation.y, endVelocity.y, gap);
-        if (gap > 0.3 && endVelocity.y > 0) {
+        CGFloat gapX = endLocation.x - beganPanLocation.x;
+        NSLog(@"end %.2f %.2f velocity.y %f gapY %.2f gapX %.2f", endLocation.x, endLocation.y, endVelocity.y, gap, gapX);
+        if (gap > 0.15 && gapX < 0.1 && endVelocity.y > 0) {
             NSLog(@"gesture scroll down");
             [self onKeyPressed:HUDKeyEventDown];
         }
@@ -758,12 +790,7 @@ withStrokeColor:(UIColor*)bgcolor
         default:
             break;
     }
-    if (topPanelPresented && eventType != HUDKeyEventMenu) {
-        return;
-    }
-    if (eventType != HUDKeyEventUnknown) {
-        [self onKeyPressed:eventType];
-    }
+    [self onKeyPressed:eventType];
 }
 
 - (void)updateTimeClock {
@@ -785,11 +812,15 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)bufferring {
-    loadingIndicator.hidden = NO;
-    [loadingIndicator startAnimating];
+    NSLog(@"bufferring");
+//    if (!isPaused) {
+        loadingIndicatorBG.hidden = NO;
+        [loadingIndicator startAnimating];
+//    }
 }
 - (void)stopBufferring {
-    loadingIndicator.hidden = YES;
+    NSLog(@"stop bufferring");
+    loadingIndicatorBG.hidden = YES;
     [loadingIndicator stopAnimating];
 }
 
@@ -833,10 +864,22 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (MPRemoteCommandHandlerStatus)remoteSkipForward {
+    if (isPlaying) {
+        if (player_.currentTime < player_.duration - 15) {
+            [player_ seekToTime:player_.currentTime + 15.0f];
+        }
+    }
     return MPRemoteCommandHandlerStatusSuccess;
 }
 
 - (MPRemoteCommandHandlerStatus)remoteSkipBackward {
+    if (isPlaying) {
+        if (player_.currentTime > 15.0f) {
+            [player_ seekToTime:player_.currentTime - 15.0f];
+        } else {
+            [player_ seekToTime:0];
+        }
+    }
     return MPRemoteCommandHandlerStatusSuccess;
 }
 
@@ -865,16 +908,51 @@ withStrokeColor:(UIColor*)bgcolor
                                       };
         }
     } else {
-        center.nowPlayingInfo = @{
-                                  MPMediaItemPropertyTitle: _title.text,
-                                  MPMediaItemPropertyArtist: @"",
-                                  MPMediaItemPropertyAlbumTitle: @"",
-                                  MPMediaItemPropertyMediaType: @(MPNowPlayingInfoMediaTypeVideo),
-                                  MPMediaItemPropertyArtwork: currentMediaInfo.artwork,
-                                  MPNowPlayingInfoPropertyIsLiveStream: @(YES),
-                                  };
+        if (currentMediaInfo.artwork) {
+            center.nowPlayingInfo = @{
+                                      MPMediaItemPropertyTitle: _title.text,
+                                      MPMediaItemPropertyArtist: @"",
+                                      MPMediaItemPropertyAlbumTitle: @"",
+                                      MPMediaItemPropertyMediaType: @(MPNowPlayingInfoMediaTypeVideo),
+                                      MPMediaItemPropertyArtwork: currentMediaInfo.artwork,
+                                      MPNowPlayingInfoPropertyIsLiveStream: @(YES),
+                                      };
+        } else {
+            center.nowPlayingInfo = @{
+                                      MPMediaItemPropertyTitle: _title.text,
+                                      MPMediaItemPropertyArtist: @"",
+                                      MPMediaItemPropertyAlbumTitle: @"",
+                                      MPMediaItemPropertyMediaType: @(MPNowPlayingInfoMediaTypeVideo),
+                                      MPNowPlayingInfoPropertyIsLiveStream: @(YES),
+                                      };
+        }
     }
 //    NSLog(@"finish updateNowPlaying %.2f %.2f", current, duration);
+}
+
+- (void)onPanelChangePlaySpeedMode:(PlaySpeedMode)speedMode {
+    if ([player_ respondsToSelector:@selector(changeSpeedMode:)]) {
+        [player_ changeSpeedMode:speedMode];
+    }
+}
+- (void)onPanelChangePlayScaleMode:(PlayScaleMode)scaleMode {
+    if ([player_ respondsToSelector:@selector(changeScaleMode:)]) {
+        [player_ changeScaleMode:scaleMode];
+    }
+}
+- (void)onPanelChangeDanMuMode:(PlayDanMuMode)danmuMode {
+    switch (danmuMode) {
+        case PlayDanMuOn:
+            self.danmu.hidden = NO;
+            break;
+        case PlayDanMuOff:
+            self.danmu.hidden = YES;
+            break;
+            
+        default:
+            self.danmu.hidden = NO;
+            break;
+    }
 }
 
 @end

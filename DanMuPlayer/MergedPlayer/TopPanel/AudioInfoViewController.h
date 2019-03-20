@@ -8,11 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import <AVKit/AVKit.h>
+#import "TabAnimationVCProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface AudioInfoViewController : UIViewController <AVRoutePickerViewDelegate>
+@interface AudioInfoViewController : UIViewController <AVRoutePickerViewDelegate, TabAnimationVCProtocol>
 @property (weak, nonatomic) IBOutlet UIVisualEffectView *bgVisualEffectView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConstraint;
 
 @end
 

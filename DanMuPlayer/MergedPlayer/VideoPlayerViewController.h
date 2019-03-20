@@ -12,10 +12,11 @@
 #import "DanMuLayer.h"
 #import "DanMuView.h"
 #import "StrokeUILabel.h"
+#import "TopPanel/PanelControlProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VideoPlayerViewController : UIViewController <AbstractPlayerProtocol, PlayerImplementProtocol, UIGestureRecognizerDelegate>
+@interface VideoPlayerViewController : UIViewController <AbstractPlayerProtocol, PlayerImplementProtocol, UIGestureRecognizerDelegate, PanelControlProtocol>
 @property (nonatomic, readwrite, strong) StrokeUILabel *currentTime;
 @property (nonatomic, readwrite, strong) StrokeUILabel *leftTime;
 @property (nonatomic, readwrite, strong) DanMuLayer *danmu;

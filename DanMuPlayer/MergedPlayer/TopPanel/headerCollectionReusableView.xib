@@ -18,9 +18,12 @@
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I9a-lb-RkZ">
                     <rect key="frame" x="50" y="0.0" width="1870" height="50"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="29"/>
-                    <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <nil key="highlightedColor"/>
+                    <variation key="userInterfaceStyle=dark">
+                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                    </variation>
                 </label>
             </subviews>
             <constraints>

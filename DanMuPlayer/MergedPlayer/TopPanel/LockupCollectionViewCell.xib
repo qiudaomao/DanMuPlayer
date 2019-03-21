@@ -22,6 +22,7 @@
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lazycat" adjustsImageWhenAncestorFocused="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ykR-IB-C9B">
                         <rect key="frame" x="10" y="10" width="230" height="120"/>
                         <constraints>
+                            <constraint firstAttribute="width" constant="230" id="EbK-10-KYf"/>
                             <constraint firstAttribute="height" constant="120" id="H2H-DK-9tg"/>
                         </constraints>
                     </imageView>
@@ -44,13 +45,13 @@
                 <constraint firstItem="ykR-IB-C9B" firstAttribute="top" secondItem="Rz2-K0-ksD" secondAttribute="top" constant="10" id="eYQ-nU-ABu"/>
                 <constraint firstItem="nEz-qV-flC" firstAttribute="leading" secondItem="Rz2-K0-ksD" secondAttribute="leading" constant="10" id="o0H-f6-s9V"/>
                 <constraint firstAttribute="trailing" secondItem="nEz-qV-flC" secondAttribute="trailing" constant="10" id="pF1-b4-bBb"/>
-                <constraint firstAttribute="trailing" secondItem="ykR-IB-C9B" secondAttribute="trailing" constant="10" id="vKM-Ya-CIn"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="26w-90-VvE"/>
             <size key="customSize" width="250" height="208"/>
             <connections>
                 <outlet property="imageView" destination="ykR-IB-C9B" id="uVA-yu-nxq"/>
                 <outlet property="titleLabel" destination="nEz-qV-flC" id="fug-iD-scF"/>
+                <outlet property="widthConstraint" destination="EbK-10-KYf" id="lav-NC-0bl"/>
             </connections>
             <point key="canvasLocation" x="-193" y="-90"/>
         </collectionViewCell>

@@ -11,6 +11,8 @@
 @interface LockupCollectionViewCell() {
     NSLayoutConstraint *focusedSpacingConstraint;
     NSLayoutConstraint *unFocusedSpacingConstraint;
+    UIProgressView *progressView;
+    CGFloat progress;
 }
 @end
 
@@ -35,6 +37,59 @@
                                                            multiplier:1
                                                              constant:12];
     unFocusedSpacingConstraint.active = NO;
+
+    progressView = [[UIProgressView alloc] init];
+    progressView.translatesAutoresizingMaskIntoConstraints = NO;
+    progressView.hidden = YES;
+    /*
+    CGRect frame = self.imageView.frame;
+    CGRect overlayframe = self.imageView.overlayContentView.frame;
+    overlayframe.size.width = frame.size.width;
+    self.imageView.overlayContentView.frame = overlayframe;
+     */
+    
+    NSLayoutConstraint *leading, *trailing, *bottom, *height;
+    leading = [NSLayoutConstraint constraintWithItem:progressView
+                                           attribute:NSLayoutAttributeLeading
+                                           relatedBy:NSLayoutRelationEqual
+                                              toItem:self.imageView.overlayContentView
+                                           attribute:NSLayoutAttributeLeading
+                                          multiplier:1.0 constant:20];
+    trailing = [NSLayoutConstraint constraintWithItem:progressView
+                                            attribute:NSLayoutAttributeTrailing
+                                            relatedBy:NSLayoutRelationEqual
+                                               toItem:self.imageView.overlayContentView
+                                            attribute:NSLayoutAttributeTrailing
+                                           multiplier:1.0 constant:-20];
+    bottom = [NSLayoutConstraint constraintWithItem:progressView
+                                          attribute:NSLayoutAttributeBottom
+                                          relatedBy:NSLayoutRelationEqual
+                                             toItem:self.imageView.overlayContentView
+                                          attribute:NSLayoutAttributeBottom
+                                         multiplier:1.0 constant:-10];
+    height = [NSLayoutConstraint constraintWithItem:progressView
+                                          attribute:NSLayoutAttributeHeight
+                                          relatedBy:NSLayoutRelationEqual
+                                             toItem:nil
+                                          attribute:NSLayoutAttributeNotAnAttribute
+                                         multiplier:1.0 constant:4];
+//    leading.active = YES;
+//    trailing.active = YES;
+//    bottom.active = YES;
+//    height.active = YES;
+    [self.imageView.overlayContentView addSubview:progressView];
+    [self.imageView.overlayContentView addConstraints:@[leading, trailing, bottom, height]];
+    [self layoutIfNeeded];
+}
+
+- (void)updateProgress:(CGFloat)progress_ {
+    progress = progress_;
+    if (progress < 0.01) {
+        progressView.hidden = YES;
+    } else {
+        progressView.hidden = NO;
+        [progressView setProgress:progress animated:YES];
+    }
 }
 
 - (void)updateConstraints {

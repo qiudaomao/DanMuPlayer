@@ -16,7 +16,7 @@
 		E90F0A251EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = E90F0A1B1EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h */; };
 		E90F0A261EFA3F6700BC3EAD /* DanMuLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E90F0A1C1EFA3F6700BC3EAD /* DanMuLayer.h */; };
 		E90F0A271EFA3F6700BC3EAD /* DanMuLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = E90F0A1D1EFA3F6700BC3EAD /* DanMuLayer.m */; };
-		E9201AEC224288B0007FA8BA /* IJKMediaFrameworkWithSSL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E996F91A2238D16000AC233B /* IJKMediaFrameworkWithSSL.framework */; };
+		E9201B3522429D95007FA8BA /* IJKMediaFrameworkWithSSL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E996F91A2238D16000AC233B /* IJKMediaFrameworkWithSSL.framework */; };
 		E9530130223274B000137F79 /* CustomResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = E953012D223274AF00137F79 /* CustomResourceLoader.m */; };
 		E9530131223274B000137F79 /* CustomResourceLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = E953012E223274B000137F79 /* CustomResourceLoader.h */; };
 		E953FFF4222BB3DE00137F79 /* DanMuView.m in Sources */ = {isa = PBXBuildFile; fileRef = E953FFF0222BB3DC00137F79 /* DanMuView.m */; };
@@ -95,6 +95,7 @@
 		E90F0A1B1EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SiriRemoteGestureRecognizer.h; sourceTree = "<group>"; };
 		E90F0A1C1EFA3F6700BC3EAD /* DanMuLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DanMuLayer.h; sourceTree = "<group>"; };
 		E90F0A1D1EFA3F6700BC3EAD /* DanMuLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DanMuLayer.m; sourceTree = "<group>"; };
+		E9201B1B22429D08007FA8BA /* IJKMediaFrameworkWithSSL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFrameworkWithSSL.framework; path = DanMuPlayer/dependency/IJKMediaFrameworkWithSSL.framework; sourceTree = "<group>"; };
 		E953012D223274AF00137F79 /* CustomResourceLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomResourceLoader.m; sourceTree = "<group>"; };
 		E953012E223274B000137F79 /* CustomResourceLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomResourceLoader.h; sourceTree = "<group>"; };
 		E953FFF0222BB3DC00137F79 /* DanMuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DanMuView.m; sourceTree = "<group>"; };
@@ -169,7 +170,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E9201AEC224288B0007FA8BA /* IJKMediaFrameworkWithSSL.framework in Frameworks */,
+				E9201B3522429D95007FA8BA /* IJKMediaFrameworkWithSSL.framework in Frameworks */,
 				E96996632237A341000BB13C /* libiconv.tbd in Frameworks */,
 				E96995FC2236C955000BB13C /* libc++.tbd in Frameworks */,
 				E96995FA2236C94E000BB13C /* VideoToolbox.framework in Frameworks */,
@@ -226,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				E996F91A2238D16000AC233B /* IJKMediaFrameworkWithSSL.framework */,
+				E9201B1B22429D08007FA8BA /* IJKMediaFrameworkWithSSL.framework */,
 				E969961B22378454000BB13C /* libiconv.tbd */,
 				E96995FB2236C955000BB13C /* libc++.tbd */,
 				E96995F92236C94E000BB13C /* VideoToolbox.framework */,
@@ -617,6 +619,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/DanMuPlayer/dependency",
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = DanMuPlayer/Info.plist;
@@ -646,6 +649,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/DanMuPlayer/dependency",
 				);
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = DanMuPlayer/Info.plist;

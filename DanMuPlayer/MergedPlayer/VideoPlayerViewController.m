@@ -146,7 +146,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     
     errorTitle = [[StrokeUILabel alloc] init];
     errorTitle.textColor = [UIColor redColor];
-    errorTitle.strokeColor = [UIColor orangeColor];
+    errorTitle.strokeColor = [UIColor clearColor];
     errorTitle.frame = CGRectMake(0, size.height/2-40, size.width, 80);
     errorTitle.font = [UIFont systemFontOfSize:60];
     errorTitle.textAlignment = NSTextAlignmentCenter;
@@ -606,16 +606,18 @@ withStrokeColor:(UIColor*)bgcolor
     }
     loadingIndicatorBG.hidden = YES;
     [loadingIndicator stopAnimating];
-    errorTitle.text = @"啊呀，播放出错了...";
+    errorTitle.text = @"!!(╯' - ')╯︵ ┻━┻ 播放出错了...";
 }
 
 - (void)onPause {
     isPlaying = NO;
     displayLink.paused = YES;
     [self stopHideTimer];
-    pauseTimeLabel.hidden = NO;
-    pauseTimeLabel.text = _pointTime.text;
-    pauseImageView.hidden = NO;
+    if (player_.duration > 0) {
+        pauseTimeLabel.hidden = NO;
+        pauseTimeLabel.text = _pointTime.text;
+        pauseImageView.hidden = NO;
+    }
 }
 
 - (void)onPlay {

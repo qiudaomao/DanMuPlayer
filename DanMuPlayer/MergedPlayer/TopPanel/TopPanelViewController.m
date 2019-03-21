@@ -141,14 +141,22 @@
     currentMediaInfo = [[CurrentMediaInfo alloc] initWithMediaInfo:mediaInfo];
 }
 
-/*
 - (id<UIViewControllerAnimatedTransitioning>)tabBarController:(UITabBarController *)tabBarController animationControllerForTransitionFromViewController:(UIViewController *)fromVC toViewController:(UIViewController *)toVC {
+    NSInteger fromIdx = -1;
+    NSInteger toIdx = -1;
+    NSInteger idx = 0;
+    for (UIViewController *vc in tabBarController.viewControllers) {
+        if (vc==fromVC) fromIdx = idx;
+        if (vc==toVC) toIdx = idx;
+        idx++;
+    }
+    BOOL rightDirection = toIdx > fromIdx;
     TabBarTransitionAnimator *animator = [[TabBarTransitionAnimator alloc] initWithFromViewController:fromVC
                                                                                      toViewController:toVC
-                                                                                             duration:0.5];
+                                                                                             duration:0.5
+                                                                                          rightToLeft:rightDirection];
     return animator;
 }
-*/
 
 - (void)setupButtonList:(DMPlaylist*)playlist_ clickCallBack:(JSValue*)callback_ focusIndex:(NSInteger)focusIndex_ {
     playlist = playlist_;

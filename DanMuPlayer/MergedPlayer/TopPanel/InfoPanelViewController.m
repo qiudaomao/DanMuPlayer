@@ -44,6 +44,7 @@
     }
     contentHeightConstraint = _heightConstraint;
     visiableView = _bgVisualEffectView;
+    self.preferredContentSize = CGSizeMake(self.view.frame.size.width, 220);
 }
 
 - (BOOL)_tvTabBarShouldOverlap {

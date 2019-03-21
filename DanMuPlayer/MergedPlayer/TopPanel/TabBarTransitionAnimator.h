@@ -12,7 +12,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TabBarTransitionAnimator : NSObject<UIViewControllerAnimatedTransitioning>
-- (instancetype)initWithFromViewController:(UIViewController*)from toViewController:(UIViewController*)to duration:(NSTimeInterval)duration;
+- (instancetype)initWithFromViewController:(UIViewController*)from toViewController:(UIViewController*)to duration:(NSTimeInterval)duration rightToLeft:(BOOL)direction;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -7,7 +7,7 @@
 //
 
 #import "IJKPlayerImplement.h"
-#import <IJKMediaFramework/IJKMediaFramework.h>
+#import <IJKMediaFrameworkWithSSL/IJKMediaFrameworkWithSSL.h>
 
 @interface IJKPlayerImplement() {
     IJKFFMoviePlayerController *player;

@@ -12,8 +12,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LockupCollectionViewCell : UICollectionViewCell
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConstraint;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *unfocusConstraint;
+- (void)updateProgress:(CGFloat)progress;
 
 @end
 

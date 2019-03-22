@@ -155,7 +155,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     hudLayer = [[UIView alloc] init];
     hudLayer.frame = CGRectMake(0, size.height-200, size.width, 200);
     
-    UIVisualEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    UIVisualEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
     loadingIndicatorBG = [[UIVisualEffectView alloc] initWithEffect:effect];
     loadingIndicatorBG.frame = CGRectMake(size.width/2 - 100/2, size.height/2 - 100/2, 100, 100);
     loadingIndicatorBG.layer.cornerRadius = 20.0f;

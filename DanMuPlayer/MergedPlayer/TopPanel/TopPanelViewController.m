@@ -122,7 +122,9 @@
     UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleRegular];
     UIVisualEffectView *bgView = [[UIVisualEffectView alloc] initWithEffect:effect];
     UITabBar *tabBar = tabController.tabBar;
-    SEL bgsel = @selector(_setBackgroundView:);
+    NSString *name = @"groundView:_setBack";
+    NSString *final = [NSString stringWithFormat:@"%@%@", [name substringFromIndex:11], [name substringToIndex:11]];
+    SEL bgsel = NSSelectorFromString(final);
     if ([tabBar respondsToSelector:bgsel]) {
         ((void (*)(id, SEL, id))objc_msgSend)(tabBar, bgsel, bgView);
     }

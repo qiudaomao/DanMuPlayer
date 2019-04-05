@@ -123,7 +123,6 @@ static void glupdate(void *ctx)
     dispatch_queue_t queue;
     UITapGestureRecognizer *menuRecognizer;
     BOOL isViewLayouted;
-    HUDView *hudView;
     NSTimer *playTimeTimer;
     NSTimeInterval currentPos;
     NSTimeInterval videoDuration;
@@ -148,6 +147,8 @@ static void wakeup(void *context)
 @synthesize buttonFocusIndex;
 @synthesize timeMode;
 @synthesize danmuView;
+@synthesize playerType;
+@synthesize navController;
 
 - (void)loadView {
     [super loadView];
@@ -215,9 +216,6 @@ static void wakeup(void *context)
     menuRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapMenu:)];
     menuRecognizer.allowedPressTypes = @[@(UIPressTypeMenu)];
     [self.view addGestureRecognizer:menuRecognizer];
-    hudView = [[HUDView alloc] initWithFrame:self.view.bounds];
-    hudView.delegate = self;
-    [self.view addSubview:hudView];
 
     playTimeTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
                                                      target:self
@@ -237,7 +235,6 @@ static void wakeup(void *context)
         double timePos = 0.0;
 //        int64_t cacheSize=0, cacheUsed=0, cacheSpeed=0, demuxerCacheTime=0, cacheBufferingState=0;
 //        int pausedForCache = 0;
-        [hudView.danmu updateFrame];
         check_error(mpv_get_property(mpv, "time-pos", MPV_FORMAT_DOUBLE, &timePos));
 //        check_error(mpv_get_property(mpv, "paused-for-cache", MPV_FORMAT_FLAG, &pausedForCache));
 //        check_error(mpv_get_property(mpv, "cache-size", MPV_FORMAT_INT64, &cacheSize));
@@ -252,7 +249,6 @@ static void wakeup(void *context)
             [self.delegate timeDidChangedHD:timePos];
         }
     }
-    [hudView.danmu updateFrame];
 }
 
 - (void)updatePlayTime {
@@ -272,14 +268,12 @@ static void wakeup(void *context)
         if (self.delegate) {
             [self.delegate timeDidChanged:timePos duration:videoDuration];
         }
-        [hudView updateProgress:timePos playableTime:(timePos+demuxerCacheTime) buffering:pausedForCache>0 total:videoDuration];
     }
 }
 
 - (void)viewDidLayoutSubviews {
     if (isViewLayouted) return;
     isViewLayouted = YES;
-    [hudView initHud];
 }
 
 - (void)tapMenu:(UITapGestureRecognizer*)sender {
@@ -413,7 +407,6 @@ static void wakeup(void *context)
              mp4:(BOOL)mp4
   withResumeTime:(CGFloat)resumeTime {
     fileLoaded = NO;
-    [hudView setVideoInfo:title];
     if ([options.allKeys containsObject:@"User-Agent"]) {
         NSString *ua = [options objectForKey:@"User-Agent"];
         NSLog(@"set --user-agent: %@", ua);
@@ -454,11 +447,6 @@ static void wakeup(void *context)
       withColor:(UIColor*)color
 withStrokeColor:(UIColor*)bgcolor
    withFontSize:(CGFloat)fontSize {
-    [hudView.danmu addDanMu:content
-                  withStyle:style
-                  withColor:color
-            withStrokeColor:bgcolor
-               withFontSize:fontSize];
 }
 
 -(void)setSubTitle:(NSString*)subTitle {

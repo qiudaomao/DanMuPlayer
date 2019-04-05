@@ -16,7 +16,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VideoPlayerViewController : UIViewController <AbstractPlayerProtocol, PlayerImplementProtocol, UIGestureRecognizerDelegate, PanelControlProtocol>
+@interface VideoPlayerViewController : UIViewController <AbstractPlayerProtocol, PlayerImplementProtocol, UIGestureRecognizerDelegate, PanelControlProtocol, UIViewControllerTransitioningDelegate>
 @property (nonatomic, readwrite, strong) StrokeUILabel *currentTime;
 @property (nonatomic, readwrite, strong) StrokeUILabel *leftTime;
 @property (nonatomic, readwrite, strong) DanMuLayer *danmu;

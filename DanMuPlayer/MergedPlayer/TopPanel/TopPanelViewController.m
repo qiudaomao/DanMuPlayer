@@ -14,6 +14,7 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import "TabBarTransitionAnimator.h"
+#import "PopUPAnimator.h"
 
 @interface TopPanelViewController () {
     InfoPanelViewController *infovc;
@@ -59,6 +60,7 @@
         [episodeVC setupButtonList:playlist clickCallBack:buttonCallback focusIndex:focusIndex];
         episodeVC.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"选集" image:nil tag:0];
         [vcs addObject:episodeVC];
+        [tabBarController setSelectedIndex:vcs.count-1];
     }
     
     //audio
@@ -82,6 +84,7 @@
 //    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipUp:)];
 //    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
 //    [self.view addGestureRecognizer:swipeGestureRecognizer];
+    
     tabBarController.delegate = self;
     dissmissed = NO;
 }
@@ -166,3 +169,4 @@
     focusIndex = focusIndex_;
 }
 @end
+

@@ -65,11 +65,11 @@
         for (NSMutableArray<DanMu*> *danmus in dandao) {
             for (DanMu *danmu in danmus) {
 //                NSLog(@"draw %@ %.2f %.2f", danmu.content, danmu.frame.origin.x, danmu.frame.origin.y);
-//                CGContextSetTextDrawingMode(context, kCGTextFill);
+                CGContextSetTextDrawingMode(context, kCGTextFillStroke);
                 [danmu.fillAttributedString drawAtPoint:danmu.frame.origin];
                 
 //                CGContextSetTextDrawingMode(context, kCGTextStroke);
-                [danmu.strokeAttributedString drawAtPoint:danmu.frame.origin];
+//                [danmu.strokeAttributedString drawAtPoint:danmu.frame.origin];
             }
         }
     }
@@ -124,6 +124,8 @@ withStrokeColor:(UIColor*)bgcolor
     NSDictionary<NSAttributedStringKey, id> *attrs = @{
                                                        NSFontAttributeName: font_,
                                                        NSForegroundColorAttributeName: color,
+                                                       NSStrokeWidthAttributeName: @(1.0),
+                                                       NSStrokeColorAttributeName: bgcolor,
                                                        };
     NSMutableAttributedString *as = [[NSMutableAttributedString alloc] initWithString:content attributes:attrs];
     [as addAttribute:NSFontAttributeName value:font_ range:range];

@@ -8,16 +8,19 @@
 
 #import "VideoPlayerViewController.h"
 #import "IJKPlayerImplement.h"
+#import "MPVPlayerImplement.h"
 #import "SiriRemoteGestureRecognizer.h"
 //#import <objc/runtime.h>
 //#import <objc/message.h>
 //#import "InfoPanelViewController.h"
 #import <AVFoundation/AVFoundation.h>
+#import <MediaPlayer/MediaPlayer.h>
 #import "AudioInfoViewController.h"
 #import "TopPanelViewController.h"
 #import "CurrentMediaInfo.h"
-#import <MediaPlayer/MediaPlayer.h>
 #import "./TopPanel/PanelControlData.h"
+#import "PushDownAnimator.h"
+#import "PopUPAnimator.h"
 
 typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     HUDKeyEventMenu,
@@ -73,6 +76,14 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     PanelControlData *controlData;
     BOOL playReady;
     DMPlaylist *playlist;
+    BOOL stopped;
+    BOOL siriRemoteActive;
+    BOOL siriRemoteClicked;
+    BOOL siriRemoteCancelled;
+    BOOL siriRemoteEnd;
+    
+    PushDownAnimator *pushDownAnimator;
+    PopUPAnimator *popUpAnimator;
 }
 @end
 
@@ -88,9 +99,16 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    pushDownAnimator = PushDownAnimator.new;
+    popUpAnimator = PopUPAnimator.new;
+    siriRemoteActive = NO;
+    siriRemoteClicked = NO;
+    siriRemoteCancelled = NO;
+    siriRemoteEnd = NO;
+    stopped = NO;
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateProgress)];
     displayLink.paused = YES;
-    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     self.view.backgroundColor = UIColor.blackColor;
     player_ = nil;
     [self initHud];
@@ -132,8 +150,8 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     CGSize size = [self.view bounds].size;
     
     _danmu = [[DanMuLayer alloc] initWithFrame:self.view.bounds];
-//    _danmu = [[DanMuView alloc] initWithFrame:self.view.bounds];
     [self.view addSubview:_danmu];
+//    _danmu = [[DanMuView alloc] initWithFrame:self.view.bounds];
     _danmu.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
     subTitle = [[StrokeUILabel alloc] init];
@@ -286,17 +304,20 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     if (hideTimer && hideTimer.isValid) {
         [hideTimer invalidate];
     }
-    hudView.hidden = NO;
-    hideTimer = [NSTimer timerWithTimeInterval:4.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
-        self->inHiddenChangeProgress = YES;
-        [UIView animateWithDuration:0.5 animations:^{
-            [self->hudView setAlpha:0.0f];
-        } completion:^(BOOL finished) {
-            self->hudView.hidden = YES;
-            self->inHiddenChangeProgress = NO;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->hudView.hidden = NO;
+        self->hudView.alpha = 1.0;
+        self->hideTimer = [NSTimer timerWithTimeInterval:4.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+            self->inHiddenChangeProgress = YES;
+            [UIView animateWithDuration:0.5 animations:^{
+                [self->hudView setAlpha:0.0f];
+            } completion:^(BOOL finished) {
+                self->hudView.hidden = YES;
+                self->inHiddenChangeProgress = NO;
+            }];
         }];
-    }];
-    [[NSRunLoop currentRunLoop] addTimer:hideTimer forMode:NSRunLoopCommonModes];
+        [[NSRunLoop currentRunLoop] addTimer:self->hideTimer forMode:NSRunLoopCommonModes];
+    });
 }
 
 - (void)stopAndShowTimer {
@@ -331,8 +352,10 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     if (hideTimer && hideTimer.isValid) {
         [hideTimer invalidate];
     }
-    [hudView setAlpha:1.0];
-    hudView.hidden = NO;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->hudView setAlpha:1.0];
+        self->hudView.hidden = NO;
+    });
 }
 
 - (void)updatePointTime: (CGFloat)time duration: (CGFloat)duration
@@ -382,18 +405,56 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
             }
             break;
         case HUDKeyEventLeft:
-            if (player_.currentTime > 10) {
-                [player_ seekToTime:player_.currentTime-10.0];
-            } else {
-                [player_ seekToTime:0];
+            if (isPlaying) {
+                if (player_.currentTime > 10) {
+                    [player_ seekToTime:player_.currentTime-10.0];
+                } else {
+                    [player_ seekToTime:0];
+                }
+            } else if (playReady) {
+                CGRect frame = seekImageFrame;
+                CGRect pauseLabelFrame = pauseTimeLabel.frame;
+                frame.origin.x -= 30;
+                NSTimeInterval duration = player_.duration;
+                if (frame.origin.x < _progress.frame.origin.x) {
+                    frame.origin.x = _progress.frame.origin.x;
+                } else if (frame.origin.x > _progress.frame.origin.x + _progress.frame.size.width) {
+                    frame.origin.x = _progress.frame.origin.x + _progress.frame.size.width;
+                }
+                NSTimeInterval targetTime = duration * (frame.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
+                seekTargetTime = targetTime;
+                pauseTimeLabel.text = [self timeToStr:targetTime];
+                pauseLabelFrame.origin.x = frame.origin.x - 78;
+                pauseImageView.frame = frame;
+                pauseTimeLabel.frame = pauseLabelFrame;
+                seekImageFrame = frame;
             }
             break;
         case HUDKeyEventDown:
             [self presentInfoPanel];
             break;
         case HUDKeyEventRight:
-            if (player_.currentTime < player_.duration - 10) {
-                [player_ seekToTime:player_.currentTime+10.0];
+            if (isPlaying) {
+                if (player_.currentTime < player_.duration - 10) {
+                    [player_ seekToTime:player_.currentTime+10.0];
+                }
+            } else if (playReady){
+                CGRect frame = seekImageFrame;
+                CGRect pauseLabelFrame = pauseTimeLabel.frame;
+                frame.origin.x += 30;
+                NSTimeInterval duration = player_.duration;
+                if (frame.origin.x < _progress.frame.origin.x) {
+                    frame.origin.x = _progress.frame.origin.x;
+                } else if (frame.origin.x > _progress.frame.origin.x + _progress.frame.size.width) {
+                    frame.origin.x = _progress.frame.origin.x + _progress.frame.size.width;
+                }
+                NSTimeInterval targetTime = duration * (frame.origin.x - _progress.frame.origin.x) / _progress.frame.size.width;
+                seekTargetTime = targetTime;
+                pauseTimeLabel.text = [self timeToStr:targetTime];
+                pauseLabelFrame.origin.x = frame.origin.x - 78;
+                pauseImageView.frame = frame;
+                pauseTimeLabel.frame = pauseLabelFrame;
+                seekImageFrame = frame;
             }
             break;
         case HUDKeyEventPlayPause:
@@ -433,6 +494,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
         [topPanelVC setupButtonList:playlist clickCallBack:buttonClickCallback focusIndex:buttonFocusIndex];
     }
     UIViewController *top = [self topMostController];
+    topPanelVC.transitioningDelegate = self;
     [top presentViewController:topPanelVC animated:YES completion:^{
     }];
 }
@@ -457,6 +519,8 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 }
 
 -(void)stop {
+    if (stopped) return;
+    stopped = YES;
     if (player_) {
         [self.delegate playStateDidChanged:PS_FINISH];
         [player_ stop];
@@ -514,47 +578,49 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     currentMediaInfo.fps = -1;
     currentMediaInfo.duration = -1;
     [self downloadArtWork];
-    if ([playerType isEqualToString:@"IJKPlayer"]
-        || [playerType isEqualToString:@""]
-        || [playerType isEqualToString:@"MPVPlayer"]) {
+    if ([playerType isEqualToString:@"IJKPlayer"]) {
         player_ = [[IJKPlayerImplement alloc] init];
-        [player_ playVideo:url
-                 withTitle:title
-                   withImg:img
-            withDesciption:desc
-                   options:options
-                       mp4:mp4
-            withResumeTime:resumeTime];
-        player_.delegate = self;
-        [self.view insertSubview:player_.videoView belowSubview:hudView];
-        player_.videoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        player_.videoView.frame = self.view.bounds;
-        if (resumeTime > 0) {
-            __weak typeof(self) weakSelf = self;
-            NSString *msg = [NSString stringWithFormat:@"上次观看到 %@ 是否继续观看？", [self timeToStr:resumeTime]];
-            UIAlertController* continueWatchingAlert = [UIAlertController alertControllerWithTitle:@"视频准备就绪" message:msg preferredStyle:UIAlertControllerStyleActionSheet];
-            UIAlertAction *continueWatching = [UIAlertAction actionWithTitle:@"继续观看"
-                                                                       style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-                                                                           NSLog(@"continue play from %.2f", resumeTime);
-                                                                           [self->player_ seekToTime:resumeTime];
-                                                                           [self->player_ play];
-                                                                       }];
-            UIAlertAction *startWatching = [UIAlertAction actionWithTitle:@"重新观看"
-                                                                    style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-//                                                                        [self->player_ play];
-                                                                    }];
-            UIAlertAction *stopWatching = [UIAlertAction actionWithTitle:@"放弃观看"
+    } else if ([playerType isEqualToString:@"MPVPlayer"]) {
+        player_ = [[MPVPlayerImplement alloc] init];
+    } else {
+        player_ = [[IJKPlayerImplement alloc] init];
+    }
+    [player_ playVideo:url
+             withTitle:title
+               withImg:img
+        withDesciption:desc
+               options:options
+                   mp4:mp4
+        withResumeTime:resumeTime];
+    player_.delegate = self;
+    [self.view insertSubview:player_.videoView belowSubview:hudView];
+    player_.videoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    player_.videoView.frame = self.view.bounds;
+    if (resumeTime > 0) {
+        __weak typeof(self) weakSelf = self;
+        NSString *msg = [NSString stringWithFormat:@"上次观看到 %@ 是否继续观看？", [self timeToStr:resumeTime]];
+        UIAlertController* continueWatchingAlert = [UIAlertController alertControllerWithTitle:@"视频准备就绪" message:msg preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertAction *continueWatching = [UIAlertAction actionWithTitle:@"继续观看"
                                                                    style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-                                                                       [weakSelf stop];
+                                                                       NSLog(@"continue play from %.2f", resumeTime);
+                                                                       [self->player_ seekToTime:resumeTime];
+                                                                       [self->player_ play];
                                                                    }];
-            [continueWatchingAlert addAction:continueWatching];
-            [continueWatchingAlert addAction:startWatching];
-            [continueWatchingAlert addAction:stopWatching];
-            [self presentViewController:continueWatchingAlert animated:YES completion:nil];
-            [player_ play];
-        } else {
-            [player_ play];
-        }
+        UIAlertAction *startWatching = [UIAlertAction actionWithTitle:@"重新观看"
+                                                                style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
+                                                                    //                                                                        [self->player_ play];
+                                                                }];
+        UIAlertAction *stopWatching = [UIAlertAction actionWithTitle:@"放弃观看"
+                                                               style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
+                                                                   [weakSelf stop];
+                                                               }];
+        [continueWatchingAlert addAction:continueWatching];
+        [continueWatchingAlert addAction:startWatching];
+        [continueWatchingAlert addAction:stopWatching];
+        [self presentViewController:continueWatchingAlert animated:YES completion:nil];
+        [player_ play];
+    } else {
+        [player_ play];
     }
     [self setupRemoteCommand];
 }
@@ -606,7 +672,7 @@ withStrokeColor:(UIColor*)bgcolor
     }
     loadingIndicatorBG.hidden = YES;
     [loadingIndicator stopAnimating];
-    errorTitle.text = @"!!(╯' - ')╯︵ ┻━┻ 播放出错了...";
+    errorTitle.text = @"!!(╯' - ')╯︵ ┻━┻ 播放出错了";
 }
 
 - (void)onPause {
@@ -625,8 +691,10 @@ withStrokeColor:(UIColor*)bgcolor
     isPlaying = YES;
     displayLink.paused = NO;
     [self resetHideTimer];
-    pauseTimeLabel.hidden = YES;
-    pauseImageView.hidden = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->pauseTimeLabel.hidden = YES;
+        self->pauseImageView.hidden = YES;
+    });
 }
 
 - (void)videSizeChanged:(CGSize)size {
@@ -638,8 +706,8 @@ withStrokeColor:(UIColor*)bgcolor
 //                                  @(UIPressTypeSelect),
 //                                  @(UIPressTypeUpArrow),
                                   @(UIPressTypeDownArrow),
-//                                  @(UIPressTypeLeftArrow),
-//                                  @(UIPressTypeRightArrow),
+                                  @(UIPressTypeLeftArrow),
+                                  @(UIPressTypeRightArrow),
                                   @(UIPressTypePlayPause)];
     for (NSNumber *type in types) {
         UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -649,9 +717,9 @@ withStrokeColor:(UIColor*)bgcolor
         [recognizers addObject:recognizer];
     }
     
-    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(siriSwipe:)];
-    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
-    [self.view addGestureRecognizer:swipeGestureRecognizer];
+//    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(siriSwipe:)];
+//    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+//    [self.view addGestureRecognizer:swipeGestureRecognizer];
     
     siriRemoteRecognizer = [[SiriRemoteGestureRecognizer alloc] initWithTarget:self
                                                                         action:@selector(siriTouch:)];
@@ -661,6 +729,7 @@ withStrokeColor:(UIColor*)bgcolor
 
 - (void)siriSwipe:(UISwipeGestureRecognizer*)sender {
     NSLog(@"siri swipe down");
+    [self presentInfoPanel];
 }
 
 - (void)siriTouch:(SiriRemoteGestureRecognizer*)sender {
@@ -681,12 +750,16 @@ withStrokeColor:(UIColor*)bgcolor
             [self onKeyPressed:HUDKeyEventRight];
             NSLog(@"taped right action");
         }
+        siriRemoteActive = NO;
     } else if (sender.state == UIGestureRecognizerStateBegan) {
 //        [self stopAndShowTimer];
         prevPanLocation = sender.location;
         beganPanLocation = sender.location;
+        NSLog(@"siri remote state began");
+        siriRemoteActive = YES;
+        siriRemoteCancelled = NO;
     } else if (sender.state == UIGestureRecognizerStateChanged) {
-        if (!isPlaying) {
+        if (!isPlaying && playReady) {
             CGPoint distence = CGPointMake(sender.location.x - prevPanLocation.x,
                                            sender.location.y - prevPanLocation.y);
             prevPanLocation = sender.location;
@@ -715,13 +788,17 @@ withStrokeColor:(UIColor*)bgcolor
                 || sender.state == UIGestureRecognizerStateCancelled)
                && !sender.isClick) {
         NSLog(@"taped not click action");
+        siriRemoteActive = NO;
+        if (sender.state == UIGestureRecognizerStateCancelled) {
+            siriRemoteCancelled = YES;
+        }
         //check velocity
         CGPoint endLocation = sender.location;
         CGPoint endVelocity = sender.velocity;
         CGFloat gap = endLocation.y - beganPanLocation.y;
         CGFloat gapX = endLocation.x - beganPanLocation.x;
         NSLog(@"end %.2f %.2f velocity.y %f gapY %.2f gapX %.2f", endLocation.x, endLocation.y, endVelocity.y, gap, gapX);
-        if (gap > 0.15 && gapX < 0.1 && endVelocity.y > 0) {
+        if (gap > 0.15 || endVelocity.y > 0) {
             NSLog(@"gesture scroll down");
             [self onKeyPressed:HUDKeyEventDown];
         }
@@ -791,6 +868,12 @@ withStrokeColor:(UIColor*)bgcolor
             
         default:
             break;
+    }
+    if (eventType == HUDKeyEventDown || eventType == HUDKeyEventLeft || eventType == HUDKeyEventRight) {
+        if (siriRemoteCancelled) {
+            NSLog(@"skip event down for siriRemote Cancelled");
+            return;
+        }
     }
     [self onKeyPressed:eventType];
 }
@@ -957,4 +1040,10 @@ withStrokeColor:(UIColor*)bgcolor
     }
 }
 
+- (nullable id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
+    return pushDownAnimator;
+}
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
+    return popUpAnimator;
+}
 @end

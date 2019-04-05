@@ -8,10 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "AbstractPlayer.h"
-#import "HUDView.h"
 
 @import JavaScriptCore;
 
-@interface MPVPlayerViewController : UIViewController <AbstractPlayerProtocol, HUDViewControlProtocol>
+@interface MPVPlayerViewController : UIViewController <AbstractPlayerProtocol>
 
 @end

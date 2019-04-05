@@ -28,6 +28,7 @@
     prevTime = -1;
     return self;
 }
+
 - (void)play {
     if (player.isPreparedToPlay) {
         [player play];
@@ -73,7 +74,7 @@
     [IJKFFMoviePlayerController setLogReport:NO];
     [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_SILENT];
 #endif
-    
+
     [IJKFFMoviePlayerController checkIfFFmpegVersionMatch:YES];
     // [IJKFFMoviePlayerController checkIfPlayerVersionMatch:YES major:1 minor:0 micro:0];
     
@@ -96,6 +97,25 @@
             [ffoptions setFormatOptionValue:headerStr forKey:@"headers"];
         }
     }
+    if ([url hasPrefix:@"rtsp:"]) {
+//        [ffoptions setPlayerOptionIntValue:1 forKey:@"videotoolbox"];
+        [ffoptions setFormatOptionValue:@"prefer_tcp" forKey:@"rtsp_flags"];
+        [ffoptions setFormatOptionValue:@"tcp" forKey:@"rtsp_transport"];
+        [ffoptions setFormatOptionValue:@"video" forKey:@"allowed_media_types"];
+        [ffoptions setFormatOptionIntValue:1 forKey:@"infbuf"];
+        [ffoptions setPlayerOptionIntValue:0 forKey:@"packet-buffering"];
+    }
+    [ffoptions setPlayerOptionIntValue:1 forKey:@"deinterlace"];
+    [ffoptions setPlayerOptionValue:@"w3fdif" forKey:@"vf0"];
+    [ffoptions setFormatOptionIntValue:0 forKey:@"auto_convert"];
+    
+    [ffoptions setPlayerOptionIntValue:500 forKey:@"first-high-water-mark-ms"];
+    [ffoptions setPlayerOptionIntValue:1000 forKey:@"next-high-water-mark-ms"];
+    [ffoptions setPlayerOptionIntValue:1500 forKey:@"last-high-water-mark-ms"];
+    [ffoptions setPlayerOptionIntValue:300 forKey:@"min-frames"];
+    [ffoptions setPlayerOptionIntValue:14*1024*1024 forKey:@"max-buffer-size"];
+
+    //set buffer size
     //read ijkOptions from options
     if ([options.allKeys containsObject:@"ijkOptions"]) {
         NSDictionary *ijkOptions = [options objectForKey:@"ijkOptions"];
@@ -189,6 +209,7 @@
             [self.delegate bufferring];
         }
     } else if ((loadState & IJKMPMovieLoadStatePlayable) != 0) {
+        NSLog(@"loadStateDidChange: IJKMPMovieLoadState Playable: %d\n", (int)loadState);
     } else {
         NSLog(@"loadStateDidChange: ???: %d\n", (int)loadState);
     }

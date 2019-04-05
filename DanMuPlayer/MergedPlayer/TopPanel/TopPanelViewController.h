@@ -14,7 +14,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TopPanelViewController : UIViewController <UITabBarControllerDelegate>
+@interface TopPanelViewController : UIViewController <UITabBarControllerDelegate, UIViewControllerTransitioningDelegate>
 - (void)setCurrentMediaInfo:(CurrentMediaInfo*)mediaInfo;
 @property (weak, readwrite) id<PanelControlProtocol> delegate;
 @property (nonatomic, readwrite, strong) PanelControlData *controlData;

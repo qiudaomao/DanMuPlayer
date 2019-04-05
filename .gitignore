@@ -18,6 +18,7 @@ DerivedData
 .idea/
 *.xcuserstate
 
+dependency/mpv
 # CocoaPods
 Pods
 # We recommend against adding the Pods directory to your .gitignore. However

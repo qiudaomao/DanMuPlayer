@@ -20,6 +20,8 @@
 @synthesize size;
 @synthesize image;
 @synthesize downloadImageFailed;
+@synthesize priv;
+@synthesize type;
 
 -(instancetype)init {
     self = [super init];
@@ -28,15 +30,21 @@
     self.duration = 0;
     self.image = nil;
     self.downloadImageFailed = NO;
+    self.type = @"video";
     return self;
 }
+
 +(void)setup:(JSContext*)context {
+    [context setObject:DMMediaItem.class forKeyedSubscript:@"MMMediaItem"];
+    [context setObject:DMMediaItem.class forKeyedSubscript:@"DMMediaItem"];
+    /*
     context[@"MMMediaItem"] = ^DMMediaItem*{
         return [[DMMediaItem alloc] init];
     };
     context[@"DMMediaItem"] = ^DMMediaItem*{
         return [[DMMediaItem alloc] init];
     };
+     */
 }
 @end
 
@@ -55,11 +63,15 @@
 }
 
 +(void)setup:(JSContext*)context {
+    [context setObject:DMPlaylist.class forKeyedSubscript:@"MMPlaylist"];
+    [context setObject:DMPlaylist.class forKeyedSubscript:@"DMPlaylist"];
+    /*
     context[@"MMPlaylist"] = ^DMPlaylist*{
         return [[DMPlaylist alloc] init];
     };
     context[@"DMPlaylist"] = ^DMPlaylist*{
         return [[DMPlaylist alloc] init];
     };
+     */
 }
 @end

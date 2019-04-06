@@ -57,6 +57,9 @@
 @synthesize events;
 @synthesize timeMode;
 @synthesize controller;
+@synthesize parser;
+@synthesize mediaIndex;
+
 +(void)setup:(JSContext*)context controller:(UINavigationController*)controller {
     context[@"DMPlayer"] = ^DMPlayer*{
         DMPlayer *player = [[DMPlayer alloc] init];
@@ -78,6 +81,7 @@
 {
     if (self = [super init]) {
         self.events = [[NSMutableArray alloc] init];
+        self.mediaIndex = 0;
         currentIndex=-1;
         oldTime = -1.0;
     }
@@ -89,27 +93,12 @@
 
 -(void)play
 {
-    if (self.playlist.count>0) {
-        DMMediaItem *item = self.playlist.items[0];
-        if ([item.player isEqualToString:@"DMPlayer"]) {
-//            player = [[PlayerViewController alloc] init];
-//            player = [[MPVPlayerViewController alloc] init];
-            player = [[VideoPlayerViewController alloc] init];
-        } else if ([item.player isEqualToString:@"MPVPlayer"]) {
-//            player = [[MPVPlayerViewController alloc] init];
-            player = [[VideoPlayerViewController alloc] init];
-        } else if ([item.player isEqualToString:@"AVPlayer"]) {
+    if (self.playlist.count>mediaIndex) {
+        DMMediaItem *item = self.playlist.items[mediaIndex];
+        if ([item.player isEqualToString:@"oldAVPlayer"]) {
             player = [[LazyCatAVPlayerViewController alloc] init];
-        } else if ([item.player isEqualToString:@"IJKPlayer"]) {
-            player = [[VideoPlayerViewController alloc] init];
         } else {
-//            if ([item.options.allKeys containsObject:@"useAVPlayer"] && [[item.options valueForKey:@"useAVPlayer"] boolValue]) {
-//                player = [[LazyCatAVPlayerViewController alloc] init];
-//            } else {
-//                player = [[PlayerViewController alloc] init];
-//                player = [[MPVPlayerViewController alloc] init];
-                player = [[VideoPlayerViewController alloc] init];
-//            }
+            player = [[VideoPlayerViewController alloc] init];
         }
         player.delegate = self;
         player.timeMode = self.timeMode;
@@ -118,11 +107,13 @@
         player.buttonClickCallback = self.buttonClickCallback;
         player.buttonFocusIndex = self.buttonFocusIndex;
         player.navController = self.controller;
+        player.parser = self.parser;
+        player.playlist = self.playlist;
         UIViewController *playerViewController = (UIViewController*)player;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.controller presentViewController:playerViewController animated:YES completion:^{
                 NSLog(@"show ok");
-                [self changeToMediaAtIndex:0];
+                [self changeToMediaAtIndex:self->mediaIndex];
             }];
         });
     }
@@ -132,6 +123,7 @@
 {
     [player pause];
 }
+
 -(void)stop
 {
     NSLog(@"DMPlayer do stop, but not call real stop");
@@ -139,34 +131,24 @@
         [self->player stop];
     });
 }
+
 -(void)seekToTime:(JSValue*)time
 {
     [player seekToTime: [time toDouble]];
 }
+
 -(void)changeToMediaAtIndex:(NSInteger)index
 {
-    if (index < self.playlist.count) {
-        DMMediaItem *item = self.playlist.items[index];
-        currentIndex = index;
-        NSString *url = item.url;
-        if (url.length > 0) {
-            NSMutableDictionary *options = [item.options mutableCopy];
-            [player playVideo:item.url
-                    withTitle:item.title
-                      withImg:item.artworkImageURL
-               withDesciption:item.description
-                      options:options
-                          mp4:item.mp4
-               withResumeTime:item.resumeTime];
-        }
-    }
+    [player playItemAtIndex:index];
 }
+
 -(void)next
 {
     if (currentIndex < self.playlist.count) {
         [self changeToMediaAtIndex:currentIndex+1];
     }
 }
+
 -(void)previous
 {
     if (currentIndex > 0) {

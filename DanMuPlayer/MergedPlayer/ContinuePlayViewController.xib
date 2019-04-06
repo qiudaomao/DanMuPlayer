@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.AppleTV.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="appleTV" orientation="landscape">
+        <adaptation id="light"/>
+    </device>
+    <dependencies>
+        <deployment identifier="tvOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ContinuePlayViewController">
+            <connections>
+                <outlet property="titleLabel" destination="OjC-Le-4dU" id="nCL-6k-GTt"/>
+                <outlet property="view" destination="iN0-l3-epB" id="Eym-vH-oyN"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OjC-Le-4dU">
+                    <rect key="frame" x="843" y="834" width="234" height="86"/>
+                    <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
+                    <state key="normal" title="继续播放"/>
+                    <connections>
+                        <action selector="buttonClicked:" destination="-1" eventType="primaryActionTriggered" id="F7s-Oq-lNo"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.10000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="OjC-Le-4dU" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="Kry-Pe-Fzg"/>
+                <constraint firstItem="yIn-56-ToE" firstAttribute="bottom" secondItem="OjC-Le-4dU" secondAttribute="bottom" constant="100" id="Q71-0r-Uj0"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="yIn-56-ToE"/>
+        </view>
+    </objects>
+</document>

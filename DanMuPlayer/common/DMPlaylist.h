@@ -25,11 +25,14 @@
 @property (nonatomic) CGFloat resumeTime;
 @property (nonatomic) CGFloat duration;
 @property (nonatomic) NSString *artworkImageURL;
+@property (nonatomic) NSString *priv;
+@property (nonatomic) NSString *type;
 @property (nonatomic) NSDictionary *options;
 @property (nonatomic, assign) BOOL mp4;
 @property (nonatomic, assign) CGSize size;
 @property (nonatomic) UIImage *image;
 @property (nonatomic, assign) BOOL downloadImageFailed;
+-(instancetype)init;
 @end
 
 @interface DMMediaItem : NSObject<DMMediaItemJSB>
@@ -45,6 +48,7 @@
 -(void)push:(DMMediaItem*)item;
 @property (nonatomic, assign) NSInteger count;
 @property (nonatomic) NSMutableArray<DMMediaItem*> *items;
+-(instancetype)init;
 @end
 
 @interface DMPlaylist : NSObject<DMPlaylistJSB>

@@ -49,6 +49,7 @@ typedef enum _DMPlayerEventType {
 @property (nonatomic) DMPlaylist *playlist;
 @property (nonatomic) DMPlaylist *buttonList;
 @property (nonatomic) JSValue *buttonClickCallback;
+@property (nonatomic) JSValue *parser;
 @property (nonatomic, assign, readwrite) NSInteger buttonFocusIndex;
 @property (nonatomic) NSMutableArray<DMPlayerEvent*> *events;
 @property (nonatomic, readonly) NSString *playbackState;
@@ -57,6 +58,7 @@ typedef enum _DMPlayerEventType {
 @property (nonatomic, readonly) DMMediaItem *previousMediaItem;
 @property (nonatomic, readonly) DMMediaItem *nextMediaItem;
 @property (nonatomic, readwrite) NSInteger timeMode;
+@property (nonatomic, readwrite) NSInteger mediaIndex;
 @end
 
 @interface DMPlayer : NSObject<DMPlayerJSB, PlayerStateDelegate>

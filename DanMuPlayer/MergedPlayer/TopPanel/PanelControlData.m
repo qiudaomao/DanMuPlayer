@@ -12,4 +12,5 @@
 @synthesize speedMode;
 @synthesize scaleMode;
 @synthesize danmuMode;
+@synthesize focusedIndex;
 @end

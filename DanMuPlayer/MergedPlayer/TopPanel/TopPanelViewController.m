@@ -10,7 +10,6 @@
 #import "InfoPanelViewController.h"
 #import "AudioInfoViewController.h"
 #import "PlayerControlViewController.h"
-#import "EpisodeViewController.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import "TabBarTransitionAnimator.h"
@@ -24,8 +23,10 @@
     UISwipeGestureRecognizer *swipeGestureRecognizer;
     BOOL dissmissed;
     UITabBarController *tabBarController;
-    JSValue *buttonCallback;
+    clickCallBack buttonCallback;
     NSInteger focusIndex;
+    BOOL canDissmiss;
+    BOOL willDissmiss;
 }
 @end
 
@@ -57,7 +58,7 @@
     
     if (playlist && playlist.items.count>0) {
         EpisodeViewController *episodeVC = [[EpisodeViewController alloc] initWithNibName:@"EpisodeViewController" bundle:bundle];
-        [episodeVC setupButtonList:playlist clickCallBack:buttonCallback focusIndex:focusIndex];
+        [episodeVC setupPlayList:playlist clickCallBack:buttonCallback focusIndex:focusIndex];
         episodeVC.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"选集" image:nil tag:0];
         [vcs addObject:episodeVC];
         [tabBarController setSelectedIndex:vcs.count-1];
@@ -75,23 +76,40 @@
     [tabBarController didMoveToParentViewController:self];
     [self changeBarBackground:tabBarController];
 
-//    tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapUp:)];
-//    tapGestureRecognizer.allowedPressTypes = @[
-//                                               @(UIPressTypeUpArrow)
-//                                               ];
-//    [self.view addGestureRecognizer:tapGestureRecognizer];
-//
-//    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipUp:)];
-//    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
-//    [self.view addGestureRecognizer:swipeGestureRecognizer];
+    tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapKey:)];
+    tapGestureRecognizer.allowedPressTypes = @[
+                                               @(UIPressTypeUpArrow),
+                                               @(UIPressTypeMenu),
+                                               ];
+    [self.view addGestureRecognizer:tapGestureRecognizer];
+
+    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipUp:)];
+    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
+    [self.view addGestureRecognizer:swipeGestureRecognizer];
     
     tabBarController.delegate = self;
     dissmissed = NO;
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [self.view removeGestureRecognizer:tapGestureRecognizer];
+    [self.view removeGestureRecognizer:swipeGestureRecognizer];
+}
+
 - (void)swipUp:(UISwipeGestureRecognizer*)sender {
     NSLog(@"swipUp");
-//    [self dissmiss];
+    if (canDissmiss) {
+        [self dissmiss];
+    }
+}
+
+- (void)tapKey:(UITapGestureRecognizer*)sender {
+    if (willDissmiss && canDissmiss) {
+        [self dissmiss];
+    }
+    if (canDissmiss) {
+        willDissmiss = YES;
+    }
 }
 
 - (void)dissmiss {
@@ -102,22 +120,9 @@
     }
 }
 
-- (void)tapUp:(UITapGestureRecognizer*)sender {
-    [self dissmiss];
-}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.transitionCoordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-    }];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    [self.transitionCoordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-    } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-    }];
+    [tabBarController setSelectedIndex:controlData.focusedIndex];
 }
 
 - (void)changeBarBackground:(UITabBarController*)tabController {
@@ -158,15 +163,34 @@
     BOOL rightDirection = toIdx > fromIdx;
     TabBarTransitionAnimator *animator = [[TabBarTransitionAnimator alloc] initWithFromViewController:fromVC
                                                                                      toViewController:toVC
-                                                                                             duration:0.5
+                                                                                             duration:0.3
                                                                                           rightToLeft:rightDirection];
     return animator;
 }
 
-- (void)setupButtonList:(DMPlaylist*)playlist_ clickCallBack:(JSValue*)callback_ focusIndex:(NSInteger)focusIndex_ {
+- (void)setupPlayList:(DMPlaylist*)playlist_ clickCallBack:(clickCallBack)callback_ focusIndex:(NSInteger)focusIndex_ {
     playlist = playlist_;
     buttonCallback = callback_;
     focusIndex = focusIndex_;
+}
+
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
+    NSLog(@"tabBar did select view controller %@", viewController);
+    controlData.focusedIndex = tabBarController.selectedIndex;
+}
+
+- (void)didUpdateFocusInContext:(UIFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
+//    NSLog(@"didUpdateFocusInContext %@", context);
+    willDissmiss = NO;
+    if ([context.nextFocusedItem isKindOfClass:NSClassFromString(@"UITabBarButton")]) {
+        canDissmiss = YES;
+        if ([context.previouslyFocusedItem isKindOfClass:NSClassFromString(@"UITabBarButton")]
+            || context.previouslyFocusedItem == nil) {
+            willDissmiss = YES;
+        }
+    } else {
+        canDissmiss = NO;
+    }
 }
 @end
 

@@ -11,12 +11,12 @@
 #import "DMPlaylist.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
+typedef void(^clickCallBack)(NSInteger);
 @interface EpisodeViewController : UIViewController <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, TabAnimationVCProtocol>
 @property (weak, nonatomic) IBOutlet UIVisualEffectView *bgVisualEffectView;
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConstraint;
-- (void)setupButtonList:(DMPlaylist*)playlist clickCallBack:(JSValue*)callback focusIndex:(NSInteger)focusIndex;
+- (void)setupPlayList:(DMPlaylist*)playlist clickCallBack:(clickCallBack)callback focusIndex:(NSInteger)focusIndex;
 @end
 
 NS_ASSUME_NONNULL_END

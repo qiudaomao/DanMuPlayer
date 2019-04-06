@@ -43,8 +43,10 @@
         [player pause];
     }
 }
+
 - (void)empty {
 }
+
 - (void)stop {
     if (player) {
         stopped = YES;

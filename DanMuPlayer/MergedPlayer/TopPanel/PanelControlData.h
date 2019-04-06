@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite, assign) PlaySpeedMode speedMode;
 @property (nonatomic, readwrite, assign) PlayScaleMode scaleMode;
 @property (nonatomic, readwrite, assign) PlayDanMuMode danmuMode;
+@property (nonatomic, readwrite, assign) NSInteger focusedIndex;
 @end
 
 NS_ASSUME_NONNULL_END

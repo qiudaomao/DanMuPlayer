@@ -10,6 +10,7 @@
 #define PlayerProtocol_h
 #import <UIKit/UIKit.h>
 #import "./TopPanel/PanelControlProtocol.h"
+#import "DMPlaylist.h"
 
 @protocol PlayerImplementProtocol <NSObject>
 - (void)onPause;

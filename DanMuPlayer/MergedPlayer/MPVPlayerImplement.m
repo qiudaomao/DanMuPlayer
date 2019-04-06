@@ -384,10 +384,12 @@ static void wakeup(void *context)
     int pause = 1;
     check_error(mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &pause), "pause");
 }
+
 -(void)play {
     int pause = 0;
     check_error(mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &pause), "pause");
 }
+
 -(void)stop {
     const char *cmd[] = { "quit", NULL };
     NSLog(@"mpv destroy");
@@ -547,5 +549,6 @@ static void wakeup(void *context)
     }
     check_error(mpv_set_property(mpv, "video-aspect", MPV_FORMAT_STRING, aspect), "video-aspect");
 }
+
 @end
 

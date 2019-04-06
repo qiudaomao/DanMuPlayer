@@ -54,11 +54,15 @@ withStrokeColor:(UIColor*)bgcolor
    withFontSize:(CGFloat)fontSize;
 -(void)setSubTitle:(NSString*)subTitle;
 -(void)setupButtonList:(DMPlaylist*)playlist;
+-(void)playItemAtIndex:(NSInteger)index;
 @property (nonatomic, readwrite, weak) id<PlayerStateDelegate> delegate;
 @property (nonatomic, readwrite, weak) UINavigationController *navController;
 @property (nonatomic, readwrite, strong) DanMuView *danmuView;
 @property (nonatomic, strong, readwrite) JSValue *buttonClickCallback;
+@property (nonatomic, strong, readwrite) JSValue *parser;
 @property (nonatomic, assign, readwrite) NSInteger buttonFocusIndex;
 @property (nonatomic, assign, readwrite) NSInteger timeMode;
+@property (nonatomic, assign, readwrite) NSInteger currentMediaIndex;
+@property (nonatomic, strong, readwrite) DMPlaylist *playlist;
 @property (nonatomic, readwrite, copy) NSString *playerType;
 @end

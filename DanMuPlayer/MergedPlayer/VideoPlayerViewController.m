@@ -9,6 +9,7 @@
 #import "VideoPlayerViewController.h"
 #import "IJKPlayerImplement.h"
 #import "MPVPlayerImplement.h"
+#import "AVPlayerImplement.h"
 #import "SiriRemoteGestureRecognizer.h"
 //#import <objc/runtime.h>
 //#import <objc/message.h>
@@ -19,8 +20,13 @@
 #import "TopPanelViewController.h"
 #import "CurrentMediaInfo.h"
 #import "./TopPanel/PanelControlData.h"
+#import "./LeftPanel/LeftPanelViewController.h"
+#import "./RightPanel/RightPanelViewController.h"
 #import "PushDownAnimator.h"
 #import "PopUPAnimator.h"
+#import "PushLeftRightAnimator.h"
+#import "PopLeftRightAnimator.h"
+#import "ContinuePlayViewController.h"
 
 typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     HUDKeyEventMenu,
@@ -84,6 +90,15 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     
     PushDownAnimator *pushDownAnimator;
     PopUPAnimator *popUpAnimator;
+    PushLeftRightAnimator *pushLeftAnimator;
+    PopLeftRightAnimator *popLeftAnimator;
+    PushLeftRightAnimator *pushRightAnimator;
+    PopLeftRightAnimator *popRightAnimator;
+    
+    BOOL processed;
+    NSTimeInterval _resumeTime;
+    BOOL preventQuitUI;
+    NSInteger targetMediaIndex;
 }
 @end
 
@@ -95,12 +110,21 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 @synthesize timeMode;
 @synthesize playerType;
 @synthesize navController;
+@synthesize parser;
+@synthesize currentMediaIndex;
+@synthesize playlist;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    preventQuitUI = NO;
+    _resumeTime = 0;
     pushDownAnimator = PushDownAnimator.new;
     popUpAnimator = PopUPAnimator.new;
+    pushLeftAnimator = [[PushLeftRightAnimator alloc] initWithDirection:YES];
+    popLeftAnimator = [[PopLeftRightAnimator alloc] initWithDirection:YES];
+    pushRightAnimator = [[PushLeftRightAnimator alloc] initWithDirection:NO];
+    popRightAnimator = [[PopLeftRightAnimator alloc] initWithDirection:NO];
     siriRemoteActive = NO;
     siriRemoteClicked = NO;
     siriRemoteCancelled = NO;
@@ -433,6 +457,9 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
         case HUDKeyEventDown:
             [self presentInfoPanel];
             break;
+        case HUDKeyEventUp:
+            [self presentLeftPanel];
+            break;
         case HUDKeyEventRight:
             if (isPlaying) {
                 if (player_.currentTime < player_.duration - 10) {
@@ -491,11 +518,46 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     topPanelVC.delegate = self;
     topPanelVC.controlData = controlData;
     if (playlist) {
-        [topPanelVC setupButtonList:playlist clickCallBack:buttonClickCallback focusIndex:buttonFocusIndex];
+//        __weak typeof(self) weakSelf = self;
+        [topPanelVC setupPlayList:playlist clickCallBack:^void(NSInteger index) {
+            NSLog(@"button list click %lu", index);
+            if (self->targetMediaIndex != index) {
+                self->preventQuitUI = YES;
+                //set target
+                self->targetMediaIndex = index;
+                [self->player_ stop];
+            } else {
+                NSLog(@"select the same item, no need to change");
+            }
+        } focusIndex:self.currentMediaIndex];
     }
     UIViewController *top = [self topMostController];
     topPanelVC.transitioningDelegate = self;
     [top presentViewController:topPanelVC animated:YES completion:^{
+    }];
+}
+
+- (void)presentLeftPanel {
+    NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
+    LeftPanelViewController *leftVC = [[LeftPanelViewController alloc] initWithNibName:@"LeftPanelViewController" bundle:bundle];
+    UIViewController *top = [self topMostController];
+    leftVC.transitioningDelegate = self;
+    leftVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    leftVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    leftVC.title = @"播放列表";
+    [top presentViewController:leftVC animated:YES completion:^{
+    }];
+}
+
+- (void)presentRightPanel {
+    NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
+    RightPanelViewController *rightVC = [[RightPanelViewController alloc] initWithNibName:@"RightPanelViewController" bundle:bundle];
+    UIViewController *top = [self topMostController];
+    rightVC.transitioningDelegate = self;
+    rightVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    rightVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    rightVC.title = @"播放链接";
+    [top presentViewController:rightVC animated:YES completion:^{
     }];
 }
 
@@ -569,7 +631,6 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
          options:(NSMutableDictionary*)options
              mp4:(BOOL)mp4
   withResumeTime:(CGFloat)resumeTime {
-    //get videoView here
     currentMediaInfo.title = title;
     currentMediaInfo.imgURL = img;
     //download image
@@ -578,10 +639,17 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     currentMediaInfo.fps = -1;
     currentMediaInfo.duration = -1;
     [self downloadArtWork];
+    if (player_) {
+        //remove anything of previous player
+        NSLog(@"Error, player_ should already destroy before new play");
+        return;
+    }
     if ([playerType isEqualToString:@"IJKPlayer"]) {
         player_ = [[IJKPlayerImplement alloc] init];
     } else if ([playerType isEqualToString:@"MPVPlayer"]) {
         player_ = [[MPVPlayerImplement alloc] init];
+    } else if ([playerType isEqualToString:@"AVPlayer"]){
+        player_ = [[AVPlayerImplement alloc] init];
     } else {
         player_ = [[IJKPlayerImplement alloc] init];
     }
@@ -597,32 +665,82 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     player_.videoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     player_.videoView.frame = self.view.bounds;
     if (resumeTime > 0) {
-        __weak typeof(self) weakSelf = self;
-        NSString *msg = [NSString stringWithFormat:@"上次观看到 %@ 是否继续观看？", [self timeToStr:resumeTime]];
-        UIAlertController* continueWatchingAlert = [UIAlertController alertControllerWithTitle:@"视频准备就绪" message:msg preferredStyle:UIAlertControllerStyleActionSheet];
-        UIAlertAction *continueWatching = [UIAlertAction actionWithTitle:@"继续观看"
-                                                                   style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-                                                                       NSLog(@"continue play from %.2f", resumeTime);
-                                                                       [self->player_ seekToTime:resumeTime];
-                                                                       [self->player_ play];
-                                                                   }];
-        UIAlertAction *startWatching = [UIAlertAction actionWithTitle:@"重新观看"
-                                                                style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-                                                                    //                                                                        [self->player_ play];
-                                                                }];
-        UIAlertAction *stopWatching = [UIAlertAction actionWithTitle:@"放弃观看"
-                                                               style:UIAlertActionStyleDefault handler:^(UIAlertAction* action){
-                                                                   [weakSelf stop];
-                                                               }];
-        [continueWatchingAlert addAction:continueWatching];
-        [continueWatchingAlert addAction:startWatching];
-        [continueWatchingAlert addAction:stopWatching];
-        [self presentViewController:continueWatchingAlert animated:YES completion:nil];
+        _resumeTime = resumeTime;
         [player_ play];
     } else {
         [player_ play];
     }
     [self setupRemoteCommand];
+}
+
+- (void)showContinuePlay:(NSTimeInterval)resumeTime {
+    NSLog(@"showContinuePlay %.2f", resumeTime);
+    NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
+    ContinuePlayViewController *cpVC = [[ContinuePlayViewController alloc] initWithNibName:@"ContinuePlayViewController" bundle:bundle];
+    cpVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    cpVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    NSString *ts = [self timeToStr:resumeTime];
+    cpVC.title = [NSString stringWithFormat:@"从%@处继续播放", ts];
+    cpVC.resume = ^{
+        NSLog(@"resume");
+        [self seekToTime:resumeTime];
+        [self resetHideTimer];
+    };
+    UIViewController *top = [self topMostController];
+    [top presentViewController:cpVC animated:YES completion:^{
+    }];
+}
+
+-(void)playItemAtIndex:(NSInteger)index {
+    NSLog(@"playItemAtIndex %lu", index);
+    if (index < self.playlist.count) {
+        DMMediaItem *item = self.playlist.items[index];
+        self.currentMediaIndex = index;
+        targetMediaIndex = index;
+        if (self.parser && !self.parser.isUndefined && !self.parser.isNull) {
+            [self.parser.context[@"setTimeout"] callWithArguments:@[self.parser, @(0), item, @(index),
+                                                                    ^void (JSValue *error, JSValue *playableURLs, NSInteger preferedIndex, JSValue *webURL) {
+                if (error && !error.isNull && error.isString) {
+                    NSLog(@"parser error %@", error.toString);
+                    [self onError:error.toString];
+                } else if (playableURLs && !playableURLs.isNull && playableURLs.isArray && playableURLs.toArray.count>preferedIndex) {
+                    JSValue *value = [playableURLs objectAtIndexedSubscript:preferedIndex];
+                    NSMutableDictionary *options = [item.options mutableCopy];
+                    NSString *url = item.url;
+                    if ([value hasProperty:@"url"]) {
+                        url = [value objectForKeyedSubscript:@"url"].toString;
+                    }
+                    if ([value hasProperty:@"options"]) {
+                        options = [[value objectForKeyedSubscript:@"options"].toDictionary mutableCopy];
+                    }
+                    [self playVideo:url
+                          withTitle:item.title
+                            withImg:item.artworkImageURL
+                     withDesciption:item.description
+                            options:options
+                                mp4:item.mp4
+                     withResumeTime:item.resumeTime];
+                } else {
+                    NSLog(@"Error, should not coming here");
+                }
+                if (webURL && !webURL.isNull){
+                    //add to parser
+                }
+            }]];
+        } else {
+            NSString *url = item.url;
+            if (url.length > 0) {
+                NSMutableDictionary *options = [item.options mutableCopy];
+                [self playVideo:item.url
+                      withTitle:item.title
+                        withImg:item.artworkImageURL
+                 withDesciption:item.description
+                        options:options
+                            mp4:item.mp4
+                 withResumeTime:item.resumeTime];
+            }
+        }
+    }
 }
 
 -(void)addDanMu:(NSString*)content
@@ -655,11 +773,23 @@ withStrokeColor:(UIColor*)bgcolor
         self.delegate=nil;
     }
     [self clearRemoteCommand];
-    [self dismissViewControllerAnimated:NO completion:^{
-        NSLog(@"stop dissmiss IJKPlayerViewController");
-    }];
     MPNowPlayingInfoCenter *center = MPNowPlayingInfoCenter.defaultCenter;
     center.nowPlayingInfo = nil;
+    //check if need auto play next here
+    if (!preventQuitUI) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            NSLog(@"finish dismiss VideoPlayerViewController");
+        }];
+    } else {
+        preventQuitUI = NO;
+        NSLog(@"change preventQuitUI to NO");
+        __weak typeof(self) weakSelf = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->player_.videoView removeFromSuperview];
+            self->player_ = nil;
+            [weakSelf playItemAtIndex:self->targetMediaIndex];
+        });
+    }
 }
 
 - (void)onError:(NSString *)msg {
@@ -673,6 +803,8 @@ withStrokeColor:(UIColor*)bgcolor
     loadingIndicatorBG.hidden = YES;
     [loadingIndicator stopAnimating];
     errorTitle.text = @"!!(╯' - ')╯︵ ┻━┻ 播放出错了";
+    MPNowPlayingInfoCenter *center = MPNowPlayingInfoCenter.defaultCenter;
+    center.nowPlayingInfo = nil;
 }
 
 - (void)onPause {
@@ -687,6 +819,10 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)onPlay {
+    if (_resumeTime > 0) {
+        [self showContinuePlay:_resumeTime];
+        _resumeTime = 0;
+    }
     playReady = YES;
     isPlaying = YES;
     displayLink.paused = NO;
@@ -703,8 +839,8 @@ withStrokeColor:(UIColor*)bgcolor
 - (void)setupRecognizers {
     recognizers = [NSMutableArray array];
     NSArray<NSNumber*> *types = @[@(UIPressTypeMenu),
-//                                  @(UIPressTypeSelect),
-//                                  @(UIPressTypeUpArrow),
+                                  //                                  @(UIPressTypeSelect),
+                                  @(UIPressTypeUpArrow),
                                   @(UIPressTypeDownArrow),
                                   @(UIPressTypeLeftArrow),
                                   @(UIPressTypeRightArrow),
@@ -717,9 +853,9 @@ withStrokeColor:(UIColor*)bgcolor
         [recognizers addObject:recognizer];
     }
     
-//    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(siriSwipe:)];
-//    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
-//    [self.view addGestureRecognizer:swipeGestureRecognizer];
+    //    swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(siriSwipe:)];
+    //    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+    //    [self.view addGestureRecognizer:swipeGestureRecognizer];
     
     siriRemoteRecognizer = [[SiriRemoteGestureRecognizer alloc] initWithTarget:self
                                                                         action:@selector(siriTouch:)];
@@ -752,12 +888,13 @@ withStrokeColor:(UIColor*)bgcolor
         }
         siriRemoteActive = NO;
     } else if (sender.state == UIGestureRecognizerStateBegan) {
-//        [self stopAndShowTimer];
+        //        [self stopAndShowTimer];
         prevPanLocation = sender.location;
         beganPanLocation = sender.location;
         NSLog(@"siri remote state began");
         siriRemoteActive = YES;
         siriRemoteCancelled = NO;
+        processed = NO;
     } else if (sender.state == UIGestureRecognizerStateChanged) {
         if (!isPlaying && playReady) {
             CGPoint distence = CGPointMake(sender.location.x - prevPanLocation.x,
@@ -783,6 +920,23 @@ withStrokeColor:(UIColor*)bgcolor
             pauseImageView.frame = frame;
             pauseTimeLabel.frame = pauseLabelFrame;
             seekImageFrame = frame;
+        } else {
+            //check swipeRight, swipLeft and swipeDown
+            if (!processed) {
+                CGPoint endLocation = sender.location;
+                CGFloat gapY = endLocation.y - beganPanLocation.y;
+                CGFloat gapX = endLocation.x - beganPanLocation.x;
+                if (fabs(gapY) > fabs(gapX) && gapY > 0.18) {
+                    processed = YES;
+                    [self presentInfoPanel];
+                } else if (fabs(gapX) > fabs(gapY) && gapX > 0.18) {
+                    processed = YES;
+                    [self presentLeftPanel];
+                } else if (fabs(gapX) > fabs(gapY) && gapX < -0.18) {
+                    processed = YES;
+                    [self presentRightPanel];
+                }
+            }
         }
     } else if ((sender.state == UIGestureRecognizerStateEnded
                 || sender.state == UIGestureRecognizerStateCancelled)
@@ -791,16 +945,6 @@ withStrokeColor:(UIColor*)bgcolor
         siriRemoteActive = NO;
         if (sender.state == UIGestureRecognizerStateCancelled) {
             siriRemoteCancelled = YES;
-        }
-        //check velocity
-        CGPoint endLocation = sender.location;
-        CGPoint endVelocity = sender.velocity;
-        CGFloat gap = endLocation.y - beganPanLocation.y;
-        CGFloat gapX = endLocation.x - beganPanLocation.x;
-        NSLog(@"end %.2f %.2f velocity.y %f gapY %.2f gapX %.2f", endLocation.x, endLocation.y, endVelocity.y, gap, gapX);
-        if (gap > 0.15 || endVelocity.y > 0) {
-            NSLog(@"gesture scroll down");
-            [self onKeyPressed:HUDKeyEventDown];
         }
         if (!isPlaying) {
             //here to avoid hide during swipe to adjust seek time
@@ -898,11 +1042,12 @@ withStrokeColor:(UIColor*)bgcolor
 
 - (void)bufferring {
     NSLog(@"bufferring");
-//    if (!isPaused) {
-        loadingIndicatorBG.hidden = NO;
-        [loadingIndicator startAnimating];
-//    }
+    //    if (!isPaused) {
+    loadingIndicatorBG.hidden = NO;
+    [loadingIndicator startAnimating];
+    //    }
 }
+
 - (void)stopBufferring {
     NSLog(@"stop bufferring");
     loadingIndicatorBG.hidden = YES;
@@ -969,7 +1114,7 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)updateNowPlaying:(NSTimeInterval)current duration:(NSTimeInterval)duration {
-//    NSLog(@"updateNowPlaying %.2f %.2f", current, duration);
+    //    NSLog(@"updateNowPlaying %.2f %.2f", current, duration);
     MPNowPlayingInfoCenter *center = MPNowPlayingInfoCenter.defaultCenter;
     if (duration > 0) {
         if (currentMediaInfo.artwork) {
@@ -1012,7 +1157,7 @@ withStrokeColor:(UIColor*)bgcolor
                                       };
         }
     }
-//    NSLog(@"finish updateNowPlaying %.2f %.2f", current, duration);
+    //    NSLog(@"finish updateNowPlaying %.2f %.2f", current, duration);
 }
 
 - (void)onPanelChangePlaySpeedMode:(PlaySpeedMode)speedMode {
@@ -1041,9 +1186,26 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (nullable id <UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
-    return pushDownAnimator;
+    if ([presented isKindOfClass:NSClassFromString(@"TopPanelViewController")]) {
+        return pushDownAnimator;
+    } else if ([presented isKindOfClass:NSClassFromString(@"LeftPanelViewController")]) {
+        return pushLeftAnimator;
+    } else if ([presented isKindOfClass:NSClassFromString(@"RightPanelViewController")]) {
+        return pushRightAnimator;
+    } else {
+        return nil;
+    }
 }
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
-    return popUpAnimator;
+    if ([dismissed isKindOfClass:NSClassFromString(@"TopPanelViewController")]) {
+        return popUpAnimator;
+    } else if ([dismissed isKindOfClass:NSClassFromString(@"LeftPanelViewController")]) {
+        return popLeftAnimator;
+    } else if ([dismissed isKindOfClass:NSClassFromString(@"RightPanelViewController")]) {
+        return popRightAnimator;
+    } else {
+        return nil;
+    }
 }
+
 @end

@@ -11,7 +11,7 @@
 
 @interface EpisodeViewController () {
     DMPlaylist *playlist;
-    JSValue *buttonCallback;
+    clickCallBack buttonCallback;
     NSInteger focusIndex;
     BOOL initScrolled;
 }
@@ -41,14 +41,14 @@
 - (void)viewDidLayoutSubviews {
     if (initScrolled) return;
     initScrolled = YES;
-    if (playlist && playlist.items.count > 0 && focusIndex >= 0) {
+    if (playlist && playlist.items.count > 0 && focusIndex >= 0 && focusIndex<playlist.items.count) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:focusIndex inSection:0];
         [_collectionView scrollToItemAtIndexPath:indexPath
                                 atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally
                                         animated:NO];
     }
 }
-- (void)setupButtonList:(DMPlaylist*)playlist_ clickCallBack:(JSValue*)callback_ focusIndex:(NSInteger)focusIndex_ {
+- (void)setupPlayList:(DMPlaylist*)playlist_ clickCallBack:(clickCallBack)callback_ focusIndex:(NSInteger)focusIndex_ {
     playlist = playlist_;
     buttonCallback = callback_;
     focusIndex = focusIndex_;
@@ -135,10 +135,6 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"select item %lu %lu", indexPath.section, indexPath.item);
-    if (buttonCallback && !buttonCallback.isNull) {
-        [buttonCallback.context[@"setTimeout"] callWithArguments:@[buttonCallback, @0, @(indexPath.item), ^void(NSString *str){
-            NSLog(@"return from callback %@", str);
-        }]];
-    }
+    buttonCallback(indexPath.item);
 }
 @end

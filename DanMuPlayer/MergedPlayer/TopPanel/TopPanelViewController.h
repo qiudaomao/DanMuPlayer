@@ -11,14 +11,14 @@
 #import "PanelControlProtocol.h"
 #import "PanelControlData.h"
 #import "DMPlaylist.h"
+#import "EpisodeViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
 @interface TopPanelViewController : UIViewController <UITabBarControllerDelegate, UIViewControllerTransitioningDelegate>
 - (void)setCurrentMediaInfo:(CurrentMediaInfo*)mediaInfo;
 @property (weak, readwrite) id<PanelControlProtocol> delegate;
 @property (nonatomic, readwrite, strong) PanelControlData *controlData;
-- (void)setupButtonList:(DMPlaylist*)playlist clickCallBack:(JSValue*)callback focusIndex:(NSInteger)focusIndex;
+- (void)setupPlayList:(DMPlaylist*)playlist clickCallBack:(clickCallBack)callback focusIndex:(NSInteger)focusIndex;
 @end
 
 NS_ASSUME_NONNULL_END

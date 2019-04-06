@@ -54,6 +54,9 @@
 @synthesize danmuView;
 @synthesize playerType;
 @synthesize navController;
+@synthesize parser;
+@synthesize playlist;
+@synthesize currentMediaIndex;
 
 - (id)init {
     self = [super init];
@@ -455,6 +458,24 @@
     [player seekToTime:CMTimeMake(time, 1)];
 }
 
+-(void)playItemAtIndex:(NSInteger)index {
+    if (index < self.playlist.count) {
+        DMMediaItem *item = self.playlist.items[index];
+        self.currentMediaIndex = index;
+        NSString *url = item.url;
+        if (url.length > 0) {
+            NSMutableDictionary *options = [item.options mutableCopy];
+            [self playVideo:item.url
+                  withTitle:item.title
+                    withImg:item.artworkImageURL
+             withDesciption:item.description
+                    options:options
+                        mp4:item.mp4
+             withResumeTime:item.resumeTime];
+        }
+    }
+}
+
 -(void)playVideo:(NSString*)url
        withTitle:(NSString*)_title
          withImg:(NSString*)img
@@ -651,7 +672,7 @@ withStrokeColor:(UIColor*)bgcolor
     //NSLog(@"update Time: %@", timeLabel.text);
 }
 
-- (CGRect) videoRect {
+- (CGRect)videoRect {
     CGRect theVideoRect = CGRectZero;
     // Replace this with whatever frame your AVPlayer is playing inside of:
     CGRect theLayerRect = self.view.frame;
@@ -678,9 +699,11 @@ withStrokeColor:(UIColor*)bgcolor
     }
     return theVideoRect;
 }
+
 -(void)setupButtonList:(DMPlaylist*)playlist {
     list = playlist;
 }
+
 - (nullable NSIndexPath *)indexPathForPreferredFocusedViewInTableView:(UITableView *)tableView {
     NSLog(@"query indexPathForPreferredFocusedViewInTableView %zd", self.buttonFocusIndex);
     NSIndexPath *path = [NSIndexPath indexPathForRow:self.buttonFocusIndex inSection:0];
@@ -705,4 +728,5 @@ withStrokeColor:(UIColor*)bgcolor
         timeLabel.text = @"";
     }
 }
+
 @end

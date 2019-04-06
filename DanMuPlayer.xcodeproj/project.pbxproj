@@ -45,6 +45,12 @@
 		E943860E2249D20F004E62A7 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E94386062249D20E004E62A7 /* libssl.a */; };
 		E943860F2249D20F004E62A7 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E94386072249D20E004E62A7 /* libswscale.a */; };
 		E94386102249D20F004E62A7 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E94386082249D20F004E62A7 /* libcrypto.a */; };
+		E94F95A42258F51600C9E41C /* RightPanelViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E94F95A12258F51600C9E41C /* RightPanelViewController.h */; };
+		E94F95A52258F51600C9E41C /* RightPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E94F95A22258F51600C9E41C /* RightPanelViewController.m */; };
+		E94F95A62258F51600C9E41C /* RightPanelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E94F95A32258F51600C9E41C /* RightPanelViewController.xib */; };
+		E94F95AA2258F68400C9E41C /* RightPanelCollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = E94F95A72258F68400C9E41C /* RightPanelCollectionViewCell.h */; };
+		E94F95AB2258F68400C9E41C /* RightPanelCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E94F95A82258F68400C9E41C /* RightPanelCollectionViewCell.m */; };
+		E94F95AC2258F68400C9E41C /* RightPanelCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E94F95A92258F68400C9E41C /* RightPanelCollectionViewCell.xib */; };
 		E9530130223274B000137F79 /* CustomResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = E953012D223274AF00137F79 /* CustomResourceLoader.m */; };
 		E9530131223274B000137F79 /* CustomResourceLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = E953012E223274B000137F79 /* CustomResourceLoader.h */; };
 		E953FFF4222BB3DE00137F79 /* DanMuView.m in Sources */ = {isa = PBXBuildFile; fileRef = E953FFF0222BB3DC00137F79 /* DanMuView.m */; };
@@ -90,6 +96,24 @@
 		E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B3EBD21FD3C281006EB41C /* DanMuPlayer.h */; };
 		E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D195111FFF84F60096FCA4 /* DMPlaylist.h */; };
 		E9D195161FFF85DD0096FCA4 /* DMPlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D195151FFF85DD0096FCA4 /* DMPlaylist.m */; };
+		E9D2810822571390007710E2 /* LeftPanelViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D2810522571390007710E2 /* LeftPanelViewController.h */; };
+		E9D2810922571390007710E2 /* LeftPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D2810622571390007710E2 /* LeftPanelViewController.m */; };
+		E9D2810A22571390007710E2 /* LeftPanelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9D2810722571390007710E2 /* LeftPanelViewController.xib */; };
+		E9D2810D22571A77007710E2 /* PushLeftRightAnimator.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D2810B22571A77007710E2 /* PushLeftRightAnimator.h */; };
+		E9D2810E22571A77007710E2 /* PushLeftRightAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D2810C22571A77007710E2 /* PushLeftRightAnimator.m */; };
+		E9D2811122571C37007710E2 /* PopLeftRightAnimator.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D2810F22571C37007710E2 /* PopLeftRightAnimator.h */; };
+		E9D2811222571C37007710E2 /* PopLeftRightAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D2811022571C37007710E2 /* PopLeftRightAnimator.m */; };
+		E9D2811622571FB7007710E2 /* QuickSelectCollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D2811322571FB7007710E2 /* QuickSelectCollectionViewCell.h */; };
+		E9D2811722571FB7007710E2 /* QuickSelectCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D2811422571FB7007710E2 /* QuickSelectCollectionViewCell.m */; };
+		E9D2811822571FB7007710E2 /* QuickSelectCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9D2811522571FB7007710E2 /* QuickSelectCollectionViewCell.xib */; };
+		E9D2811B22578DAF007710E2 /* AVPlayerImplement.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D2811922578DAE007710E2 /* AVPlayerImplement.h */; };
+		E9D2811C22578DAF007710E2 /* AVPlayerImplement.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D2811A22578DAE007710E2 /* AVPlayerImplement.m */; };
+		E9D281252257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D281222257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.h */; };
+		E9D281262257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D281232257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.m */; };
+		E9D281272257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9D281242257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.xib */; };
+		E9D66EB222586A63007466C1 /* ContinuePlayViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D66EAF22586A63007466C1 /* ContinuePlayViewController.h */; };
+		E9D66EB322586A63007466C1 /* ContinuePlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D66EB022586A63007466C1 /* ContinuePlayViewController.m */; };
+		E9D66EB422586A63007466C1 /* ContinuePlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9D66EB122586A63007466C1 /* ContinuePlayViewController.xib */; };
 		E9E8F961223E2A2500B48D89 /* SelectionCollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = E9E8F95E223E2A2500B48D89 /* SelectionCollectionViewCell.h */; };
 		E9E8F962223E2A2500B48D89 /* SelectionCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E9E8F95F223E2A2500B48D89 /* SelectionCollectionViewCell.m */; };
 		E9E8F963223E2A2500B48D89 /* SelectionCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9E8F960223E2A2500B48D89 /* SelectionCollectionViewCell.xib */; };
@@ -163,6 +187,12 @@
 		E94386062249D20E004E62A7 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ijkplayer/ios/build/universal/lib/libssl.a; sourceTree = "<group>"; };
 		E94386072249D20E004E62A7 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswscale.a; path = ijkplayer/ios/build/universal/lib/libswscale.a; sourceTree = "<group>"; };
 		E94386082249D20F004E62A7 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ijkplayer/ios/build/universal/lib/libcrypto.a; sourceTree = "<group>"; };
+		E94F95A12258F51600C9E41C /* RightPanelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RightPanelViewController.h; sourceTree = "<group>"; };
+		E94F95A22258F51600C9E41C /* RightPanelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RightPanelViewController.m; sourceTree = "<group>"; };
+		E94F95A32258F51600C9E41C /* RightPanelViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RightPanelViewController.xib; sourceTree = "<group>"; };
+		E94F95A72258F68400C9E41C /* RightPanelCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RightPanelCollectionViewCell.h; sourceTree = "<group>"; };
+		E94F95A82258F68400C9E41C /* RightPanelCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RightPanelCollectionViewCell.m; sourceTree = "<group>"; };
+		E94F95A92258F68400C9E41C /* RightPanelCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RightPanelCollectionViewCell.xib; sourceTree = "<group>"; };
 		E953012D223274AF00137F79 /* CustomResourceLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomResourceLoader.m; sourceTree = "<group>"; };
 		E953012E223274B000137F79 /* CustomResourceLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomResourceLoader.h; sourceTree = "<group>"; };
 		E953FFF0222BB3DC00137F79 /* DanMuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DanMuView.m; sourceTree = "<group>"; };
@@ -211,6 +241,24 @@
 		E9B3EBD21FD3C281006EB41C /* DanMuPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DanMuPlayer.h; sourceTree = "<group>"; };
 		E9D195111FFF84F60096FCA4 /* DMPlaylist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DMPlaylist.h; sourceTree = "<group>"; };
 		E9D195151FFF85DD0096FCA4 /* DMPlaylist.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DMPlaylist.m; sourceTree = "<group>"; };
+		E9D2810522571390007710E2 /* LeftPanelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LeftPanelViewController.h; sourceTree = "<group>"; };
+		E9D2810622571390007710E2 /* LeftPanelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LeftPanelViewController.m; sourceTree = "<group>"; };
+		E9D2810722571390007710E2 /* LeftPanelViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LeftPanelViewController.xib; sourceTree = "<group>"; };
+		E9D2810B22571A77007710E2 /* PushLeftRightAnimator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushLeftRightAnimator.h; sourceTree = "<group>"; };
+		E9D2810C22571A77007710E2 /* PushLeftRightAnimator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PushLeftRightAnimator.m; sourceTree = "<group>"; };
+		E9D2810F22571C37007710E2 /* PopLeftRightAnimator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PopLeftRightAnimator.h; sourceTree = "<group>"; };
+		E9D2811022571C37007710E2 /* PopLeftRightAnimator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PopLeftRightAnimator.m; sourceTree = "<group>"; };
+		E9D2811322571FB7007710E2 /* QuickSelectCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuickSelectCollectionViewCell.h; sourceTree = "<group>"; };
+		E9D2811422571FB7007710E2 /* QuickSelectCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuickSelectCollectionViewCell.m; sourceTree = "<group>"; };
+		E9D2811522571FB7007710E2 /* QuickSelectCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QuickSelectCollectionViewCell.xib; sourceTree = "<group>"; };
+		E9D2811922578DAE007710E2 /* AVPlayerImplement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerImplement.h; sourceTree = "<group>"; };
+		E9D2811A22578DAE007710E2 /* AVPlayerImplement.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerImplement.m; sourceTree = "<group>"; };
+		E9D281222257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuickSelectHeaderViewCollectionReusableView.h; sourceTree = "<group>"; };
+		E9D281232257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuickSelectHeaderViewCollectionReusableView.m; sourceTree = "<group>"; };
+		E9D281242257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QuickSelectHeaderViewCollectionReusableView.xib; sourceTree = "<group>"; };
+		E9D66EAF22586A63007466C1 /* ContinuePlayViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContinuePlayViewController.h; sourceTree = "<group>"; };
+		E9D66EB022586A63007466C1 /* ContinuePlayViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ContinuePlayViewController.m; sourceTree = "<group>"; };
+		E9D66EB122586A63007466C1 /* ContinuePlayViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ContinuePlayViewController.xib; sourceTree = "<group>"; };
 		E9E8F95E223E2A2500B48D89 /* SelectionCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelectionCollectionViewCell.h; sourceTree = "<group>"; };
 		E9E8F95F223E2A2500B48D89 /* SelectionCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SelectionCollectionViewCell.m; sourceTree = "<group>"; };
 		E9E8F960223E2A2500B48D89 /* SelectionCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SelectionCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -381,6 +429,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		E94F95A02258F4AA00C9E41C /* RightPanel */ = {
+			isa = PBXGroup;
+			children = (
+				E94F95A12258F51600C9E41C /* RightPanelViewController.h */,
+				E94F95A22258F51600C9E41C /* RightPanelViewController.m */,
+				E94F95A32258F51600C9E41C /* RightPanelViewController.xib */,
+				E94F95A72258F68400C9E41C /* RightPanelCollectionViewCell.h */,
+				E94F95A82258F68400C9E41C /* RightPanelCollectionViewCell.m */,
+				E94F95A92258F68400C9E41C /* RightPanelCollectionViewCell.xib */,
+			);
+			path = RightPanel;
+			sourceTree = "<group>";
+		};
 		E959D39620A3006B0079E653 /* MPVPlayer */ = {
 			isa = PBXGroup;
 			children = (
@@ -422,12 +483,23 @@
 				E996F96A223B4D1E00AC233B /* IJKPlayerImplement.m */,
 				E9309EA6224A566D00CDB526 /* MPVPlayerImplement.h */,
 				E9309EA7224A566D00CDB526 /* MPVPlayerImplement.m */,
+				E9D2811922578DAE007710E2 /* AVPlayerImplement.h */,
+				E9D2811A22578DAE007710E2 /* AVPlayerImplement.m */,
 				E9A70026223DEB930067ECB7 /* CurrentMediaInfo.h */,
 				E9A70027223DEB930067ECB7 /* CurrentMediaInfo.m */,
 				E9EA073D2256203800E70551 /* PushDownAnimator.h */,
 				E9EA073E2256203800E70551 /* PushDownAnimator.m */,
 				E9EA0741225623BA00E70551 /* PopUPAnimator.h */,
 				E9EA0742225623BA00E70551 /* PopUPAnimator.m */,
+				E9D2810B22571A77007710E2 /* PushLeftRightAnimator.h */,
+				E9D2810C22571A77007710E2 /* PushLeftRightAnimator.m */,
+				E9D2810F22571C37007710E2 /* PopLeftRightAnimator.h */,
+				E9D2811022571C37007710E2 /* PopLeftRightAnimator.m */,
+				E9D66EAF22586A63007466C1 /* ContinuePlayViewController.h */,
+				E9D66EB022586A63007466C1 /* ContinuePlayViewController.m */,
+				E9D66EB122586A63007466C1 /* ContinuePlayViewController.xib */,
+				E94F95A02258F4AA00C9E41C /* RightPanel */,
+				E9D281042257135D007710E2 /* LeftPanel */,
 				E9A7002A223E15E00067ECB7 /* TopPanel */,
 			);
 			path = MergedPlayer;
@@ -490,6 +562,22 @@
 			path = SGPlayer;
 			sourceTree = "<group>";
 		};
+		E9D281042257135D007710E2 /* LeftPanel */ = {
+			isa = PBXGroup;
+			children = (
+				E9D2810522571390007710E2 /* LeftPanelViewController.h */,
+				E9D2810622571390007710E2 /* LeftPanelViewController.m */,
+				E9D2810722571390007710E2 /* LeftPanelViewController.xib */,
+				E9D2811322571FB7007710E2 /* QuickSelectCollectionViewCell.h */,
+				E9D2811422571FB7007710E2 /* QuickSelectCollectionViewCell.m */,
+				E9D2811522571FB7007710E2 /* QuickSelectCollectionViewCell.xib */,
+				E9D281222257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.h */,
+				E9D281232257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.m */,
+				E9D281242257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.xib */,
+			);
+			path = LeftPanel;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -502,11 +590,15 @@
 				E9A7001D223D2A760067ECB7 /* AudioInfoViewController.h in Headers */,
 				E9E8F98F223FAEDF00B48D89 /* PanelControlData.h in Headers */,
 				E9EA0743225623BA00E70551 /* PopUPAnimator.h in Headers */,
+				E9D2811622571FB7007710E2 /* QuickSelectCollectionViewCell.h in Headers */,
 				E9D195121FFF84F60096FCA4 /* DMPlaylist.h in Headers */,
 				E9B3EBBE1FD3A287006EB41C /* AbstractPlayer.h in Headers */,
 				E9E8F972223E44F300B48D89 /* EpisodeViewController.h in Headers */,
 				E996F96B223B4D1E00AC233B /* IJKPlayerImplement.h in Headers */,
+				E9D2810822571390007710E2 /* LeftPanelViewController.h in Headers */,
 				E9B3EBC41FD3A722006EB41C /* MMVideoSources.h in Headers */,
+				E94F95A42258F51600C9E41C /* RightPanelViewController.h in Headers */,
+				E9D2811B22578DAF007710E2 /* AVPlayerImplement.h in Headers */,
 				E9E8F978223E4AE800B48D89 /* LockupCollectionViewCell.h in Headers */,
 				E953FFF5222BB3DE00137F79 /* DanMuView.h in Headers */,
 				E9E8F96C223E2FFB00B48D89 /* headerCollectionReusableView.h in Headers */,
@@ -514,15 +606,20 @@
 				E9B3EBD31FD3C282006EB41C /* DanMuPlayer.h in Headers */,
 				E90F0A261EFA3F6700BC3EAD /* DanMuLayer.h in Headers */,
 				E9A70017223CDFEA0067ECB7 /* InfoPanelViewController.h in Headers */,
+				E9D281252257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.h in Headers */,
 				E9A70023223D39E30067ECB7 /* TopPanelViewController.h in Headers */,
 				E9E8FAAF224154F000B48D89 /* TabBarTransitionAnimator.h in Headers */,
 				E996F963223B4AE500AC233B /* PlayerProtocol.h in Headers */,
 				E9A70034223E1F690067ECB7 /* PlayerControlViewController.h in Headers */,
 				E9E8F961223E2A2500B48D89 /* SelectionCollectionViewCell.h in Headers */,
+				E9D2810D22571A77007710E2 /* PushLeftRightAnimator.h in Headers */,
 				E996F967223B4B8300AC233B /* VideoPlayerViewController.h in Headers */,
+				E94F95AA2258F68400C9E41C /* RightPanelCollectionViewCell.h in Headers */,
 				E9B3EBCE1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.h in Headers */,
 				E9EA073F2256203800E70551 /* PushDownAnimator.h in Headers */,
 				E90F0A201EFA3F6700BC3EAD /* StrokeUILabel.h in Headers */,
+				E9D2811122571C37007710E2 /* PopLeftRightAnimator.h in Headers */,
+				E9D66EB222586A63007466C1 /* ContinuePlayViewController.h in Headers */,
 				E90F0A221EFA3F6700BC3EAD /* DMPlayer.h in Headers */,
 				E9309EA8224A566D00CDB526 /* MPVPlayerImplement.h in Headers */,
 				E9A70028223DEB930067ECB7 /* CurrentMediaInfo.h in Headers */,
@@ -592,11 +689,17 @@
 				E9E8F963223E2A2500B48D89 /* SelectionCollectionViewCell.xib in Resources */,
 				E9A70019223CDFEA0067ECB7 /* InfoPanelViewController.xib in Resources */,
 				E9E8F97A223E4AE800B48D89 /* LockupCollectionViewCell.xib in Resources */,
+				E9D66EB422586A63007466C1 /* ContinuePlayViewController.xib in Resources */,
+				E9D281272257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.xib in Resources */,
 				E9E8F96E223E2FFB00B48D89 /* headerCollectionReusableView.xib in Resources */,
+				E94F95AC2258F68400C9E41C /* RightPanelCollectionViewCell.xib in Resources */,
 				E9A7001F223D2A760067ECB7 /* AudioInfoViewController.xib in Resources */,
 				E9E8F974223E44F300B48D89 /* EpisodeViewController.xib in Resources */,
+				E9D2811822571FB7007710E2 /* QuickSelectCollectionViewCell.xib in Resources */,
 				E9A70025223D39E30067ECB7 /* TopPanelViewController.xib in Resources */,
 				E9E8F97C223E4EB900B48D89 /* Assets.xcassets in Resources */,
+				E9D2810A22571390007710E2 /* LeftPanelViewController.xib in Resources */,
+				E94F95A62258F51600C9E41C /* RightPanelViewController.xib in Resources */,
 				E9A70036223E1F690067ECB7 /* PlayerControlViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -609,11 +712,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				E9EA07402256203800E70551 /* PushDownAnimator.m in Sources */,
+				E9D2811722571FB7007710E2 /* QuickSelectCollectionViewCell.m in Sources */,
+				E94F95AB2258F68400C9E41C /* RightPanelCollectionViewCell.m in Sources */,
+				E9D281262257A288007710E2 /* QuickSelectHeaderViewCollectionReusableView.m in Sources */,
 				E953FFF4222BB3DE00137F79 /* DanMuView.m in Sources */,
 				E9A70018223CDFEA0067ECB7 /* InfoPanelViewController.m in Sources */,
 				E9309EA9224A566D00CDB526 /* MPVPlayerImplement.m in Sources */,
 				E9A70035223E1F690067ECB7 /* PlayerControlViewController.m in Sources */,
 				E90F0A231EFA3F6700BC3EAD /* DMPlayer.m in Sources */,
+				E9D2810922571390007710E2 /* LeftPanelViewController.m in Sources */,
 				E90F0A211EFA3F6700BC3EAD /* StrokeUILabel.m in Sources */,
 				E9A7001E223D2A760067ECB7 /* AudioInfoViewController.m in Sources */,
 				E996F96C223B4D1E00AC233B /* IJKPlayerImplement.m in Sources */,
@@ -621,9 +728,14 @@
 				E9E8F96D223E2FFB00B48D89 /* headerCollectionReusableView.m in Sources */,
 				E9A70024223D39E30067ECB7 /* TopPanelViewController.m in Sources */,
 				E9530130223274B000137F79 /* CustomResourceLoader.m in Sources */,
+				E9D2811C22578DAF007710E2 /* AVPlayerImplement.m in Sources */,
+				E9D66EB322586A63007466C1 /* ContinuePlayViewController.m in Sources */,
 				E9E8F990223FAEDF00B48D89 /* PanelControlData.m in Sources */,
 				E9EA0744225623BA00E70551 /* PopUPAnimator.m in Sources */,
 				E996F968223B4B8300AC233B /* VideoPlayerViewController.m in Sources */,
+				E94F95A52258F51600C9E41C /* RightPanelViewController.m in Sources */,
+				E9D2811222571C37007710E2 /* PopLeftRightAnimator.m in Sources */,
+				E9D2810E22571A77007710E2 /* PushLeftRightAnimator.m in Sources */,
 				E90F0A241EFA3F6700BC3EAD /* SiriRemoteGestureRecognizer.m in Sources */,
 				E9B3EBCC1FD3C0D7006EB41C /* LazyCatAVPlayerViewController.m in Sources */,
 				E90F0A271EFA3F6700BC3EAD /* DanMuLayer.m in Sources */,
@@ -766,7 +878,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/DanMuPlayer/dependency",
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/dependency/mpv/include";
 				INFOPLIST_FILE = DanMuPlayer/Info.plist;
@@ -799,7 +910,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/DanMuPlayer/dependency",
 				);
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/dependency/mpv/include";
 				INFOPLIST_FILE = DanMuPlayer/Info.plist;

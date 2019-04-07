@@ -31,6 +31,7 @@
 @property (nonatomic, assign) BOOL mp4;
 @property (nonatomic, assign) CGSize size;
 @property (nonatomic) UIImage *image;
+@property (nonatomic, readwrite, strong) NSDictionary *imageHeaders;
 @property (nonatomic, assign) BOOL downloadImageFailed;
 -(instancetype)init;
 @end

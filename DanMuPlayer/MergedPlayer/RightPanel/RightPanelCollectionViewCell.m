@@ -17,8 +17,10 @@
         //        self.layer.borderColor = UIColor.blackColor.CGColor;
         //        self.layer.borderWidth = 0.0f;
         self.layer.backgroundColor = UIColor.clearColor.CGColor;
+        self.imageView.tintColor = UIColor.grayColor;
     } else {
         self.titleLabel.textColor = UIColor.whiteColor;
+        self.imageView.tintColor = UIColor.whiteColor;
         //        self.layer.borderColor = UIColor.orangeColor.CGColor;
         //        self.layer.borderWidth = 3.0f;
         self.layer.backgroundColor = UIColor.orangeColor.CGColor;

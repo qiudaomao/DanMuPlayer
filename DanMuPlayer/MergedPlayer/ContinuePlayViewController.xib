@@ -24,7 +24,9 @@
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OjC-Le-4dU">
                     <rect key="frame" x="843" y="834" width="234" height="86"/>
                     <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
-                    <state key="normal" title="继续播放"/>
+                    <state key="normal" title="继续播放">
+                        <color key="titleColor" red="1" green="0.57637232540000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </state>
                     <connections>
                         <action selector="buttonClicked:" destination="-1" eventType="primaryActionTriggered" id="F7s-Oq-lNo"/>
                     </connections>

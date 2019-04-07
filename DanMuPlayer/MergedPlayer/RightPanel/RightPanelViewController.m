@@ -13,11 +13,29 @@
     UITapGestureRecognizer *tapGestureRecognizer;
     UISwipeGestureRecognizer *swipeGestureRecognizer;
     BOOL dismissed;
+    NSMutableArray *playURLs;
+    NSInteger currentIndex;
+    clickCallBack clickCB;
+    BOOL initScrolled;
 }
 @end
 
 @implementation RightPanelViewController
 @synthesize title = _title;
+
+- (void)setupPlayURLs:(NSMutableArray*)playURLs_
+         currentIndex:(NSInteger)currentIndex_ {
+    playURLs = playURLs_;
+    currentIndex = currentIndex_;
+}
+
+- (void)setCallBack:(clickCallBack)clickCallBack {
+    clickCB = clickCallBack;
+}
+
+- (void)reload {
+    [self.collectionView reloadData];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -27,10 +45,13 @@
     NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
     UINib *selectionNib = [UINib nibWithNibName:@"RightPanelCollectionViewCell" bundle:bundle];
     [self.collectionView registerNib:selectionNib forCellWithReuseIdentifier:@"RightPanelCollectionViewCell"];
+    self.collectionView.remembersLastFocusedIndexPath = YES;
     self.titleLabel.text = self.title;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    dismissed = NO;
+    initScrolled = NO;
     tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapKey:)];
     tapGestureRecognizer.allowedPressTypes = @[
                                                @(UIPressTypeRightArrow),
@@ -39,12 +60,19 @@
     [self.view addGestureRecognizer:tapGestureRecognizer];
     
     swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipRight:)];
-    if (_left) {
-        [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
-    } else {
-        [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
-    }
+    [swipeGestureRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
     [self.view addGestureRecognizer:swipeGestureRecognizer];
+}
+
+- (void)viewDidLayoutSubviews {
+    if (initScrolled) return;
+    initScrolled = YES;
+    if (playURLs && playURLs.count > 0 && currentIndex >= 0 && currentIndex < playURLs.count) {
+        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:currentIndex inSection:0];
+        [_collectionView scrollToItemAtIndexPath:indexPath
+                                atScrollPosition:UICollectionViewScrollPositionCenteredVertically
+                                        animated:NO];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -53,7 +81,6 @@
 }
 
 - (void)swipRight:(UISwipeGestureRecognizer*)sender {
-    NSLog(@"swipUp");
     [self dissmiss];
 }
 
@@ -73,7 +100,10 @@
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return 20;
+    if (playURLs) {
+        return playURLs.count;
+    }
+    return 0;
 }
 
 // The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
@@ -83,6 +113,20 @@
     //    cell.layer.borderWidth = 1.0f;
     //    cell.layer.borderColor = UIColor.blackColor.CGColor;
     cell.titleLabel.textColor = UIColor.grayColor;
+    NSDictionary *dict = [playURLs objectAtIndex:indexPath.item];
+    NSString *name = [dict objectForKey:@"name"];
+    UIImage *img = [UIImage imageNamed:@"selection"];
+    UIImage *templateImg = [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    cell.imageView.image = templateImg;
+    if (indexPath.item == currentIndex) {
+        cell.imageView.alpha = 1.0;
+    } else {
+        cell.imageView.alpha = 0.0;
+    }
+    if (name == nil) {
+        name = [NSString stringWithFormat:@"链接%lu", indexPath.item+1];
+    }
+    cell.titleLabel.text = name;
     return cell;
 }
 
@@ -98,18 +142,15 @@
     return CGSizeMake(370, 100);
 }
 
-/*
- - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
- if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
- RightPanelCollectionViewCell *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"QuickSelectHeaderViewCollectionReusableView" forIndexPath:indexPath];
- view.titleLabel.text = @"选择一个";
- return view;
- }
- return nil;
- }
- */
-
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"didSelectItemAtIndexPath %lu", indexPath.item);
+    currentIndex = indexPath.item;
+    [collectionView reloadData];
+    clickCB(indexPath.item);
 }
 
+- (NSIndexPath *)indexPathForPreferredFocusedViewInCollectionView:(UICollectionView *)collectionView {
+    NSIndexPath *path = [NSIndexPath indexPathForItem:currentIndex inSection:0];
+    return path;
+}
 @end

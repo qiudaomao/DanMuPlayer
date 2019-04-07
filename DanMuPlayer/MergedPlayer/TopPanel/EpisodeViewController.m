@@ -27,6 +27,7 @@
     NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
     UINib *selectionNib = [UINib nibWithNibName:@"LockupCollectionViewCell" bundle:bundle];
     [self.collectionView registerNib:selectionNib forCellWithReuseIdentifier:@"LockupCollectionViewCell"];
+    self.collectionView.remembersLastFocusedIndexPath = YES;
     
     UICollectionViewFlowLayout *layout = UICollectionViewFlowLayout.new;
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
@@ -48,6 +49,7 @@
                                         animated:NO];
     }
 }
+
 - (void)setupPlayList:(DMPlaylist*)playlist_ clickCallBack:(clickCallBack)callback_ focusIndex:(NSInteger)focusIndex_ {
     playlist = playlist_;
     buttonCallback = callback_;
@@ -95,6 +97,12 @@
             NSURL *url = [NSURL URLWithString:item.artworkImageURL];
             NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
             [request setValue:@"" forHTTPHeaderField:@"User-Agent"];
+            if (item.imageHeaders) {
+                for (NSString *key in item.imageHeaders.allKeys) {
+                    NSString *value = [item.imageHeaders objectForKey:key];
+                    [request setValue:value forHTTPHeaderField:key];
+                }
+            }
             NSURLSession *session = NSURLSession.sharedSession;
             NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
                 if (!error && data) {
@@ -136,5 +144,10 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"select item %lu %lu", indexPath.section, indexPath.item);
     buttonCallback(indexPath.item);
+}
+
+- (NSIndexPath *)indexPathForPreferredFocusedViewInCollectionView:(UICollectionView *)collectionView {
+    NSIndexPath *path = [NSIndexPath indexPathForItem:focusIndex inSection:0];
+    return path;
 }
 @end

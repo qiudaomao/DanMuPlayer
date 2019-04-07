@@ -1,6 +1,6 @@
 //
 //  VideoPlayerViewController.m
-//  DanMuPlayer
+//  The UI front-end of DanMuPlayer
 //
 //  Created by zfu on 2019/3/15.
 //  Copyright © 2019 zfu. All rights reserved.
@@ -11,9 +11,6 @@
 #import "MPVPlayerImplement.h"
 #import "AVPlayerImplement.h"
 #import "SiriRemoteGestureRecognizer.h"
-//#import <objc/runtime.h>
-//#import <objc/message.h>
-//#import "InfoPanelViewController.h"
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import "AudioInfoViewController.h"
@@ -97,8 +94,13 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     
     BOOL processed;
     NSTimeInterval _resumeTime;
+    NSTimeInterval _changeSourceResumeTime;
     BOOL preventQuitUI;
     NSInteger targetMediaIndex;
+    NSMutableArray *playURLs;
+    NSInteger playURLIndex;
+    RightPanelViewController *rightVC;
+    LeftPanelViewController *leftVC;
 }
 @end
 
@@ -117,6 +119,8 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    playURLs = [NSMutableArray array];
+    playURLIndex = 0;
     preventQuitUI = NO;
     _resumeTime = 0;
     pushDownAnimator = PushDownAnimator.new;
@@ -503,7 +507,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 
 -(UIViewController *) topMostController {
     UIViewController *topController = UIApplication.sharedApplication.keyWindow.rootViewController;
-    while(topController.presentedViewController){
+    while (topController.presentedViewController){
         topController=topController.presentedViewController;
     }
     return topController;
@@ -525,6 +529,8 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
                 self->preventQuitUI = YES;
                 //set target
                 self->targetMediaIndex = index;
+                [self->playURLs removeAllObjects];
+                self->currentMediaIndex = 0;
                 [self->player_ stop];
             } else {
                 NSLog(@"select the same item, no need to change");
@@ -539,24 +545,55 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 
 - (void)presentLeftPanel {
     NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
-    LeftPanelViewController *leftVC = [[LeftPanelViewController alloc] initWithNibName:@"LeftPanelViewController" bundle:bundle];
+    if (leftVC == nil) {
+        leftVC = [[LeftPanelViewController alloc] initWithNibName:@"LeftPanelViewController" bundle:bundle];
+        leftVC.transitioningDelegate = self;
+        leftVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        leftVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        leftVC.title = @"播放列表";
+    }
+    [leftVC setupPlayList:playlist clickCallBack:^void(NSInteger index) {
+        NSLog(@"button list click %lu", index);
+        if (self->targetMediaIndex != index) {
+            self->preventQuitUI = YES;
+            //set target
+            self->targetMediaIndex = index;
+            [self->playURLs removeAllObjects];
+            self->currentMediaIndex = 0;
+            [self->player_ stop];
+        } else {
+            NSLog(@"select the same item, no need to change");
+        }
+    } currentIndex:currentMediaIndex];
     UIViewController *top = [self topMostController];
-    leftVC.transitioningDelegate = self;
-    leftVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-    leftVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-    leftVC.title = @"播放列表";
     [top presentViewController:leftVC animated:YES completion:^{
     }];
 }
 
 - (void)presentRightPanel {
     NSBundle *bundle = [NSBundle bundleWithIdentifier:@"com.fuzhuo.DanMuPlayer"];
-    RightPanelViewController *rightVC = [[RightPanelViewController alloc] initWithNibName:@"RightPanelViewController" bundle:bundle];
+    if (rightVC == nil) {
+        rightVC = [[RightPanelViewController alloc] initWithNibName:@"RightPanelViewController" bundle:bundle];
+        rightVC.transitioningDelegate = self;
+        rightVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        rightVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        rightVC.title = @"播放链接";
+        [rightVC setupPlayURLs:playURLs currentIndex:playURLIndex];
+        [rightVC setCallBack:^(NSInteger index) {
+            NSLog(@"right panel select from %lu to %lu", self->playURLIndex, index);
+            self->playURLIndex = index;
+            if (self->player_.currentTime > 0 && self->isPlaying) {
+                NSTimeInterval sTime = self->player_.currentTime;
+                self->_changeSourceResumeTime = sTime;
+                NSLog(@"_changeSourceResumeTime is %.2f", sTime);
+            } else {
+                NSLog(@"not saving current change source resume time");
+            }
+            self->preventQuitUI = YES;
+            [self->player_ stop];
+        }];
+    }
     UIViewController *top = [self topMostController];
-    rightVC.transitioningDelegate = self;
-    rightVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-    rightVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-    rightVC.title = @"播放链接";
     [top presentViewController:rightVC animated:YES completion:^{
     }];
 }
@@ -697,13 +734,23 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
         DMMediaItem *item = self.playlist.items[index];
         self.currentMediaIndex = index;
         targetMediaIndex = index;
-        if (self.parser && !self.parser.isUndefined && !self.parser.isNull) {
+        if (playURLs.count==0 && self.parser && !self.parser.isUndefined && !self.parser.isNull) {
+            NSLog(@"no playURLs try get from parser");
             [self.parser.context[@"setTimeout"] callWithArguments:@[self.parser, @(0), item, @(index),
                                                                     ^void (JSValue *error, JSValue *playableURLs, NSInteger preferedIndex, JSValue *webURL) {
                 if (error && !error.isNull && error.isString) {
                     NSLog(@"parser error %@", error.toString);
                     [self onError:error.toString];
                 } else if (playableURLs && !playableURLs.isNull && playableURLs.isArray && playableURLs.toArray.count>preferedIndex) {
+                    [self->playURLs removeAllObjects];
+                    for (NSDictionary *item in playableURLs.toArray) {
+                        [self->playURLs addObject:item];
+                    }
+                    if (self->rightVC) {
+                        [self->rightVC setupPlayURLs:self->playURLs currentIndex:preferedIndex];
+                        [self->rightVC reload];
+                    }
+                    self->playURLIndex = preferedIndex;
                     JSValue *value = [playableURLs objectAtIndexedSubscript:preferedIndex];
                     NSMutableDictionary *options = [item.options mutableCopy];
                     NSString *url = item.url;
@@ -728,16 +775,39 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
                 }
             }]];
         } else {
-            NSString *url = item.url;
-            if (url.length > 0) {
-                NSMutableDictionary *options = [item.options mutableCopy];
-                [self playVideo:item.url
+            if (playURLs.count > playURLIndex) {
+                NSLog(@"already have playURLs not need to parser");
+                NSDictionary *dict = [playURLs objectAtIndex:playURLIndex];
+                NSMutableDictionary *options = nil;
+                NSString *url = item.url;
+                if ([dict.allKeys containsObject:@"url"]) {
+                    url = [dict objectForKey:@"url"];
+                }
+                if ([dict.allKeys containsObject:@"options"]) {
+                    options = [dict objectForKey:@"options"];
+                }
+                [self playVideo:url
                       withTitle:item.title
                         withImg:item.artworkImageURL
                  withDesciption:item.description
                         options:options
                             mp4:item.mp4
                  withResumeTime:item.resumeTime];
+            } else {
+                NSString *url = item.url;
+                if (url.length > 0) {
+                    NSLog(@"direct play url from item: %@", item.url);
+                    NSMutableDictionary *options = [item.options mutableCopy];
+                    [self playVideo:item.url
+                          withTitle:item.title
+                            withImg:item.artworkImageURL
+                     withDesciption:item.description
+                            options:options
+                                mp4:item.mp4
+                     withResumeTime:item.resumeTime];
+                } else {
+                    [self onError:@"No valid playable URL"];
+                }
             }
         }
     }
@@ -777,9 +847,23 @@ withStrokeColor:(UIColor*)bgcolor
     center.nowPlayingInfo = nil;
     //check if need auto play next here
     if (!preventQuitUI) {
-        [self dismissViewControllerAnimated:NO completion:^{
-            NSLog(@"finish dismiss VideoPlayerViewController");
-        }];
+        //check the top controller
+        UIViewController *controller = [self topMostController];
+        if ([controller isKindOfClass:NSClassFromString(@"VideoPlayerViewController")]) {
+            [self dismissViewControllerAnimated:NO completion:^{
+                NSLog(@"finish dismiss VideoPlayerViewController");
+            }];
+        } else {
+            NSLog(@"VideoPlayerViewController not on top, not quit");
+            __weak typeof(self) weakSelf = self;
+            [controller dismissViewControllerAnimated:YES completion:^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakSelf dismissViewControllerAnimated:NO completion:^{
+                        NSLog(@"finish dismiss VideoPlayerViewController");
+                    }];
+                });
+            }];
+        }
     } else {
         preventQuitUI = NO;
         NSLog(@"change preventQuitUI to NO");
@@ -819,7 +903,14 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)onPlay {
-    if (_resumeTime > 0) {
+    BOOL forceSeek = NO;
+    if (_changeSourceResumeTime > 0) {
+        NSLog(@"seek to %.2f for _changeSourceResumeTime", _changeSourceResumeTime);
+        [player_ seekToTime:_changeSourceResumeTime];
+        forceSeek = YES;
+        _changeSourceResumeTime = 0;
+    }
+    if (!forceSeek && _resumeTime > 0) {
         [self showContinuePlay:_resumeTime];
         _resumeTime = 0;
     }
@@ -833,13 +924,10 @@ withStrokeColor:(UIColor*)bgcolor
     });
 }
 
-- (void)videSizeChanged:(CGSize)size {
-}
-
 - (void)setupRecognizers {
     recognizers = [NSMutableArray array];
     NSArray<NSNumber*> *types = @[@(UIPressTypeMenu),
-                                  //                                  @(UIPressTypeSelect),
+                                  //@(UIPressTypeSelect),
                                   @(UIPressTypeUpArrow),
                                   @(UIPressTypeDownArrow),
                                   @(UIPressTypeLeftArrow),
@@ -869,8 +957,8 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)siriTouch:(SiriRemoteGestureRecognizer*)sender {
-    //    NSLog(@"taped siriRemote state: %ld %@ location %ld %@",
-    //          (long)sender.state, sender.stateName, (long)sender.touchLocation, sender.touchLocationName);
+    //NSLog(@"taped siriRemote state: %ld %@ location %ld %@",
+    //(long)sender.state, sender.stateName, (long)sender.touchLocation, sender.touchLocationName);
     NSLog(@"taped siriRemote state: %@ click %d", sender.stateName, sender.isClick);
     if (sender.state == UIGestureRecognizerStateEnded && sender.isClick) {
         //NSLog(@"taped siriRemote, location %@", sender.touchLocationName);
@@ -888,7 +976,7 @@ withStrokeColor:(UIColor*)bgcolor
         }
         siriRemoteActive = NO;
     } else if (sender.state == UIGestureRecognizerStateBegan) {
-        //        [self stopAndShowTimer];
+        //[self stopAndShowTimer];
         prevPanLocation = sender.location;
         beganPanLocation = sender.location;
         NSLog(@"siri remote state began");
@@ -951,13 +1039,15 @@ withStrokeColor:(UIColor*)bgcolor
             return;
         }
         //swap hide
-        if (sender.state == UIGestureRecognizerStateCancelled && !inHiddenChangeProgress) {
-            NSLog(@"hudView hidden %@", @(hudView.hidden));
-            if (hudView.hidden) {
-                [self stopAndShowTimer];
-                [self resetHideTimer];
-            } else {
-                [self stopAndHideTimer];
+        if (!processed) {
+            if (sender.state == UIGestureRecognizerStateCancelled && !inHiddenChangeProgress) {
+                NSLog(@"hudView hidden %@", @(hudView.hidden));
+                if (hudView.hidden) {
+                    [self stopAndShowTimer];
+                    [self resetHideTimer];
+                } else {
+                    [self stopAndHideTimer];
+                }
             }
         }
     }

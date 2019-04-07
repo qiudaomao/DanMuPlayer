@@ -22,6 +22,7 @@
 @synthesize downloadImageFailed;
 @synthesize priv;
 @synthesize type;
+@synthesize imageHeaders;
 
 -(instancetype)init {
     self = [super init];
@@ -31,6 +32,7 @@
     self.image = nil;
     self.downloadImageFailed = NO;
     self.type = @"video";
+    self.imageHeaders = nil;
     return self;
 }
 

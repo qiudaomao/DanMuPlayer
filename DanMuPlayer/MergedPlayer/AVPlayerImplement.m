@@ -119,7 +119,8 @@
         if (current > duration) current=duration;
         NSLog(@"time %.2f/%.2f", current, duration);
         if (weakSelf.delegate && current > 0.0f) {
-            [weakSelf.delegate updateProgress:current playableTime:0 buffering:NO total:duration];
+            NSTimeInterval playable = [weakSelf playableTime];
+            [weakSelf.delegate updateProgress:current playableTime:playable buffering:NO total:duration];
         }
     }];
     [player setActionAtItemEnd:AVPlayerActionAtItemEndNone];

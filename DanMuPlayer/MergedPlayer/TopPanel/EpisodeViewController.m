@@ -143,7 +143,10 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"select item %lu %lu", indexPath.section, indexPath.item);
-    buttonCallback(indexPath.item);
+    if (focusIndex != indexPath.item) {
+        focusIndex = indexPath.item;
+        buttonCallback(indexPath.item);
+    }
 }
 
 - (NSIndexPath *)indexPathForPreferredFocusedViewInCollectionView:(UICollectionView *)collectionView {

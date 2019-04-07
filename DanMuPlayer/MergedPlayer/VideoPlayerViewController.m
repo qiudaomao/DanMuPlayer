@@ -37,8 +37,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 };
 
 @interface VideoPlayerViewController () {
-    id<PlayerProtocol> player_;
-    
+
     UIProgressView *_progress;
     StrokeUILabel *_title;
     StrokeUILabel *_currentTime;
@@ -102,6 +101,8 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     RightPanelViewController *rightVC;
     LeftPanelViewController *leftVC;
 }
+
+@property (nonatomic, readwrite, strong) id<PlayerProtocol> player_;
 @end
 
 @implementation VideoPlayerViewController
@@ -115,6 +116,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 @synthesize parser;
 @synthesize currentMediaIndex;
 @synthesize playlist;
+@synthesize player_ = _player_;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -138,7 +140,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     displayLink.paused = YES;
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     self.view.backgroundColor = UIColor.blackColor;
-    player_ = nil;
+    _player_ = nil;
     [self initHud];
     inHiddenChangeProgress = NO;
     seekTargetTime = -1;
@@ -157,7 +159,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 
 - (void)applicationWillResignActive:(NSNotification*)note {
     if (isPlaying) {
-        [player_ pause];
+        [_player_ pause];
     }
 }
 
@@ -165,8 +167,8 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 {
     //here should read currentTime
 //    [self.delegate updateProgressHD];
-    [self.delegate timeDidChangedHD:player_.currentTime];
-    [self updatePointTime:player_.currentTime duration:player_.duration];
+    [self.delegate timeDidChangedHD:_player_.currentTime];
+    [self updatePointTime:_player_.currentTime duration:_player_.duration];
     [self.danmu updateFrame];
 }
 
@@ -427,23 +429,23 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     switch (event) {
         case HUDKeyEventMenu:
             if (!isPlaying && !isError && playReady) {
-                [player_ play];
+                [_player_ play];
             } else {
                 [self stop];
             }
             break;
         case HUDKeyEventLeft:
             if (isPlaying) {
-                if (player_.currentTime > 10) {
-                    [player_ seekToTime:player_.currentTime-10.0];
+                if (_player_.currentTime > 10) {
+                    [_player_ seekToTime:_player_.currentTime-10.0];
                 } else {
-                    [player_ seekToTime:0];
+                    [_player_ seekToTime:0];
                 }
             } else if (playReady) {
                 CGRect frame = seekImageFrame;
                 CGRect pauseLabelFrame = pauseTimeLabel.frame;
                 frame.origin.x -= 30;
-                NSTimeInterval duration = player_.duration;
+                NSTimeInterval duration = _player_.duration;
                 if (frame.origin.x < _progress.frame.origin.x) {
                     frame.origin.x = _progress.frame.origin.x;
                 } else if (frame.origin.x > _progress.frame.origin.x + _progress.frame.size.width) {
@@ -466,14 +468,14 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
             break;
         case HUDKeyEventRight:
             if (isPlaying) {
-                if (player_.currentTime < player_.duration - 10) {
-                    [player_ seekToTime:player_.currentTime+10.0];
+                if (_player_.currentTime < _player_.duration - 10) {
+                    [_player_ seekToTime:_player_.currentTime+10.0];
                 }
             } else if (playReady){
                 CGRect frame = seekImageFrame;
                 CGRect pauseLabelFrame = pauseTimeLabel.frame;
                 frame.origin.x += 30;
-                NSTimeInterval duration = player_.duration;
+                NSTimeInterval duration = _player_.duration;
                 if (frame.origin.x < _progress.frame.origin.x) {
                     frame.origin.x = _progress.frame.origin.x;
                 } else if (frame.origin.x > _progress.frame.origin.x + _progress.frame.size.width) {
@@ -531,7 +533,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
                 self->targetMediaIndex = index;
                 [self->playURLs removeAllObjects];
                 self->currentMediaIndex = 0;
-                [self->player_ stop];
+                [self->_player_ stop];
             } else {
                 NSLog(@"select the same item, no need to change");
             }
@@ -560,7 +562,7 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
             self->targetMediaIndex = index;
             [self->playURLs removeAllObjects];
             self->currentMediaIndex = 0;
-            [self->player_ stop];
+            [self->_player_ stop];
         } else {
             NSLog(@"select the same item, no need to change");
         }
@@ -579,18 +581,19 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
         rightVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         rightVC.title = @"播放链接";
         [rightVC setupPlayURLs:playURLs currentIndex:playURLIndex];
+        __weak typeof(self) weakSelf = self;
         [rightVC setCallBack:^(NSInteger index) {
-            NSLog(@"right panel select from %lu to %lu", self->playURLIndex, index);
+//            NSLog(@"right panel select from %lu to %lu", self->playURLIndex, index);
             self->playURLIndex = index;
-            if (self->player_.currentTime > 0 && self->isPlaying) {
-                NSTimeInterval sTime = self->player_.currentTime;
+            if (self->_player_.currentTime > 0 && self->isPlaying) {
+                NSTimeInterval sTime = weakSelf.player_.currentTime;
                 self->_changeSourceResumeTime = sTime;
                 NSLog(@"_changeSourceResumeTime is %.2f", sTime);
             } else {
                 NSLog(@"not saving current change source resume time");
             }
             self->preventQuitUI = YES;
-            [self->player_ stop];
+            [weakSelf.player_ stop];
         }];
     }
     UIViewController *top = [self topMostController];
@@ -599,19 +602,19 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 }
 
 -(void)pause {
-    if (player_) {
+    if (_player_) {
         [self.delegate playStateDidChanged:PS_PAUSED];
-        [player_ pause];
+        [_player_ pause];
     }
 }
 
 -(void)play {
-    if (player_) {
+    if (_player_) {
         [self.delegate playStateDidChanged:PS_PLAYING];
-        [player_ play];
+        [_player_ play];
         //check seek
         if (seekTargetTime > 0) {
-            [player_ seekToTime:seekTargetTime];
+            [_player_ seekToTime:seekTargetTime];
             seekTargetTime = -1;
         }
     }
@@ -620,15 +623,15 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
 -(void)stop {
     if (stopped) return;
     stopped = YES;
-    if (player_) {
+    if (_player_) {
         [self.delegate playStateDidChanged:PS_FINISH];
-        [player_ stop];
+        [_player_ stop];
     }
 }
 
 -(void)seekToTime:(CGFloat)time {
-    if (player_) {
-        [player_ seekToTime:time];
+    if (_player_) {
+        [_player_ seekToTime:time];
     }
 }
 
@@ -676,36 +679,40 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
     currentMediaInfo.fps = -1;
     currentMediaInfo.duration = -1;
     [self downloadArtWork];
-    if (player_) {
+    if (_player_) {
         //remove anything of previous player
-        NSLog(@"Error, player_ should already destroy before new play");
+        NSLog(@"Error, _player_ should already destroy before new play");
         return;
     }
-    if ([playerType isEqualToString:@"IJKPlayer"]) {
-        player_ = [[IJKPlayerImplement alloc] init];
-    } else if ([playerType isEqualToString:@"MPVPlayer"]) {
-        player_ = [[MPVPlayerImplement alloc] init];
-    } else if ([playerType isEqualToString:@"AVPlayer"]){
-        player_ = [[AVPlayerImplement alloc] init];
-    } else {
-        player_ = [[IJKPlayerImplement alloc] init];
+    if ([options.allKeys containsObject:@"player"]) {
+        playerType = [options objectForKey:@"player"];
     }
-    [player_ playVideo:url
+    NSLog(@"playVideo with player type %@", playerType);
+    if ([playerType isEqualToString:@"IJKPlayer"]) {
+        _player_ = [[IJKPlayerImplement alloc] init];
+    } else if ([playerType isEqualToString:@"MPVPlayer"]) {
+        _player_ = [[MPVPlayerImplement alloc] init];
+    } else if ([playerType isEqualToString:@"AVPlayer"]){
+        _player_ = [[AVPlayerImplement alloc] init];
+    } else {
+        _player_ = [[IJKPlayerImplement alloc] init];
+    }
+    [_player_ playVideo:url
              withTitle:title
                withImg:img
         withDesciption:desc
                options:options
                    mp4:mp4
         withResumeTime:resumeTime];
-    player_.delegate = self;
-    [self.view insertSubview:player_.videoView belowSubview:hudView];
-    player_.videoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    player_.videoView.frame = self.view.bounds;
+    _player_.delegate = self;
+    [self.view insertSubview:_player_.videoView belowSubview:hudView];
+    _player_.videoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _player_.videoView.frame = self.view.bounds;
     if (resumeTime > 0) {
         _resumeTime = resumeTime;
-        [player_ play];
+        [_player_ play];
     } else {
-        [player_ play];
+        [_player_ play];
     }
     [self setupRemoteCommand];
 }
@@ -798,6 +805,12 @@ typedef NS_ENUM(NSUInteger, HUDKeyEvent) {
                 if (url.length > 0) {
                     NSLog(@"direct play url from item: %@", item.url);
                     NSMutableDictionary *options = [item.options mutableCopy];
+                    [playURLs addObject:@{
+                                          @"url": item.url,
+                                          @"name": @"默认链接",
+                                          @"options": (item.options)?item.options:@{}
+                                          }];
+                    playURLIndex = 0;
                     [self playVideo:item.url
                           withTitle:item.title
                             withImg:item.artworkImageURL
@@ -869,8 +882,8 @@ withStrokeColor:(UIColor*)bgcolor
         NSLog(@"change preventQuitUI to NO");
         __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self->player_.videoView removeFromSuperview];
-            self->player_ = nil;
+            [self->_player_.videoView removeFromSuperview];
+            self->_player_ = nil;
             [weakSelf playItemAtIndex:self->targetMediaIndex];
         });
     }
@@ -895,7 +908,7 @@ withStrokeColor:(UIColor*)bgcolor
     isPlaying = NO;
     displayLink.paused = YES;
     [self stopHideTimer];
-    if (player_.duration > 0) {
+    if (_player_.duration > 0) {
         pauseTimeLabel.hidden = NO;
         pauseTimeLabel.text = _pointTime.text;
         pauseImageView.hidden = NO;
@@ -906,7 +919,7 @@ withStrokeColor:(UIColor*)bgcolor
     BOOL forceSeek = NO;
     if (_changeSourceResumeTime > 0) {
         NSLog(@"seek to %.2f for _changeSourceResumeTime", _changeSourceResumeTime);
-        [player_ seekToTime:_changeSourceResumeTime];
+        [_player_ seekToTime:_changeSourceResumeTime];
         forceSeek = YES;
         _changeSourceResumeTime = 0;
     }
@@ -995,7 +1008,7 @@ withStrokeColor:(UIColor*)bgcolor
             CGRect frame = seekImageFrame;
             CGRect pauseLabelFrame = pauseTimeLabel.frame;
             frame.origin.x += distence.x * 300;
-            NSTimeInterval duration = player_.duration;
+            NSTimeInterval duration = _player_.duration;
             if (frame.origin.x < _progress.frame.origin.x) {
                 frame.origin.x = _progress.frame.origin.x;
             } else if (frame.origin.x > _progress.frame.origin.x + _progress.frame.size.width) {
@@ -1185,8 +1198,8 @@ withStrokeColor:(UIColor*)bgcolor
 
 - (MPRemoteCommandHandlerStatus)remoteSkipForward {
     if (isPlaying) {
-        if (player_.currentTime < player_.duration - 15) {
-            [player_ seekToTime:player_.currentTime + 15.0f];
+        if (_player_.currentTime < _player_.duration - 15) {
+            [_player_ seekToTime:_player_.currentTime + 15.0f];
         }
     }
     return MPRemoteCommandHandlerStatusSuccess;
@@ -1194,10 +1207,10 @@ withStrokeColor:(UIColor*)bgcolor
 
 - (MPRemoteCommandHandlerStatus)remoteSkipBackward {
     if (isPlaying) {
-        if (player_.currentTime > 15.0f) {
-            [player_ seekToTime:player_.currentTime - 15.0f];
+        if (_player_.currentTime > 15.0f) {
+            [_player_ seekToTime:_player_.currentTime - 15.0f];
         } else {
-            [player_ seekToTime:0];
+            [_player_ seekToTime:0];
         }
     }
     return MPRemoteCommandHandlerStatusSuccess;
@@ -1251,13 +1264,13 @@ withStrokeColor:(UIColor*)bgcolor
 }
 
 - (void)onPanelChangePlaySpeedMode:(PlaySpeedMode)speedMode {
-    if ([player_ respondsToSelector:@selector(changeSpeedMode:)]) {
-        [player_ changeSpeedMode:speedMode];
+    if ([_player_ respondsToSelector:@selector(changeSpeedMode:)]) {
+        [_player_ changeSpeedMode:speedMode];
     }
 }
 - (void)onPanelChangePlayScaleMode:(PlayScaleMode)scaleMode {
-    if ([player_ respondsToSelector:@selector(changeScaleMode:)]) {
-        [player_ changeScaleMode:scaleMode];
+    if ([_player_ respondsToSelector:@selector(changeScaleMode:)]) {
+        [_player_ changeScaleMode:scaleMode];
     }
 }
 - (void)onPanelChangeDanMuMode:(PlayDanMuMode)danmuMode {

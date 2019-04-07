@@ -144,9 +144,11 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"didSelectItemAtIndexPath %lu", indexPath.item);
-    currentIndex = indexPath.item;
-    [collectionView reloadData];
-    clickCB(indexPath.item);
+    if (currentIndex != indexPath.item) {
+        currentIndex = indexPath.item;
+        [collectionView reloadData];
+        clickCB(indexPath.item);
+    }
 }
 
 - (NSIndexPath *)indexPathForPreferredFocusedViewInCollectionView:(UICollectionView *)collectionView {
